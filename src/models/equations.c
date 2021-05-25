@@ -662,8 +662,8 @@ void Tiles_Reservoirs(double t, const double * const y_i, unsigned int dim, cons
     ans[1] = 0.0;
     ans[2] = 0.0;
     ans[3] = 0.0;
-    ans[4] = 0.0;
-    ans[5] = 0.0;
+    //ans[4] = 0.0;
+    //ans[5] = 0.0;
 }
 
 void TilesModel(double t, const double * const y_i, unsigned int dim, const double * const y_p, unsigned short num_parents, unsigned int max_dim, const double * const global_params, const double * const params, const double * const forcing_values, const QVSData * const qvs, int state, void* user, double *ans)
@@ -726,8 +726,8 @@ void TilesModel(double t, const double * const y_i, unsigned int dim, const doub
     }    
     //q_outT = d * pow(s_t, a_r);                               // Tile bring water regardless of the level of the subsurface level
     //q_outT = d * s_t;
-    ans[4] = q_in;              // Temporal (records the rain
-    ans[5] = q_sLink;                                            // Total tile outflow
+    //ans[4] = q_in;              // Temporal (records the rain
+    //ans[5] = q_sLink;                                            // Total tile outflow
     //Evaporation
     double C_p = s_p;
     double C_l = s_l/t_L;
