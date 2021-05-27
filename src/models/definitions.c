@@ -1505,7 +1505,7 @@ void InitRoutines(
         else    link->differential = &TilesModel;
         link->algebraic = NULL;
         link->check_state = NULL;
-        link->check_consistency = &CheckConsistency_Nonzero_AllStates_q;
+        link->check_consistency = &CheckConsistency_608;
             //&CheckConsistency_Nonzero_5States;
         //link->check_consistency = &CheckConsistency_Nonzero_AllStates_q;
     }
