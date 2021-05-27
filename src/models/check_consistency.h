@@ -56,6 +56,12 @@ void CheckConsistency_Nonzero_AllStates_q(
     const double * const params, unsigned int num_params,
     void *user);
 
+void CheckConsistency_608(
+    double *y, unsigned int num_dof,
+    const double * const global_params, unsigned int num_global_params,
+    const double * const params, unsigned int num_params,
+    void *user);
+
 void CheckConsistency_Nonzero_AllStates_qs(
     double *y, unsigned int num_dof,
     const double * const global_params, unsigned int num_global_params,
