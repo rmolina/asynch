@@ -659,9 +659,10 @@ void Tiles_Reservoirs(double t, const double * const y_i, unsigned int dim, cons
         for (i =0; i<num_parents; i++)
             ans[0] += y_p[i*dim];
     }
+    double beta = params[14];
     ans[1] = 0.0;
     ans[2] = 0.0;
-    ans[3] = 1.64;
+    ans[3] = beta;
     //ans[4] = 0.0;
     //ans[5] = 0.0;
 }
