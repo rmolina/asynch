@@ -661,7 +661,7 @@ void Tiles_Reservoirs(double t, const double * const y_i, unsigned int dim, cons
     }
     ans[1] = 0.0;
     ans[2] = 0.0;
-    ans[3] = 0.0;
+    ans[3] = 1.64;
     //ans[4] = 0.0;
     //ans[5] = 0.0;
 }
