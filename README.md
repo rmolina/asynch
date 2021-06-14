@@ -73,7 +73,7 @@ If you want ***openblas*** support with ***openmpi***, you can install the optio
 
 ## Compiling
 
-Please run the following commnads to compile `asynch`:
+Please run the following comands to compile `asynch`:
 
 This will generate all the `configure` files and the `makefiles`.
 ```shell
