@@ -134,6 +134,12 @@ If everything when correctly, go to the `examples/` directory and execute the fo
 mpirun -n 4 asynch clearcreek.gbl
 ```
 
+If you are running inside a docker container, add the `--allow-run-as-root` flag:
+
+```shell
+mpirun -n 4 --allow-run-as-root asynch clearcreek.gbl
+```
+
 The output should be the following:
 
 ```shell

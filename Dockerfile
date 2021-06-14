@@ -1,10 +1,19 @@
-FROM fedora:latest
+FROM registry.fedoraproject.org/fedora-minimal:34
+#FROM fedora:latest
 
 copy . /app
-RUN dnf upgrade -y && dnf install autoconf automake \
+
+# Use this if you want fedora-minimal
+RUN microdnf upgrade -y && microdnf install autoconf automake \
     openmpi-devel hdf5-devel \
     libpq-devel zlib glibc-devel \
     gcc-gfortran gcc make -y
+
+# Use this if you want fedora
+# RUN dnf upgrade -y && dnf install autoconf automake \
+#     openmpi-devel hdf5-devel \
+#     libpq-devel zlib glibc-devel \
+#     gcc-gfortran gcc make -y
 
 RUN ln -s /usr/lib64/openmpi/bin/* /usr/bin/
 
