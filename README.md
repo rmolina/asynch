@@ -4,6 +4,84 @@
 
 A numerical library for solving differential equations with a tree structure. Emphasis is given to hillslope-link river basin models.
 
+
+## Requirements
+
+### Fedora
+
+- autoconf
+- automake
+- openmpi-devel
+- openblas
+- openblas-devel
+- hdf5-devel
+- libpq-devel
+- zlib
+- gfortran
+- gcc
+
+Run this command after installing the dependencies, this will create system links of all the binaries of openmpi inside the `/usr/bin/ `directory so the system can detect them: 
+```shell
+sudo ln -s /usr/lib64/openmpi/bin/* /usr/bin/
+```
+
+### Ubuntu
+
+- autoconf
+- automake
+- gcc
+- make
+- openmpi-bin
+- libopenmpi-dev
+- zlib1g-dev
+- hdf5-tools
+- libhdf5-dev
+- libhdf5-openmpi-dev
+- libhdf5-cpp-103
+- libpq-dev
+- libopenblas64-0-openmp
+- libopenblas64-0-openmp-dev
+- libopenblas64-openmp-dev
+- libopenblas-dev
+
+
+## Compiling
+
+Please run the following commnads to compile asynch:
+
+This will generate all the `configure` files and the `makefiles`.
+```shell
+autoreconf --install
+cd build
+../configure CFLAGS="-O3 -DNDEBUG -Wno-format-security"
+make
+```
+
+## Running Example
+
+If everything when correctly, go to the `examples/` directory and execute the following command:
+```shell
+mpirun -n 4 ../build/src/asynch clearcreek.gbl
+```
+
+The output should be the following:
+
+```shell
+Computations complete. Total time for calculations: 1.320425
+
+Results written to file clearcreek.h5.
+Peakflows written to file clearcreek.pea.
+```
+ Inside the `clearcreek.pea` file, you should see the beginning exactly like this:
+ 
+```shell
+6359
+254
+
+```
+
+
+
 ## Documentation
 
 The documentation is available [here](http://asynch.readthedocs.io/). Thank you to the people running Read the Docs for such an excellent service.
