@@ -97,11 +97,15 @@ If you want a custom location, you can use the `--prefix` option when running co
 ### Note/Disclaimer
 The decision to use **fedora:latest** as the default container for docker was mainly because `asynch` needs `GLIBC > 2.29`, **Fedora 34** uses `GLIBC 2.33`, while **Redhat 8** and **Centos 8** uses `GLIBC 2.28`, I was having a little trouble setting up ``GLIBC`` inside the container for **centos:latest**. The app did compile, but is wasn't reading the ``GLIBC`` compilation I did for version ``2.29``. I think the app should be deployed using **Centos**, so if anyone wants to work around that issue, know that it is possible to solve and close to be solved.
 
-Also, ***openblas*** was not working for docker, so *the docker compilation **does not** have **openblas** support.*
+Also, ***openblas*** was not working for docker, so *the docker compilation **does not** have **openblas support**.*
+
+#### Windows
+
+**Windows** users need to have `wsl2` installed and use a linux distro to run docker inside it.
+**Enable the Windows instructions** inside the `Dockerfile` to be able to use the program correctly.
 
 
-
-### Instructions
+### Running Docker
 
 Make sure you have **docker** installed in your machine, then follow this instructions:
 
