@@ -1273,7 +1273,7 @@ void TopLayerHillslope_Reservoirs(double t, const double * const y_i, unsigned i
     ans[2] = 0.0;
     ans[3] = 0.0;
 }
-//Type 254
+//Type 253
 // 4 states.
 void model253(double t, const double * const y_i, unsigned int dim, const double * const y_p, unsigned short num_parents, unsigned int max_dim, const double * const global_params, const double * const params, const double * const forcing_values, const QVSData * const qvs, int state, void* user, double *ans)
 {
@@ -1288,7 +1288,7 @@ void model253(double t, const double * const y_i, unsigned int dim, const double
     double exponent = global_params[10];
     double v_B = global_params[11];
     double e_pot = forcing_values[1] * (1e-3 / (30.0*24.0*60.0));	//[mm/month] -> [m/min]
-
+    double snowmelt = forcing_values[3] * (0.001)/60; //mm/hour to m/min
     double L = params[1];	//[m]
     double A_h = params[2];	//[m^2]
                                 //double h_r = params[3];	//[m]
@@ -1297,6 +1297,8 @@ void model253(double t, const double * const y_i, unsigned int dim, const double
     double k_i = params[5];	//[1/min]
     double c_1 = params[6];
     double c_2 = params[7];
+	double rainfall = forcing_values[0] * c_1; //mm/hour to m/min
+	rainfall += snowmelt;
 
     double q =   y_i[0];		//[m^3/s]
     double s_p = y_i[1];	//[m]
@@ -1338,7 +1340,7 @@ void model253(double t, const double * const y_i, unsigned int dim, const double
     ans[0] = invtau * pow(q, lambda_1) * ans[0];
 
     //Hillslope
-    ans[1] = forcing_values[0] * c_1 - q_pl - q_pt - e_p;
+    ans[1] = rainfall - q_pl - q_pt - e_p;
     ans[2] = q_pt - q_ts - e_t;
     ans[3] = q_ts - q_sl - e_s;
 
