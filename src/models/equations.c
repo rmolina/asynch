@@ -1433,14 +1433,14 @@ void model254(double t, const double * const y_i, unsigned int dim, const double
 }
 
 
-//Type 255
+//Type 255, before called TopLayerHillslope_variable
 //Contains 2 layers in the channel: discharge, storage. Contains 3 layers on hillslope: ponded, top layer, soil.
 //Order of the states is:              0          1                                        2        3       4
 //Order of parameters: A_i,L_i,A_h,v_h,k_3,k_I_factor,h_b,S_L,A,B,exponent | invtau,k_2,k_i,c_1,c_2
 //The numbering is:	0   1   2   3   4      5       6   7  8 9   10        11    12  13  14  15
 //Order of global_params: v_0,lambda_1,lambda_2
 //The numbering is:        0      1        2
-void TopLayerHillslope_variable(double t, const double * const y_i, unsigned int dim, const double * const y_p, unsigned short num_parents, unsigned int max_dim, const double * const global_params, const double * const params, const double * const forcing_values, const QVSData * const qvs, int state, void* user, double *ans)
+void model255(double t, const double * const y_i, unsigned int dim, const double * const y_p, unsigned short num_parents, unsigned int max_dim, const double * const global_params, const double * const params, const double * const forcing_values, const QVSData * const qvs, int state, void* user, double *ans)
 {
     unsigned short i;
 
@@ -1459,7 +1459,10 @@ void TopLayerHillslope_variable(double t, const double * const y_i, unsigned int
     double k_i = params[13];	//[1/min]
     double c_1 = params[14];
     double c_2 = params[15];
-
+    double rainfall = forcing_values[0] * c_1;
+    double snowmelt = forcing_values[3] * (0.001)/60; //mm/hour to m/min
+    rainfall+= snowmelt;
+    
     double q = y_i[0];		//[m^3/s]
     double S = y_i[1];		//[m^3]
     double s_p = y_i[2];	//[m]
@@ -1492,7 +1495,7 @@ void TopLayerHillslope_variable(double t, const double * const y_i, unsigned int
     double q_sl = k_3 * s_s;
 
     //Discharge
-    dam_TopLayerHillslope_variable(y_i, dim, global_params, params, qvs, state, user, ans);	//ans is used for convenience !!!! Is q available in y_i? !!!!
+    dam_model255(y_i, dim, global_params, params, qvs, state, user, ans);	//ans is used for convenience !!!! Is q available in y_i? !!!!
     double qm = ans[0] * 60.0;
 
     //Storage
@@ -1501,19 +1504,19 @@ void TopLayerHillslope_variable(double t, const double * const y_i, unsigned int
         ans[1] += y_p[i * dim] * 60.0;
 
     //Hillslope
-    ans[2] = forcing_values[0] * c_1 - q_pl - q_pt - e_p;
+    ans[2] = rainfall - q_pl - q_pt - e_p;
     ans[3] = q_pt - q_ts - e_t;
     ans[4] = q_ts - q_sl - e_s;
 }
 
-//Type 255
+//Type 255 before called dam_TopLayerHillslope_variable
 //Contains 2 layers in the channel: discharge, storage. Contains 3 layers on hillslope: ponded, top layer, soil.
 //Order of the states is:              0          1                                        2        3       4
 //Order of parameters: A_i,L_i,A_h,v_h,k_3,k_I_factor,h_b,S_L,A,B,exponent | invtau,k_2,k_i,c_1,c_2
 //The numbering is:	0   1   2   3   4      5       6   7  8 9   10        11    12  13  14  15
 //Order of global_params: v_0,lambda_1,lambda_2
 //The numbering is:        0      1        2
-void dam_TopLayerHillslope_variable(const double * const y_i, unsigned int num_dof, const double * const global_params, const double * const params, const QVSData * const qvs, int state, void* user, double *ans)
+void dam_model255(const double * const y_i, unsigned int num_dof, const double * const global_params, const double * const params, const QVSData * const qvs, int state, void* user, double *ans)
 {
     double q1, q2, S1, S2, S_max, q_max, S;
 
