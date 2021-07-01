@@ -1642,16 +1642,16 @@ void InitRoutines(
         if (link->has_res)
         {
             link->dense_indices[0] = 0;	//Discharge
-            link->differential = &TopLayerHillslope_Reservoirs;
+            link->differential = &TopLayerHillslope_Reservoirs; //common to various models
             link->solver = &ForcedSolutionSolver;
         }
         else
         {
             link->dense_indices[0] = 1;	//Storage
-            link->differential = &TopLayerHillslope_variable;
+            link->differential = &model255;
             link->solver = &ExplicitRKIndex1SolverDam;
         }
-        link->algebraic = &dam_TopLayerHillslope_variable;
+        link->algebraic = &dam_model255;
         link->check_state = &dam_check_qvs;
         link->check_consistency = &CheckConsistency_Nonzero_AllStates_q;
     }
