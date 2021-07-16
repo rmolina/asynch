@@ -300,6 +300,19 @@ case 20:	num_global_params = 9;
         globals->min_error_tolerances = 3;
         break;
 		//--------------------------------------------------------------------------------------------
+	case 193:
+		num_global_params = 0;
+		globals->uses_dam = 0;
+		globals->num_params = 4;
+		globals->dam_params_size = 0;
+		globals->area_idx = 0;
+		globals->areah_idx = 2;
+		globals->num_disk_params = 3;
+		globals->convertarea_flag = 0;
+		globals->num_forcings = 1;
+		globals->min_error_tolerances = 1;
+	break;
+	//--------------------------------------------------------------------------------------------
 	case 194:
 		num_global_params = 3;
 		globals->uses_dam = 0;
@@ -828,7 +841,7 @@ void ConvertParams(
         params[1] *= 1000;	//L: km -> m
         params[2] *= 1e6;	//A_h: km^2 -> m^2
     }
-    else if (model_uid == 190 || model_uid == 191 || model_uid == 192 || model_uid==194 || model_uid == 195 || model_uid == 196)
+    else if (model_uid == 190 || model_uid == 191 || model_uid == 192 ||  model_uid==193 || model_uid==194 || model_uid == 195 || model_uid == 196)
     {
         params[1] *= 1000;	//L: km -> m
         params[2] *= 1e6;	//A_h: km^2 -> m^2
@@ -1278,6 +1291,21 @@ void InitRoutines(
             link->solver = &ForcedSolutionSolver;
         }
         else	link->differential = &LinearHillslope_MonthlyEvap_kI_extras;
+        link->algebraic = NULL;
+        link->check_state = NULL;
+        link->check_consistency = &CheckConsistency_Nonzero_AllStates_q;
+    }
+        else if (model_uid == 193)
+    {
+        link->dim = 1;
+        link->no_ini_start = 1;
+        link->diff_start = 0;
+
+        link->num_dense = 1;
+        link->dense_indices = (unsigned int*)realloc(link->dense_indices, link->num_dense * sizeof(unsigned int));
+        link->dense_indices[0] = 0;
+
+        link->differential = &routing_runoff2;
         link->algebraic = NULL;
         link->check_state = NULL;
         link->check_consistency = &CheckConsistency_Nonzero_AllStates_q;
@@ -2056,6 +2084,27 @@ void Precalculations(
         vals[4] = vals[3] * k_i_factor;	                                 // [1/min]  k_i
         vals[5] = 60.0*v_r*pow(A_i, lambda_2) / ((1.0 - lambda_1)*L_i);  // [1/min]  invtau
         vals[6] = 0.001 / 60.0;                                          // (mm/hr->m/min)  c_1
+    }
+    else if (model_uid == 193)
+    {
+        //Order of parameters: A_i,L_i,A_h,k2,k3,invtau,c_1,c_2
+        //Order of parameters: A_i,L_i,A_h,invtau
+        //The numbering is:	0   1   2   3
+        //Order of global_params: v_r,lambda_1,lambda_2,
+        //The numbering is:        0      1        2
+        double* vals = params;
+        double A_i = params[0];
+        double L_i = params[1];
+        double A_h = params[2];
+        //double v_r = global_params[0];
+        //double lambda_1 = global_params[1];
+        //double lambda_2 = global_params[2];
+        //double v_h = global_params[3];
+        //double k3 = global_params[4];
+
+        //vals[3] = v_h * L_i / A_h * 60.0;	                            // [1/min]  k2
+        //vals[4] = k3;                                                   // [1/min]  k3
+        //vals[3] = 60.0*v_r*pow(A_i, lambda_2) / ((1.0 - lambda_1)*L_i);	// [1/min]  invtau
     }
     else if (model_uid == 194)
     {
@@ -3256,7 +3305,7 @@ int ReadInitData(
         y_0[4] = 0.0;
         y_0[5] = y_0[0];	//I'm not really sure what to use here...
     }
-	else if (model_uid==194){return 0;}
+	else if (model_uid==193 || model_uid==194){return 0;}
     else if (model_uid == 195)
     {
         //For this model_uid, the extra states need to be set (3)
