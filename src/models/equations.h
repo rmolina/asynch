@@ -22,6 +22,8 @@ void nodam_rain_hillslope_qsv(double t, const double * const y_i, unsigned int d
 void dam_rain_hillslope_qsv(double t, const double * const y_i, unsigned int dim, const double * const y_p, unsigned short num_parents, unsigned int max_dim, const double * const global_params, const double * const params, const double * const forcing_values, const QVSData * const qvs, int state, void* user, double *ans);
 void model255(double t, const double * const y_i, unsigned int dim, const double * const y_p, unsigned short num_parents, unsigned int max_dim, const double * const global_params, const double * const params, const double * const forcing_values, const QVSData * const qvs, int state, void* user, double *ans);
 void dam_model255(const double * const y_i, unsigned int dim, const double * const global_params, const double * const params, const QVSData * const qvs, int state, void* user, double *ans);
+void dam_TopLayerHillslope_variable(const double * const y_i, unsigned int dim, const double * const global_params, const double * const params, const QVSData * const qvs, int state, void* user, double *ans);
+
 void dam_Tetis03(const double * const y_i, unsigned int dim, const double * const global_params, const double * const params, const QVSData * const qvs, int state, void* user, double *ans);
 
 

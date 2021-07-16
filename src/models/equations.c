@@ -1548,6 +1548,44 @@ void dam_model255(const double * const y_i, unsigned int num_dof, const double *
     }
 }
 
+//Type 255 before called dam_TopLayerHillslope_variable
+//Contains 2 layers in the channel: discharge, storage. Contains 3 layers on hillslope: ponded, top layer, soil.
+//Order of the states is:              0          1                                        2        3       4
+//Order of parameters: A_i,L_i,A_h,v_h,k_3,k_I_factor,h_b,S_L,A,B,exponent | invtau,k_2,k_i,c_1,c_2
+//The numbering is:	0   1   2   3   4      5       6   7  8 9   10        11    12  13  14  15
+//Order of global_params: v_0,lambda_1,lambda_2
+//The numbering is:        0      1        2
+void dam_TopLayerHillslope_variable(const double * const y_i, unsigned int num_dof, const double * const global_params, const double * const params, const QVSData * const qvs, int state, void* user, double *ans)
+{
+    double q1, q2, S1, S2, S_max, q_max, S;
+
+    //Parameters
+    double lambda_1 = global_params[1];
+    double invtau = params[11];	//[1/min]
+
+                                    //Find the discharge in [m^3/s]
+    if (state == -1)
+    {
+        S = (y_i[1] < 0.0) ? 0.0 : y_i[1];
+        //ans[0] = invtau/60.0*pow(S,1.0/(1.0-lambda_1));
+        ans[0] = pow((1.0 - lambda_1)*invtau / 60.0 * S, 1.0 / (1.0 - lambda_1));
+    }
+    else if (state == (int)qvs->n_values - 1)
+    {
+        S_max = qvs->points[qvs->n_values - 1][0];
+        q_max = qvs->points[qvs->n_values - 1][1];
+        ans[0] = q_max;
+    }
+    else
+    {
+        S = (y_i[1] < 0.0) ? 0.0 : y_i[1];
+        q2 = qvs->points[state + 1][1];
+        q1 = qvs->points[state][1];
+        S2 = qvs->points[state + 1][0];
+        S1 = qvs->points[state][0];
+        ans[0] = (q2 - q1) / (S2 - S1) * (S - S1) + q1;
+    }
+}
 //Type 256
 //TopLayerHillslope_even_more_extras.
 //Contains 3 layers on hillslope: ponded, top layer, soil.
