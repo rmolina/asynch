@@ -471,7 +471,7 @@ case 20:	num_global_params = 9;
         globals->num_disk_params = 18;
         globals->convertarea_flag = 0;
         globals->num_forcings = 3;
-        globals->min_error_tolerances = 3;
+        globals->min_error_tolerances = 4;
         break;
 
     case 609:	num_global_params = 1;
@@ -1517,8 +1517,8 @@ void InitRoutines(
 
     else if (model_uid == 608)
     {
-        link->dim = 4;
-        link->no_ini_start = link->dim;
+        link->dim = 5;
+        link->no_ini_start = 5; //link->dim;
         link->diff_start = 0;
 
         link->num_dense = 1;
@@ -1533,9 +1533,7 @@ void InitRoutines(
         else    link->differential = &TilesModel;
         link->algebraic = NULL;
         link->check_state = NULL;
-        link->check_consistency = &CheckConsistency_608;
-            //&CheckConsistency_Nonzero_5States;
-        //link->check_consistency = &CheckConsistency_Nonzero_AllStates_q;
+        link->check_consistency = &CheckConsistency_Nonzero_AllStates_q;
     }
     
     else if (model_uid == 609)
@@ -2704,7 +2702,8 @@ void Precalculations(
         double lambda_1 = params[15];
         double lambda_2 = params[16];
         double v0 = params[17];
-        
+        //double expo = params[18];
+
         vals[16] = 60.0*v0*pow(A_i, lambda_2) / ((1.0 - lambda_1)*L_i);	//[1/min]  invtau
         vals[17] = v_r * (L_i / A_h) * 60; // [1/min] runoff speed.
     }

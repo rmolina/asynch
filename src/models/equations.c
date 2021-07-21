@@ -690,25 +690,25 @@ void TilesModel(double t, const double * const y_i, unsigned int dim, const doub
     // Processed parameters
     double invtau = params[16];
     double k2 = params[17];
+    //double expo = params[18];
     //Variables or sttates
     double q = y_i[0];		                                        // [m^3/s]
     double s_p = y_i[1];	                                        // [m]
     double s_l = y_i[2];	                                        // [m]
     double s_s = y_i[3];
-    //double s_t = y_i[4];
+    double q_b = max(0.001, y_i[4]);                                // for base flow separation
     //Fluxes
     double q_in = forcing_values[0] * (0.001/60);	//[m/min]
     
     double pow_t = (1.0 - s_l/t_L > 0.0)? pow(1.0 - s_l/t_L,3): 0.0;
-    double pow_t2 = (4.7 - 3.4*(s_s/1.67) > 0.0)? pow(4.7 - 3.4*(s_s/1.67),0.405): 0.0; // Exp kind of Green y Ampt 
+    //double pow_t2 = (4.7 - 3.4*(s_s/1.67) > 0.0)? pow(4.7 - 3.4*(s_s/1.67),0.405): 0.0; // Exp kind of Green y Ampt 
     double q_pl = k2*99.0*pow_t*s_p;
-    //double q_ls = k2*ki_fac*s_l;
-    double q_ls = k2*ki_fac*pow_t2*s_l; //Exp Green y Ampt approach
+    double q_ls = k2*ki_fac*s_l;
+    //double q_ls = k2*ki_fac*pow_t2*s_l; //Exp Green y Ampt approach
     double q_pLink = k2*s_p;
     //subsurface runoff
     double q_sLink = 0.0;
     double q_inT = 0.0;
-    //double q_outT = 0.0;
     //Base flow
     if (s_s > NoFlow){
         q_sLink += k3 * (s_s - NoFlow);                          // Base flow or linear portion
@@ -720,15 +720,8 @@ void TilesModel(double t, const double * const y_i, unsigned int dim, const doub
     //Tile flow
     if (s_s > Td){
         q_inT =  (s_s - Td) * c * exp(d *  (s_s - Td));
-        //q_inT = 0.001 * (s_s - Td);
         q_sLink += q_inT;         // Tile flow in function of the tile act depth and tile slopei 
-        //q_sLink += 0.005 * (s_s - Td);
-        //ans[4] = q_inT;                                        //updates the outflow with the subsurface to tile
     }    
-    //q_outT = d * pow(s_t, a_r);                               // Tile bring water regardless of the level of the subsurface level
-    //q_outT = d * s_t;
-    //ans[4] = q_in;              // Temporal (records the rain
-    //ans[5] = q_sLink;                                            // Total tile outflow
     //Evaporation
     double C_p = s_p;
     double C_l = s_l/t_L;
@@ -743,12 +736,17 @@ void TilesModel(double t, const double * const y_i, unsigned int dim, const doub
 	int q_pidx;
     //Discharge
     ans[0] = -q + ((q_pLink + q_sLink) * A_h / 60.0);
-	for (i = 0; i < num_parents; i++) {
+	ans[4] = -q_b + ((q_sLink) * A_h / 60.0);
+    for (i = 0; i < num_parents; i++) {
 		q_pidx = i * dim;
 		q_parent = y_p[q_pidx];
 		ans[0] += q_parent;
+        q_parent = y_p[q_pidx+4];
+		ans[4] += q_parent;
 	}
     ans[0] = invtau * pow(q, lambda_1) * ans[0];
+    
+    ans[4] = invtau * pow(q_b, lambda_1) * ans[4];
     //Ponded
     ans[1] = q_in - q_pl - q_pLink - e_p;
     //Top Soil Layer
