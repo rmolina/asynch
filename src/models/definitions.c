@@ -1517,7 +1517,7 @@ void InitRoutines(
 
     else if (model_uid == 608)
     {
-        link->dim = 4;
+        link->dim = 5;
         link->no_ini_start = link->dim;
         link->diff_start = 0;
 
@@ -1534,8 +1534,6 @@ void InitRoutines(
         link->algebraic = NULL;
         link->check_state = NULL;
         link->check_consistency = &CheckConsistency_608;
-            //&CheckConsistency_Nonzero_5States;
-        //link->check_consistency = &CheckConsistency_Nonzero_AllStates_q;
     }
     
     else if (model_uid == 609)
