@@ -690,12 +690,13 @@ void TilesModel(double t, const double * const y_i, unsigned int dim, const doub
     // Processed parameters
     double invtau = params[16];
     double k2 = params[17];
-    //Variables or states
+    //double expo = params[18];
+    //Variables or sttates
     double q = y_i[0];		                                        // [m^3/s]
     double s_p = y_i[1];	                                        // [m]
     double s_l = y_i[2];	                                        // [m]
     double s_s = y_i[3];
-    double q_b = max(0.001, y_i[4]);
+    double q_b = max(0.001, y_i[4]);                                // for base flow separation
     //Fluxes
     double q_in = forcing_values[0] * (0.001/60);	//[m/min]
     

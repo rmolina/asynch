@@ -2702,7 +2702,8 @@ void Precalculations(
         double lambda_1 = params[15];
         double lambda_2 = params[16];
         double v0 = params[17];
-        
+        //double expo = params[18];
+
         vals[16] = 60.0*v0*pow(A_i, lambda_2) / ((1.0 - lambda_1)*L_i);	//[1/min]  invtau
         vals[17] = v_r * (L_i / A_h) * 60; // [1/min] runoff speed.
     }
