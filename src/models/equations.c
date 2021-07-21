@@ -744,6 +744,7 @@ void TilesModel(double t, const double * const y_i, unsigned int dim, const doub
 		ans[4] += q_parent;
 	}
     ans[0] = invtau * pow(q, lambda_1) * ans[0];
+    
     ans[4] = invtau * pow(q_b, lambda_1) * ans[4];
     //Ponded
     ans[1] = q_in - q_pl - q_pLink - e_p;
