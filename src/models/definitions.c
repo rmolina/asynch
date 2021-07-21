@@ -471,7 +471,7 @@ case 20:	num_global_params = 9;
         globals->num_disk_params = 18;
         globals->convertarea_flag = 0;
         globals->num_forcings = 3;
-        globals->min_error_tolerances = 3;
+        globals->min_error_tolerances = 4;
         break;
 
     case 609:	num_global_params = 1;
@@ -1518,7 +1518,7 @@ void InitRoutines(
     else if (model_uid == 608)
     {
         link->dim = 5;
-        link->no_ini_start = link->dim;
+        link->no_ini_start = 5; //link->dim;
         link->diff_start = 0;
 
         link->num_dense = 1;
@@ -1533,7 +1533,7 @@ void InitRoutines(
         else    link->differential = &TilesModel;
         link->algebraic = NULL;
         link->check_state = NULL;
-        link->check_consistency = &CheckConsistency_608;
+        link->check_consistency = &CheckConsistency_Nonzero_AllStates_q;
     }
     
     else if (model_uid == 609)
