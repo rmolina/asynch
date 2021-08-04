@@ -653,6 +653,15 @@ void Tiles_Reservoirs(double t, const double * const y_i, unsigned int dim, cons
 {
     if(forcing_values[2] > 0){
         ans[0] = forcing_values[2];
+        //Copy Discharge open loop
+        double q_openloop = y_i[5];	
+        //ans[5] = -q_openloop + ((q_pLink + q_sLink) * A_h / 60.0);
+        unsigned short i;
+        for (i =0; i<num_parents; i++)
+            ans[5] += y_p[i*dim+5];
+        
+        ans[5] = invtau * pow(q_openloop, lambda_1) * ans[5];
+
     }
     if(forcing_values[2] <=0){
         unsigned short i;
@@ -692,7 +701,8 @@ void TilesModel(double t, const double * const y_i, unsigned int dim, const doub
     double k2 = params[17];
     //double expo = params[18];
     //Variables or sttates
-    double q = y_i[0];		                                        // [m^3/s]
+    double q = y_i[0];	
+    double q_openloop = y_i[5];		                                        // [m^3/s]
     double s_p = y_i[1];	                                        // [m]
     double s_l = y_i[2];	                                        // [m]
     double s_s = y_i[3];
@@ -736,16 +746,23 @@ void TilesModel(double t, const double * const y_i, unsigned int dim, const doub
 	int q_pidx;
     //Discharge
     ans[0] = -q + ((q_pLink + q_sLink) * A_h / 60.0);
+    //Copy Discharge open loop
+    ans[5] = -q_openloop + ((q_pLink + q_sLink) * A_h / 60.0);
+    //Baseflow
 	ans[4] = -q_b + ((q_sLink) * A_h / 60.0);
     for (i = 0; i < num_parents; i++) {
 		q_pidx = i * dim;
 		q_parent = y_p[q_pidx];
 		ans[0] += q_parent;
+        //Copy open loop+
+        q_parent = y_p[q_pidx+5];
+		ans[5] += q_parent;
+        //Baseflow
         q_parent = y_p[q_pidx+4];
 		ans[4] += q_parent;
 	}
     ans[0] = invtau * pow(q, lambda_1) * ans[0];
-    
+    ans[5] = invtau * pow(q_openloop, lambda_1) * ans[5];
     ans[4] = invtau * pow(q_b, lambda_1) * ans[4];
     //Ponded
     ans[1] = q_in - q_pl - q_pLink - e_p;
