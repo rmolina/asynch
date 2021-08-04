@@ -654,6 +654,8 @@ void Tiles_Reservoirs(double t, const double * const y_i, unsigned int dim, cons
     if(forcing_values[2] > 0){
         ans[0] = forcing_values[2];
         //Copy Discharge open loop
+        double invtau = params[16];
+        double lambda_1 = params[15];
         double q_openloop = y_i[5];	
         //ans[5] = -q_openloop + ((q_pLink + q_sLink) * A_h / 60.0);
         unsigned short i;
