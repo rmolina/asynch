@@ -653,6 +653,17 @@ void Tiles_Reservoirs(double t, const double * const y_i, unsigned int dim, cons
 {
     if(forcing_values[2] > 0){
         ans[0] = forcing_values[2];
+        //Copy Discharge open loop
+        double invtau = params[16];
+        double lambda_1 = params[15];
+        double q_openloop = y_i[5];	
+        //ans[5] = -q_openloop + ((q_pLink + q_sLink) * A_h / 60.0);
+        unsigned short i;
+        for (i =0; i<num_parents; i++)
+            ans[5] += y_p[i*dim+5];
+        
+        ans[5] = invtau * pow(q_openloop, lambda_1) * ans[5];
+
     }
     if(forcing_values[2] <=0){
         unsigned short i;
@@ -692,7 +703,8 @@ void TilesModel(double t, const double * const y_i, unsigned int dim, const doub
     double k2 = params[17];
     //double expo = params[18];
     //Variables or sttates
-    double q = y_i[0];		                                        // [m^3/s]
+    double q = y_i[0];	
+    double q_openloop = y_i[5];		                                        // [m^3/s]
     double s_p = y_i[1];	                                        // [m]
     double s_l = y_i[2];	                                        // [m]
     double s_s = y_i[3];
@@ -736,10 +748,10 @@ void TilesModel(double t, const double * const y_i, unsigned int dim, const doub
     //Discharge
     ans[0] = -q + ((q_pLink + q_sLink) * A_h / 60.0);	
     for (i = 0; i < num_parents; i++) {
-		q_pidx = i * dim;
-		q_parent = y_p[q_pidx];
-		ans[0] += q_parent;
-	}
+		  q_pidx = i * dim;
+		  q_parent = y_p[q_pidx];
+		  ans[0] += q_parent;
+	  }
     ans[0] = invtau * pow(q, lambda_1) * ans[0];
     //Ponded
     ans[1] = q_in - q_pl - q_pLink - e_p;
@@ -1187,6 +1199,32 @@ void TopLayerHillslope_Reservoirs(double t, const double * const y_i, unsigned i
     ans[2] = 0.0;
     ans[3] = 0.0;
 }
+//Type 256
+void model256_reservoirs(double t, const double * const y_i, unsigned int dim, const double * const y_p, unsigned short num_parents, unsigned int max_dim, const double * const global_params, const double * const params, const double * const forcing_values, const QVSData * const qvs, int state, void* user, double *ans)
+{	
+	if(forcing_values[2] >0){
+		ans[0] = forcing_values[2];
+        //Copy Discharge open loop
+        double invtau = params[3];  //[1/min]
+        double lambda_1 = global_params[1];
+        double q_openloop = y_i[8];	
+        //ans[5] = -q_openloop + ((q_pLink + q_sLink) * A_h / 60.0);
+        unsigned short i;
+        for (i =0; i<num_parents; i++)
+            ans[8] += y_p[i*dim + 8];
+        
+        ans[8] = invtau * pow(q_openloop, lambda_1) * ans[8];
+	}
+    if(forcing_values[2] <=0){
+		unsigned short i;
+		for (i = 0; i<num_parents; i++)
+			ans[0] += y_p[i * dim];
+	}
+    ans[1] = 0.0;
+    ans[2] = 0.0;
+    ans[3] = 0.0;
+}
+
 //Type 253
 // 4 states.
 void model253(double t, const double * const y_i, unsigned int dim, const double * const y_p, unsigned short num_parents, unsigned int max_dim, const double * const global_params, const double * const params, const double * const forcing_values, const QVSData * const qvs, int state, void* user, double *ans)
@@ -1536,13 +1574,13 @@ void model256(double t, const double * const y_i, unsigned int dim, const double
     double s_p = y_i[1];    //[m]
     double s_t = y_i[2];    //[m]
     double s_s = y_i[3];    //[m]
-	double q_pl0=y_i[4];	//m3s-1 bad idea. makes everything 0
+	double q_pl0=y_i[4];	//m3s-1 
 	double q_tl0=y_i[5];	//m3s-1
 	double q_sl0=y_i[6];	//m3s-1
                             //double s_precip = y_i[4];	//[m]
                             //double V_r = y_i[5];	//[m^3]
     double q_b = y_i[7];    //[m^3/s]
-
+    double q_openloop = y_i[8];    //[m^3/s]
 
     //Evaporation
     double e_p, e_t, e_s;
@@ -1586,7 +1624,7 @@ void model256(double t, const double * const y_i, unsigned int dim, const double
     //ans[5] = forcing_values[1] * c_1;   // et[5]
 	//ans[6] = q_pl; //runoff
 	
-	ans[4] = q_pl *c_2 - q_pl0; //doesnt work substracting initial
+	ans[4] = q_pl *c_2 - q_pl0; //
 	ans[5] = q_tl*c_2 - q_tl0; //
 	ans[6] = q_sl*c_2 - q_sl0; //
 	//ans[4] = q_pl *c_2 ; //hillslope surface flow m3s-1
@@ -1596,6 +1634,11 @@ void model256(double t, const double * const y_i, unsigned int dim, const double
     for (i = 0; i < num_parents; i++)
         ans[7] += y_p[i * dim + 7] * 60.0;
     ans[7] *= v_B / L;
+    //open loop
+    ans[8] = -q_openloop + (q_pl + q_tl + q_sl) * c_2;
+    for (i = 0; i < num_parents; i++)
+        ans[8] += y_p[i * dim + 8];
+    ans[8] = invtau * pow(q, lambda_1) * ans[8];
 }
 
 
