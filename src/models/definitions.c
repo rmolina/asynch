@@ -1521,9 +1521,11 @@ void InitRoutines(
         link->no_ini_start = 4; //link->dim;
         link->diff_start = 0;
 
-        link->num_dense = 1;
+        link->num_dense = 3;
         link->dense_indices = (unsigned int*)realloc(link->dense_indices, link->num_dense * sizeof(unsigned int));
         link->dense_indices[0] = 0;
+        link->dense_indices[1] = 4;
+        link->dense_indices[2] = 5;
 
         if (link->has_res)
         { 
@@ -1626,7 +1628,7 @@ void InitRoutines(
     else if (model_uid == 254)
     {
         link->dim = 7;
-        link->no_ini_start = 4;
+        link->no_ini_start = link->dim;
         link->diff_start = 0;
 
         link->num_dense = 2;
@@ -1636,10 +1638,11 @@ void InitRoutines(
 
         if (link->has_res)
         {
-            link->differential = &model254;
+            link->differential = &TopLayerHillslope_Reservoirs;
             link->solver = &ForcedSolutionSolver;
         }
-        else			link->differential = &model254;
+        else			
+            link->differential = &model254;
         link->algebraic = NULL;
         link->check_state = NULL;
         link->check_consistency = &CheckConsistency_Nonzero_AllStates_q;
@@ -1671,18 +1674,19 @@ void InitRoutines(
     }
     else if (model_uid == 256)
     {
-        link->dim = 8;
-        link->no_ini_start = 4;
+        link->dim = 9;
+        link->no_ini_start = link->dim;
         link->diff_start = 0;
 
-        link->num_dense = 2;
+        link->num_dense = 3;
         link->dense_indices = (unsigned int*)realloc(link->dense_indices, link->num_dense * sizeof(unsigned int));
         link->dense_indices[0] = 0;
         link->dense_indices[1] = 7;
+        link->dense_indices[2] = 8;
 
         if (link->has_res)
         {
-            link->differential = &TopLayerHillslope_Reservoirs;
+            link->differential = &model256_reservoirs;
             link->solver = &ForcedSolutionSolver;
         }
         else		
