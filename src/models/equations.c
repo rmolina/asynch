@@ -704,7 +704,7 @@ void TilesModel(double t, const double * const y_i, unsigned int dim, const doub
     //double expo = params[18];
     //Variables or sttates
     double q = y_i[0];	
-    double q_openloop = y_i[5];		                                        // [m^3/s]
+    //double q_openloop = y_i[5];		                                        // [m^3/s]
     double s_p = y_i[1];	                                        // [m]
     double s_l = y_i[2];	                                        // [m]
     double s_s = y_i[3];

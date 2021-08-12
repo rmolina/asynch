@@ -1521,11 +1521,11 @@ void InitRoutines(
         link->no_ini_start = 4; //link->dim;
         link->diff_start = 0;
 
-        link->num_dense = 3;
+        link->num_dense = 1;
         link->dense_indices = (unsigned int*)realloc(link->dense_indices, link->num_dense * sizeof(unsigned int));
         link->dense_indices[0] = 0;
-        link->dense_indices[1] = 4;
-        link->dense_indices[2] = 5;
+        //link->dense_indices[1] = 4;
+        //link->dense_indices[2] = 5;
 
         if (link->has_res)
         { 
