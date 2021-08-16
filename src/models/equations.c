@@ -818,10 +818,11 @@ void TilesModel_Base(double t, const double * const y_i, unsigned int dim, const
     double s_p = y_i[1];	                                        // [m]
     double s_l = y_i[2];	                                        // [m]
     double s_s = y_i[3];
-    double q_b = max(0.001, y_i[4]);                                // for base flow separation
+    double s_c = y_i[4];
+    double q_b = max(0.001, y_i[5]);                                // for base flow separation
     //Fluxes
     double q_in = forcing_values[0] * (0.001/60);	//[m/min]
-    
+    double q_cp = (forcing_values[2] - s_c - q_in > 0.0)? 0.0; s_c+q_in-forcing_values[2]; // Crop acting as a bucket
     double pow_t = (1.0 - s_l/t_L > 0.0)? pow(1.0 - s_l/t_L,3): 0.0;
     double q_pl = k2*99.0*pow_t*s_p;
     double q_ls = k2*ki_fac*s_l;
@@ -846,29 +847,33 @@ void TilesModel_Base(double t, const double * const y_i, unsigned int dim, const
     double C_p = s_p;
     double C_l = s_l/t_L;
     double C_s = s_s/(Beta-NoFlow);
-    double Corr_evap = 1/(C_p + C_l + C_s);
+    double C_c = s_c;
+    double Corr_evap = 1/(C_p + C_l + C_s + C_c);
     double e_pot = forcing_values[1] * (1e-3 / (30.0*24.0*60.0));	//[mm/month] -> [m/min]
     double e_p = Corr_evap * C_p * e_pot;
     double e_l = Corr_evap * C_l * e_pot;
     double e_s = Corr_evap * C_s * e_pot;
+    double w_c = Corr_evap * C_c * e_pot;
     //Update variables
 	double q_parent;
 	int q_pidx;
     //Discharge
     ans[0] = -q + ((q_pLink + q_sLink) * A_h / 60.0);
-	ans[4] = -q_b + ((q_sLink) * A_h / 60.0);
+	ans[5] = -q_b + ((q_sLink) * A_h / 60.0);
     for (i = 0; i < num_parents; i++) {
 		q_pidx = i * dim;
 		q_parent = y_p[q_pidx];
 		ans[0] += q_parent;
         q_parent = y_p[q_pidx+4];
-		ans[4] += q_parent;
+		ans[5] += q_parent;
 	}
     ans[0] = invtau * pow(q, lambda_1) * ans[0];
-    ans[4] = invtau * pow(q, lambda_1) * ans[4];
+    ans[5] = invtau * pow(q, lambda_1) * ans[5];
     //ans[4] = (q_b/q)*ans[4];
+    //Crops
+    ans[4] = q_in - q_cp - e_c;
     //Ponded
-    ans[1] = q_in - q_pl - q_pLink - e_p;
+    ans[1] = q_cp - q_pl - q_pLink - e_p;
     //Top Soil Layer
     ans[2] = q_pl - q_ls - e_l;	
     //Subsurface (saturated) soil
