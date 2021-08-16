@@ -823,7 +823,8 @@ void TilesModel_Base(double t, const double * const y_i, unsigned int dim, const
     //Fluxes
     double q_in = forcing_values[0] * (0.001/60);	//[m/min]
     //Crop (experimental)
-    double q_cp = (forcing_values[3] - s_c - q_in > 0.0)? 0.0: s_c+q_in-forcing_values[3]; // Crop acting as a bucket
+    double crop = forcing_values[3] * (1e-3 / (30.0*24.0*60.0)); //[mm/month] -> [m/min]
+    double q_cp = (crop - s_c - q_in > 0.0)? 0.0: s_c + q_in - crop; // Crop acting as a bucket
     
     double pow_t = (1.0 - s_l/t_L > 0.0)? pow(1.0 - s_l/t_L,3): 0.0;
     double q_pl = k2*99.0*pow_t*s_p;
