@@ -824,7 +824,7 @@ void TilesModel_Base(double t, const double * const y_i, unsigned int dim, const
     double q_in = forcing_values[0] * (0.001/60);	//[m/min]
     //Crop (experimental)
     //double crop = forcing_values[3] * (1e-3 / (30.0*24.0*60.0)); //[mm/month] -> [m/min]
-    double q_cp = (s_c + q_in - crop > 0.0)? s_c + q_in - crop: 0.0; // Crop acting as a bucket
+    //double q_cp = (s_c + q_in - crop > 0.0)? s_c + q_in - crop: 0.0; // Crop acting as a bucket
     //double q_cp = (crop > 0.0)? q_in*(1-s_c/crop): q_in
 
     double pow_t = (1.0 - s_l/t_L > 0.0)? pow(1.0 - s_l/t_L,3): 0.0;
