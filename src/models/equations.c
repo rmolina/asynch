@@ -805,7 +805,7 @@ void TilesModel_Base(double t, const double * const y_i, unsigned int dim, const
     double d = params[8];
     double k3 = params[9];
     double ki_fac = params[10];
-    double t_L = params[11];
+    double t_L = params[11] * forcing_values[3];
     double NoFlow = params[12];
     double Td = params[13];
     double Beta = params[14];
@@ -818,12 +818,12 @@ void TilesModel_Base(double t, const double * const y_i, unsigned int dim, const
     double s_p = y_i[1];	                                        // [m]
     double s_l = y_i[2];	                                        // [m]
     double s_s = y_i[3];
-    double s_c = y_i[4];
-    double q_b = max(0.001, y_i[5]);                                // for base flow separation
+    //double s_c = y_i[4];
+    double q_b = max(0.001, y_i[4]);                                // for base flow separation
     //Fluxes
     double q_in = forcing_values[0] * (0.001/60);	//[m/min]
     //Crop (experimental)
-    double crop = forcing_values[3] * (1e-3 / (30.0*24.0*60.0)); //[mm/month] -> [m/min]
+    //double crop = forcing_values[3] * (1e-3 / (30.0*24.0*60.0)); //[mm/month] -> [m/min]
     double q_cp = (s_c + q_in - crop > 0.0)? s_c + q_in - crop: 0.0; // Crop acting as a bucket
     //double q_cp = (crop > 0.0)? q_in*(1-s_c/crop): q_in
 
@@ -875,9 +875,9 @@ void TilesModel_Base(double t, const double * const y_i, unsigned int dim, const
     ans[5] = invtau * pow(q, lambda_1) * ans[5];
     //ans[4] = (q_b/q)*ans[4];
     //Crops
-    ans[4] = q_in - q_cp - e_c;
+    //ans[4] = q_in - q_cp - e_c;
     //Ponded
-    ans[1] = q_cp - q_pl - q_pLink - e_p;
+    ans[1] = q_in - q_pl - q_pLink - e_p;
     //Top Soil Layer
     ans[2] = q_pl - q_ls - e_l;	
     //Subsurface (saturated) soil
