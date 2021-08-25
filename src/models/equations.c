@@ -978,6 +978,7 @@ void ActiveLayerSnow(double t, const double * const y_i, unsigned int dim, const
     //Snow process
     double q_snow_p = 0;
     double q_in_snow = 0;
+    temp = 5;
     if (temp <= 0.0){        
         q_in_snow = q_in*1;
         q_in *= 0;    
