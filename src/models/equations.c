@@ -907,6 +907,9 @@ void ActiveLayerSnow_Reservoir(double t, const double * const y_i, unsigned int 
 void ActiveLayerSnow(double t, const double * const y_i, unsigned int dim, const double * const y_p, unsigned short num_parents, unsigned int max_dim, const double * const global_params, const double * const params, const double * const forcing_values, const QVSData * const qvs, int state, void* user, double *ans)
 {
     unsigned short i; 
+    //Global parameters
+    double t_base = global_params[0]; // Base temp to convert snow into runoff [c]
+    double ddf = global_params[1]; // degree day factor to convert snow into runoff [mm /c ]
     //Distributed variables
     double A_i = params[0];
     double L_i = params[1];
@@ -919,12 +922,11 @@ void ActiveLayerSnow(double t, const double * const y_i, unsigned int dim, const
     double d = params[8];
     double k3 = params[9];
     double ki_fac = params[10];
-    double t_L = params[11] * forcing_values[3];
+    double t_L = params[11];
     double NoFlow = params[12];
     double Td = params[13];
     double Beta = params[14];
     double lambda_1 = params[15];
-    double t_base = params[16]
     //Processed parameters
     double invtau = params[17];
     double k2 = params[18];
@@ -937,7 +939,7 @@ void ActiveLayerSnow(double t, const double * const y_i, unsigned int dim, const
     //Forcings 
     double q_in = forcing_values[0] * (0.001/60);	//[m/min]    
     double e_pot = forcing_values[1] * (1e-3 / (30.0*24.0*60.0));	//[mm/month] -> [m/min]
-    double temp = forcing_values[3]       //[c]
+    double temp = forcing_values[3]       //[c]    
     //Vertical flow    
     double pow_t = (1.0 - s_l/t_L > 0.0)? pow(1.0 - s_l/t_L,3): 0.0;
     double q_pl = k2*99.0*pow_t*s_p;
@@ -973,9 +975,19 @@ void ActiveLayerSnow(double t, const double * const y_i, unsigned int dim, const
 		q_parent = y_p[q_pidx];
 		ans[0] += q_parent;     
 	}
+    //Snow process
+    double q_snow_p = 0;
+    if (temp <= 0){
+        ans[4] = q_in;
+        q_in = 0;    
+    }
+    if (temp > 0){
+        q_snow_p = min(ddf*temp, s_snow);
+        ans[4] = -q_snow_p;        
+    }
     //States update
     ans[0] = invtau * pow(q, lambda_1) * ans[0]; //Channel update    
-    ans[1] = q_in - q_pl - q_pLink - e_p; //Ponded    
+    ans[1] = q_in - q_pl - q_pLink - e_p + q_snow_p; //Ponded    
     ans[2] = q_pl - q_ls - e_l;	 //Top Soil Layer    
     ans[3] = q_ls - q_sLink - e_s; //Subsurface (saturated) soil
 }
