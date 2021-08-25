@@ -982,7 +982,7 @@ void ActiveLayerSnow(double t, const double * const y_i, unsigned int dim, const
         q_in = 0;    
     }
     if (temp > t_base){
-        q_snow_p = min(ddf*temp, s_snow);
+        q_snow_p = (ddf*temp <= s_snow)? ddf*temp: s_snow;
         ans[4] = -q_snow_p;        
     }
     //States update
