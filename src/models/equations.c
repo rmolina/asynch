@@ -928,8 +928,8 @@ void ActiveLayerSnow(double t, const double * const y_i, unsigned int dim, const
     double Beta = params[14];
     double lambda_1 = params[15];
     //Processed parameters
-    double invtau = params[17];
-    double k2 = params[18];
+    double invtau = params[16];
+    double k2 = params[17];
     //State variables
     double q = y_i[0];      // [m^3/s]
     double s_p = y_i[1];	// [m]
@@ -977,11 +977,11 @@ void ActiveLayerSnow(double t, const double * const y_i, unsigned int dim, const
 	}
     //Snow process
     double q_snow_p = 0;
-    if (temp <= 0){
+    if (temp <= t_base){
         ans[4] = q_in;
         q_in = 0;    
     }
-    if (temp > 0){
+    if (temp > t_base){
         q_snow_p = min(ddf*temp, s_snow);
         ans[4] = -q_snow_p;        
     }
