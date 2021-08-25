@@ -978,12 +978,12 @@ void ActiveLayerSnow(double t, const double * const y_i, unsigned int dim, const
     //Snow process
     double q_snow_p = 0;
     double q_in_snow = 0;
-    if (temp <= t_base){        
+    if (temp <= 0.0){        
         q_in_snow = q_in*1;
         q_in *= 0;    
     }
-    if (temp > t_base){
-        q_snow_p = (ddf*temp <= s_snow)? ddf*temp: s_snow;        
+    if (temp > 0.0){
+        q_snow_p = (0.16*temp <= s_snow)? ddf*temp: s_snow;        
     }
     //States update
     ans[0] = invtau * pow(q, lambda_1) * ans[0]; //Channel update    
