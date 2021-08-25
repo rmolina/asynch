@@ -928,8 +928,7 @@ void ConvertParams(
         params[1] *= 1000; //L: km -> m
         params[2] *= 1e6; // Ah: km^2 -> m^2
     }
-
-    else if (model_uid == 654 || model_uid == 608 || model_uid == 609 || model_uid = 610)
+    else if (model_uid == 654 || model_uid == 608 || model_uid == 609 || model_uid == 610)
     {
         params[1] *= 1000; //L: km -> m
         params[2] *= 1e6; // Ah: km^2 -> m^2
