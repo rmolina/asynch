@@ -992,7 +992,7 @@ void ActiveLayerSnow(double t, const double * const y_i, unsigned int dim, const
     }
     else {
         ans[1] = q_in - q_pl - q_pLink - e_p; //Ponded
-        ans[4] = -1*t_base;
+        ans[4] = ddf;
     }
     //States update
     ans[0] = invtau * pow(q, lambda_1) * ans[0]; //Channel update    
