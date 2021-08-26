@@ -988,10 +988,14 @@ void ActiveLayerSnow(double t, const double * const y_i, unsigned int dim, const
             q_snow_p = (ddf*temp <= s_snow)? ddf*temp: s_snow;        
         }
         ans[4] = q_in_snow - q_snow_p; // Snow water equivalent
+        ans[1] = q_in - q_pl - q_pLink - e_p + q_snow_p; //Ponded    
+    }
+    else {
+        ans[1] = q_in - q_pl - q_pLink - e_p; //Ponded
+        ans[4] = t_base;
     }
     //States update
     ans[0] = invtau * pow(q, lambda_1) * ans[0]; //Channel update    
-    ans[1] = q_in - q_pl - q_pLink - e_p + q_snow_p; //Ponded    
     ans[2] = q_pl - q_ls - e_l;	 //Top Soil Layer    
     ans[3] = q_ls - q_sLink - e_s; //Subsurface (saturated) soil
 }
