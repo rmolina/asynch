@@ -486,7 +486,7 @@ case 20:	num_global_params = 9;
         break;
     case 610:	num_global_params = 2;
         globals->uses_dam = 0;
-        globals->num_params = 18;
+        globals->num_params = 19;
         globals->dam_params_size = 0;
         globals->area_idx = 0;
         globals->areah_idx = 2;
