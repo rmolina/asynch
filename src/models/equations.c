@@ -908,7 +908,7 @@ void ActiveLayerSnow(double t, const double * const y_i, unsigned int dim, const
 {
     unsigned short i; 
     //Global parameters
-    double t_base = global_params[0]; // Base temp to convert snow into runoff [c]
+    double t_base = params[18]; // Base temp to convert snow into runoff [c]
     double ddf = global_params[1]; // degree day factor to convert snow into runoff [mm /c ]
     //Distributed variables
     double A_i = params[0];
@@ -992,7 +992,7 @@ void ActiveLayerSnow(double t, const double * const y_i, unsigned int dim, const
     }
     else {
         ans[1] = q_in - q_pl - q_pLink - e_p; //Ponded
-        ans[4] = ddf;
+        ans[4] = 0;
     }
     //States update
     ans[0] = invtau * pow(q, lambda_1) * ans[0]; //Channel update    

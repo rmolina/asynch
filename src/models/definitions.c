@@ -490,7 +490,7 @@ case 20:	num_global_params = 9;
         globals->dam_params_size = 0;
         globals->area_idx = 0;
         globals->areah_idx = 2;
-        globals->num_disk_params = 18;
+        globals->num_disk_params = 19;
         globals->convertarea_flag = 0;
         globals->num_forcings = 4;
         globals->min_error_tolerances = 4;
@@ -2751,6 +2751,33 @@ void Precalculations(
         double lambda_1 = params[15];
         double lambda_2 = params[16];
         double v0 = params[17];
+        //Pre computed parameters
+        vals[16] = 60.0*v0*pow(A_i, lambda_2) / ((1.0 - lambda_1)*L_i);	//[1/min]  invtau
+        vals[17] = v_r * (L_i / A_h) * 60; // [1/min] runoff speed.
+    }
+    
+    else if (model_uid == 610)
+    { 
+         double* vals = params;
+        double A_i = params[0];
+        double L_i = params[1];
+        double A_h = params[2];
+        double v_r = params[3];
+        double a_r = params[4];
+        double a = params[5];
+        double b = params[6]; 
+        double c = params[7];
+        double d = params[8];
+        double k3 = params[9];
+        double ki_fac = params[10];        
+        double t_L = params[11];
+        double NoFlow = params[12];
+        double Td = params[13];
+        double Beta = params[14];
+        double lambda_1 = params[15];
+        double lambda_2 = params[16];
+        double v0 = params[17];
+        double t_base = params[18];
         //Pre computed parameters
         vals[16] = 60.0*v0*pow(A_i, lambda_2) / ((1.0 - lambda_1)*L_i);	//[1/min]  invtau
         vals[17] = v_r * (L_i / A_h) * 60; // [1/min] runoff speed.
