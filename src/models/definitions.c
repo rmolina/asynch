@@ -486,11 +486,11 @@ case 20:	num_global_params = 9;
         break;
     case 610:	num_global_params = 2;
         globals->uses_dam = 0;
-        globals->num_params = 19;
+        globals->num_params = 18;
         globals->dam_params_size = 0;
         globals->area_idx = 0;
         globals->areah_idx = 2;
-        globals->num_disk_params = 19;
+        globals->num_disk_params = 18;
         globals->convertarea_flag = 0;
         globals->num_forcings = 4;
         globals->min_error_tolerances = 4;
@@ -2730,7 +2730,7 @@ void Precalculations(
         vals[17] = v_r * (L_i / A_h) * 60; // [1/min] runoff speed.
     }
 
-    else if (model_uid == 609 || model_uid == 610)
+    else if (model_uid == 609)
     { 
          double* vals = params;
         double A_i = params[0];
@@ -2777,7 +2777,7 @@ void Precalculations(
         double lambda_1 = params[15];
         double lambda_2 = params[16];
         double v0 = params[17];
-        double t_base = params[18];
+        //double t_base = params[18];
         //Pre computed parameters
         vals[16] = 60.0*v0*pow(A_i, lambda_2) / ((1.0 - lambda_1)*L_i);	//[1/min]  invtau
         vals[17] = v_r * (L_i / A_h) * 60; // [1/min] runoff speed.
