@@ -1529,7 +1529,7 @@ void InitRoutines(
 
         if (link->has_res)
         { 
-            link->differential = &Tiles_Reservoirs;
+            link->differential = &Tiles_Reservoirs_Base;
             link->solver = &ForcedSolutionSolver;
         }
         else    link->differential = &TilesModel;
