@@ -820,7 +820,7 @@ void TilesModel_Base(double t, const double * const y_i, unsigned int dim, const
     double s_p = y_i[1];	                                        // [m]
     double s_l = y_i[2];	                                        // [m]
     double s_s = y_i[3];
-    double q_b = max(0.001, y_i[4]);                                // for base flow separation
+    double q_b = y_i[4];                                // for base flow separation
     //Fluxes
     double q_in = forcing_values[0] * (0.001/60);	//[m/min]
     
