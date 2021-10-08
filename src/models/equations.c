@@ -790,6 +790,8 @@ void Tiles_Reservoirs_Base(double t, const double * const y_i, unsigned int dim,
     ans[4] = 0.0;
 }
 
+//Type 609
+//TilesModelBase Model 608 with baseflow separation
 void TilesModel_Base(double t, const double * const y_i, unsigned int dim, const double * const y_p, unsigned short num_parents, unsigned int max_dim, const double * const global_params, const double * const params, const double * const forcing_values, const QVSData * const qvs, int state, void* user, double *ans)
 {
     unsigned short i; 
@@ -865,7 +867,9 @@ void TilesModel_Base(double t, const double * const y_i, unsigned int dim, const
 		ans[4] += q_parent;
 	}
     ans[0] = invtau * pow(q, lambda_1) * ans[0];
-    ans[4] = invtau * pow(q, lambda_1) * ans[4];
+    //pow term contains q and not q_b because we want to move baseflow at the same
+    //velocity that water in channel, not slower
+    ans[4] = invtau * pow(q, lambda_1) * ans[4]; 
     //ans[4] = (q_b/q)*ans[4];
     //Ponded
     ans[1] = q_in - q_pl - q_pLink - e_p;
@@ -1703,7 +1707,7 @@ void model263(double t, const double * const y_i, unsigned int dim, const double
     double s_s = y_i[3];    //[m]
                             //double s_precip = y_i[4];	//[m]
                             //double V_r = y_i[5];	//[m^3]
-    double q_b = y_i[7];    //[m^3/s]
+    double q_b = y_i[4];    //[m^3/s]
 
     //Evaporation
     double e_p, e_t, e_s;
@@ -1743,13 +1747,16 @@ void model263(double t, const double * const y_i, unsigned int dim, const double
     ans[3] = q_ts - q_sl - e_s;                             // subsurface[3]
 
     //Additional states
-    ans[4] = forcing_values[0] * c_1;   // precip[4]
-    ans[5] = forcing_values[1] * c_1;   // et[5]
-    ans[6] = q_pl;                      // runoff[]6
-    ans[7] = q_sl * A_h - q_b*60.0;     // baseflow[7]
+    //ans[4] = forcing_values[0] * c_1;   // precip[4]
+    //ans[5] = forcing_values[1] * c_1;   // et[5]
+    //ans[6] = q_pl;                      // runoff[]6
+    //ans[7] = q_sl * A_h - q_b*60.0;     // baseflow[7]
     for (i = 0; i < num_parents; i++)
-        ans[7] += y_p[i * dim + 7] * 60.0;
-    ans[7] *= v_B / L;
+        //ans[4] += y_p[i * dim + 4] * 60.0;
+        ans[4] += y_p[i * dim + 4] ;
+    //ans[4] *= v_B / L;
+    //pow using q not q_b to move at same flow velocity that state0
+    ans[4] = invtau * pow(q, lambda_1) * ans[4];    // baseflow[0]
 }
 
 //Type 264: similar to model 256, with a forcing for snowmelt
