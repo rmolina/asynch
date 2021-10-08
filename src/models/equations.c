@@ -787,7 +787,7 @@ void Tiles_Reservoirs_Base(double t, const double * const y_i, unsigned int dim,
     ans[1] = 0.0;
     ans[2] = 0.0;
     ans[3] = Beta;
-    ans[4] = 0.0;
+    //ans[4] = 0.0;
 }
 
 //Type 609
