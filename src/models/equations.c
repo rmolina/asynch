@@ -869,7 +869,7 @@ void TilesModel_Base(double t, const double * const y_i, unsigned int dim, const
     ans[0] = invtau * pow(q, lambda_1) * ans[0];
     //pow term contains q and not q_b because we want to move baseflow at the same
     //velocity that water in channel, not slower
-    ans[4] = invtau * pow(q_b, lambda_1) * ans[4]; 
+    ans[4] = invtau * pow(q, lambda_1) * ans[4]; 
     //ans[4] = (q_b/q)*ans[4];
     //Ponded
     ans[1] = q_in - q_pl - q_pLink - e_p;
