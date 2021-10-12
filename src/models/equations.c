@@ -1302,9 +1302,9 @@ void model249(double t, const double * const y_i, unsigned int dim, const double
     ans[3] = q_ts - q_sl - e_s;
     ans[4] = q_sl * A_h - q_b*60.0;
     for (i = 0; i<num_parents; i++)
-        ans[4] += y_p[i * dim + 4] * 60.0;
+        ans[4] += y_p[i * dim + 4] ;
     //ans[6] += k_3*y_p[i].ve[3]*A_h;
-    ans[4] *= v_B / L;
+    ans[4] = invtau * pow(q, lambda_1) * ans[4];
 }
 void model249_reservoirs(double t, const double * const y_i, unsigned int dim, const double * const y_p, unsigned short num_parents, unsigned int max_dim, const double * const global_params, const double * const params, const double * const forcing_values, const QVSData * const qvs, int state, void* user, double *ans)
 {
@@ -1385,7 +1385,6 @@ void model249_reservoirs(double t, const double * const y_i, unsigned int dim, c
     ans[4] = q_sl * A_h - q_b*60.0;
     for (i = 0; i<num_parents; i++)
         ans[4] += y_p[i * dim + 4];
-    //ans[6] += k_3*y_p[i].ve[3]*A_h;
     ans[4] = invtau * pow(q, lambda_1) * ans[4];
 }
 
