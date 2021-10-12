@@ -1372,6 +1372,7 @@ void model249_reservoirs(double t, const double * const y_i, unsigned int dim, c
 		unsigned short i;
 		for (i = 0; i<num_parents; i++)
 			ans[0] += y_p[i * dim];
+        ans[0] = invtau * pow(q, lambda_1) * ans[0];    
 	}
     //Discharge open loop
     ans[5] = -q + (q_pl + q_sl) * c_2;
