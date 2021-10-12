@@ -1261,7 +1261,7 @@ void model249(double t, const double * const y_i, unsigned int dim, const double
     double s_s = y_i[3];	//[m]
                             //double s_precip = y_i[4];	//[m]
                             //double V_r = y_i[5];	//[m^3]
-    double q_b = max(0.001,y_i[4]);	//[m^3/s]
+    double q_b = (1.0e-7>y_i[4])? 1.0e-7: y_i[4];	//[m^3/s]
     double q_openloop = y_i[5];
 
                             //Evaporation
@@ -1335,7 +1335,7 @@ void model249_reservoirs(double t, const double * const y_i, unsigned int dim, c
     double s_s = y_i[3];	//[m]
                             //double s_precip = y_i[4];	//[m]
                             //double V_r = y_i[5];	//[m^3]
-    double q_b = max(0.001,y_i[4]);	//[m^3/s]
+    double q_b = (1.0e-7>y_i[4])? 1.0e-7: y_i[4];	//[m^3/s]
     double q_openloop = y_i[5];
                             //Evaporation
     double e_p, e_t, e_s;
@@ -1365,7 +1365,13 @@ void model249_reservoirs(double t, const double * const y_i, unsigned int dim, c
     if(forcing_values[2] >0){
 		ans[0] = forcing_values[2];
 	}
-
+    if(forcing_values[2] <=0){
+        //if models dont have this lines, they stop running
+        //when zeros occur at DA
+		unsigned short i;
+		for (i = 0; i<num_parents; i++)
+			ans[0] += y_p[i * dim];
+	}
     //Discharge open loop
     ans[5] = -q + (q_pl + q_sl) * c_2;
     for (i = 0; i<num_parents; i++)
