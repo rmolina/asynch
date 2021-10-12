@@ -873,7 +873,7 @@ void TilesModel_Base(double t, const double * const y_i, unsigned int dim, const
 		ans[4] += q_parent;
 	}
     ans[0] = invtau * pow(q, lambda_1) * ans[0];
-    ans[4] = invtau * pow(q_b, lambda_1) * ans[4];
+    ans[4] = invtau * pow(q, lambda_1) * ans[4];
     //ans[4] = (q_b/q)*ans[4];
     //Crops
     //ans[4] = q_in - q_cp - e_c;
