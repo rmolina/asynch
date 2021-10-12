@@ -776,7 +776,7 @@ void TilesModel(double t, const double * const y_i, unsigned int dim, const doub
 void Tiles_Reservoirs_Base(double t, const double * const y_i, unsigned int dim, const double * const y_p, unsigned short num_parents, unsigned int max_dim, const double * const global_params, const double * const params, const double * const forcing_values, const QVSData * const qvs, int state, void* user, double *ans)
 {
     if(forcing_values[2] > 0){
-        ans[0] = forcing_values[2];
+        ans[0] = forcing_values[2]; // Streamflow
     }
     if(forcing_values[2] <=0){
         unsigned short i;
@@ -784,10 +784,11 @@ void Tiles_Reservoirs_Base(double t, const double * const y_i, unsigned int dim,
             ans[0] += y_p[i*dim];
     }
     double Beta = params[14];
-    ans[1] = 0.0;
+    ans[1] = 0.0; 
     ans[2] = 0.0;
-    ans[3] = Beta;
-    ans[4] = 0.0;
+    ans[3] = Beta; 
+    ans[4] = 0.0; // Baseflow
+    //ans[5] = 0.0; // OpenLoop streamflow
 }
 
 void TilesModel_Base(double t, const double * const y_i, unsigned int dim, const double * const y_p, unsigned short num_parents, unsigned int max_dim, const double * const global_params, const double * const params, const double * const forcing_values, const QVSData * const qvs, int state, void* user, double *ans)
