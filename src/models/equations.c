@@ -1329,7 +1329,8 @@ void model249_reservoirs(double t, const double * const y_i, unsigned int dim, c
     double c_1 = params[6];
     double c_2 = params[7];
 
-    double q =   y_i[0];		//[m^3/s]
+    //double q =   y_i[0];		//[m^3/s]
+    double q = (1.0e-7>y_i[0])? 1.0e-7: y_i[0];
     double s_p = y_i[1];	//[m]
     double s_t = y_i[2];	//[m]
     double s_s = y_i[3];	//[m]
