@@ -704,7 +704,7 @@ void TilesModel(double t, const double * const y_i, unsigned int dim, const doub
     //double expo = params[18];
     //Variables or sttates
     double q = y_i[0];	
-    double q_openloop = y_i[5];		                                        // [m^3/s]
+    //double q_openloop = y_i[5];		                                        // [m^3/s]
     double s_p = y_i[1];	                                        // [m]
     double s_l = y_i[2];	                                        // [m]
     double s_s = y_i[3];
@@ -789,8 +789,11 @@ void Tiles_Reservoirs_Base(double t, const double * const y_i, unsigned int dim,
     ans[3] = Beta; 
     ans[4] = 0.0; // Baseflow
     //ans[5] = 0.0; // OpenLoop streamflow
+
 }
 
+//Type 609
+//TilesModelBase Model 608 with baseflow separation
 void TilesModel_Base(double t, const double * const y_i, unsigned int dim, const double * const y_p, unsigned short num_parents, unsigned int max_dim, const double * const global_params, const double * const params, const double * const forcing_values, const QVSData * const qvs, int state, void* user, double *ans)
 {
     unsigned short i; 
@@ -819,9 +822,12 @@ void TilesModel_Base(double t, const double * const y_i, unsigned int dim, const
     double s_p = y_i[1];	                                        // [m]
     double s_l = y_i[2];	                                        // [m]
     double s_s = y_i[3];
+
     //double s_c = y_i[4];
     double q_b = (1.0e-7>y_i[4])? 1.0e-7: y_i[4];                                // for base flow separation
     //double q_b = y_i[4];
+
+
     //Fluxes
     double q_in = forcing_values[0] * (0.001/60);	//[m/min]
     //Crop (experimental)
@@ -873,8 +879,10 @@ void TilesModel_Base(double t, const double * const y_i, unsigned int dim, const
         q_parent = y_p[q_pidx+4];
 		ans[4] += q_parent;
 	}
+
     ans[0] = invtau * pow(q, lambda_1) * ans[0]; //
     ans[4] = invtau * pow(q, lambda_1) * ans[4];
+
     //ans[4] = (q_b/q)*ans[4];
     //Crops
     //ans[4] = q_in - q_cp - e_c;
@@ -1238,6 +1246,161 @@ void model256_reservoirs(double t, const double * const y_i, unsigned int dim, c
     ans[1] = 0.0;
     ans[2] = 0.0;
     ans[3] = 0.0;
+}
+
+//type 249
+void model249(double t, const double * const y_i, unsigned int dim, const double * const y_p, unsigned short num_parents, unsigned int max_dim, const double * const global_params, const double * const params, const double * const forcing_values, const QVSData * const qvs, int state, void* user, double *ans)
+{
+    unsigned short i;
+
+    double lambda_1 = global_params[1];
+    double k_3 = global_params[4];	//[1/min]
+    double h_b = global_params[6];	//[m]
+    double S_L = global_params[7];	//[m]
+    double A = global_params[8];
+    double B = global_params[9];
+    double exponent = global_params[10];
+    double v_B = global_params[11];
+    double e_pot = forcing_values[1] * (1e-3 / (30.0*24.0*60.0));	//[mm/month] -> [m/min]
+
+    double L = params[1];	//[m]
+    double A_h = params[2];	//[m^2]
+                                //double h_r = params[3];	//[m]
+    double invtau = params[3];	//[1/min]
+    double k_2 = params[4];	//[1/min]
+    double k_i = params[5];	//[1/min]
+    double c_1 = params[6];
+    double c_2 = params[7];
+
+    double q =   y_i[0];		//[m^3/s]
+    double s_p = y_i[1];	//[m]
+    double s_t = y_i[2];	//[m]
+    double s_s = y_i[3];	//[m]
+                            //double s_precip = y_i[4];	//[m]
+                            //double V_r = y_i[5];	//[m^3]
+    double q_b = (1.0e-7>y_i[4])? 1.0e-7: y_i[4];	//[m^3/s]
+    double q_openloop = y_i[5];
+
+                            //Evaporation
+    double e_p, e_t, e_s;
+    double Corr = s_p + s_t / S_L + s_s / (h_b - S_L);
+    if (e_pot > 0.0 && Corr > 1e-12)
+    {
+        e_p = s_p * e_pot / Corr;
+        e_t = s_t / S_L * e_pot / Corr;
+        e_s = s_s / (h_b - S_L) * e_pot / Corr;
+    }
+    else
+    {
+        e_p = 0.0;
+        e_t = 0.0;
+        e_s = 0.0;
+    }
+
+    double pow_term = (1.0 - s_t / S_L > 0.0) ? pow(1.0 - s_t / S_L, exponent) : 0.0;
+    double k_t = (A + B * pow_term) * k_2;
+
+    //Fluxes
+    double q_pl = k_2 * s_p;
+    double q_pt = k_t * s_p;
+    double q_ts = k_i * s_t;
+    double q_sl = k_3 * s_s;	//[m/min]
+
+                                //Discharge
+    ans[0] = -q + (q_pl + q_sl) * c_2;
+    for (i = 0; i<num_parents; i++)
+        ans[0] += y_p[i * dim];
+    ans[0] = invtau * pow(q, lambda_1) * ans[0];
+    ans[5] = ans[0];
+
+    //Hillslope
+    ans[1] = forcing_values[0] * c_1 - q_pl - q_pt - e_p;
+    ans[2] = q_pt - q_ts - e_t;
+    ans[3] = q_ts - q_sl - e_s;
+    ans[4] = q_sl * A_h - q_b*60.0;
+    for (i = 0; i<num_parents; i++)
+        ans[4] += y_p[i * dim + 4] ;
+    //ans[6] += k_3*y_p[i].ve[3]*A_h;
+    ans[4] = invtau * pow(q, lambda_1) * ans[4];
+}
+void model249_reservoirs(double t, const double * const y_i, unsigned int dim, const double * const y_p, unsigned short num_parents, unsigned int max_dim, const double * const global_params, const double * const params, const double * const forcing_values, const QVSData * const qvs, int state, void* user, double *ans)
+{
+    unsigned short i;
+
+    double lambda_1 = global_params[1];
+    double k_3 = global_params[4];	//[1/min]
+    double h_b = global_params[6];	//[m]
+    double S_L = global_params[7];	//[m]
+    double A = global_params[8];
+    double B = global_params[9];
+    double exponent = global_params[10];
+    double v_B = global_params[11];
+    double e_pot = forcing_values[1] * (1e-3 / (30.0*24.0*60.0));	//[mm/month] -> [m/min]
+
+    double L = params[1];	//[m]
+    double A_h = params[2];	//[m^2]
+                                //double h_r = params[3];	//[m]
+    double invtau = params[3];	//[1/min]
+    double k_2 = params[4];	//[1/min]
+    double k_i = params[5];	//[1/min]
+    double c_1 = params[6];
+    double c_2 = params[7];
+
+    //double q =   y_i[0];		//[m^3/s]
+    double q = (1.0e-7>y_i[0])? 1.0e-7: y_i[0];
+    double s_p = y_i[1];	//[m]
+    double s_t = y_i[2];	//[m]
+    double s_s = y_i[3];	//[m]
+                            //double s_precip = y_i[4];	//[m]
+                            //double V_r = y_i[5];	//[m^3]
+    double q_b = (1.0e-7>y_i[4])? 1.0e-7: y_i[4];	//[m^3/s]
+    double q_openloop = y_i[5];
+                            //Evaporation
+    double e_p, e_t, e_s;
+    double Corr = s_p + s_t / S_L + s_s / (h_b - S_L);
+    if (e_pot > 0.0 && Corr > 1e-12)
+    {
+        e_p = s_p * e_pot / Corr;
+        e_t = s_t / S_L * e_pot / Corr;
+        e_s = s_s / (h_b - S_L) * e_pot / Corr;
+    }
+    else
+    {
+        e_p = 0.0;
+        e_t = 0.0;
+        e_s = 0.0;
+    }
+
+    double pow_term = (1.0 - s_t / S_L > 0.0) ? pow(1.0 - s_t / S_L, exponent) : 0.0;
+    double k_t = (A + B * pow_term) * k_2;
+
+    //Fluxes
+    double q_pl = k_2 * s_p;
+    double q_pt = k_t * s_p;
+    double q_ts = k_i * s_t;
+    double q_sl = k_3 * s_s;	//[m/min]
+    //Discharge data assim
+    if(forcing_values[2] >0){
+		ans[0] = forcing_values[2];
+	}
+
+    //Discharge open loop
+    ans[5] = -q + (q_pl + q_sl) * c_2;
+    for (i = 0; i<num_parents; i++)
+        ans[5] += y_p[i * dim+5];
+    ans[5] = invtau * pow(q, lambda_1) * ans[5];
+    
+    if(forcing_values[2] <=0){
+        ans[0] =ans[5];
+	}
+    //Hillslope
+    ans[1] = forcing_values[0] * c_1 - q_pl - q_pt - e_p;
+    ans[2] = q_pt - q_ts - e_t;
+    ans[3] = q_ts - q_sl - e_s;
+    ans[4] = q_sl * A_h - q_b*60.0;
+    for (i = 0; i<num_parents; i++)
+        ans[4] += y_p[i * dim + 4];
+    ans[4] = invtau * pow(q, lambda_1) * ans[4];
 }
 
 //Type 253
@@ -1714,7 +1877,7 @@ void model263(double t, const double * const y_i, unsigned int dim, const double
     double s_s = y_i[3];    //[m]
                             //double s_precip = y_i[4];	//[m]
                             //double V_r = y_i[5];	//[m^3]
-    double q_b = y_i[7];    //[m^3/s]
+    double q_b = y_i[4];    //[m^3/s]
 
     //Evaporation
     double e_p, e_t, e_s;
@@ -1754,13 +1917,16 @@ void model263(double t, const double * const y_i, unsigned int dim, const double
     ans[3] = q_ts - q_sl - e_s;                             // subsurface[3]
 
     //Additional states
-    ans[4] = forcing_values[0] * c_1;   // precip[4]
-    ans[5] = forcing_values[1] * c_1;   // et[5]
-    ans[6] = q_pl;                      // runoff[]6
-    ans[7] = q_sl * A_h - q_b*60.0;     // baseflow[7]
+    //ans[4] = forcing_values[0] * c_1;   // precip[4]
+    //ans[5] = forcing_values[1] * c_1;   // et[5]
+    //ans[6] = q_pl;                      // runoff[]6
+    //ans[7] = q_sl * A_h - q_b*60.0;     // baseflow[7]
     for (i = 0; i < num_parents; i++)
-        ans[7] += y_p[i * dim + 7] * 60.0;
-    ans[7] *= v_B / L;
+        //ans[4] += y_p[i * dim + 4] * 60.0;
+        ans[4] += y_p[i * dim + 4] ;
+    //ans[4] *= v_B / L;
+    //pow using q not q_b to move at same flow velocity that state0
+    ans[4] = invtau * pow(q, lambda_1) * ans[4];    // baseflow[0]
 }
 
 //Type 264: similar to model 256, with a forcing for snowmelt
