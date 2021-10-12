@@ -820,7 +820,8 @@ void TilesModel_Base(double t, const double * const y_i, unsigned int dim, const
     double s_l = y_i[2];	                                        // [m]
     double s_s = y_i[3];
     //double s_c = y_i[4];
-    double q_b = (0.001>y_i[4])? 0.001: y_i[4];                                // for base flow separation
+    double q_b = (1.0e-7>y_i[4])? 1.0e-7: y_i[4];                                // for base flow separation
+    double q_b = y_i[4];
     //Fluxes
     double q_in = forcing_values[0] * (0.001/60);	//[m/min]
     //Crop (experimental)
@@ -872,7 +873,7 @@ void TilesModel_Base(double t, const double * const y_i, unsigned int dim, const
         q_parent = y_p[q_pidx+4];
 		ans[4] += q_parent;
 	}
-    ans[0] = invtau * pow(q, lambda_1) * ans[0];
+    ans[0] = invtau * pow(q, lambda_1) * ans[0]; //
     ans[4] = invtau * pow(q, lambda_1) * ans[4];
     //ans[4] = (q_b/q)*ans[4];
     //Crops
