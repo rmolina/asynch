@@ -776,7 +776,7 @@ void TilesModel(double t, const double * const y_i, unsigned int dim, const doub
 void Tiles_Reservoirs_Base(double t, const double * const y_i, unsigned int dim, const double * const y_p, unsigned short num_parents, unsigned int max_dim, const double * const global_params, const double * const params, const double * const forcing_values, const QVSData * const qvs, int state, void* user, double *ans)
 {
     if(forcing_values[2] > 0){
-        ans[0] = forcing_values[2];
+        ans[0] = forcing_values[2]; // Streamflow
     }
     if(forcing_values[2] <=0){
         unsigned short i;
@@ -784,10 +784,12 @@ void Tiles_Reservoirs_Base(double t, const double * const y_i, unsigned int dim,
             ans[0] += y_p[i*dim];
     }
     double Beta = params[14];
-    ans[1] = 0.0;
+    ans[1] = 0.0; 
     ans[2] = 0.0;
-    ans[3] = Beta;
-    //ans[4] = 0.0;
+    ans[3] = Beta; 
+    ans[4] = 0.0; // Baseflow
+    //ans[5] = 0.0; // OpenLoop streamflow
+
 }
 
 //Type 609
@@ -807,7 +809,7 @@ void TilesModel_Base(double t, const double * const y_i, unsigned int dim, const
     double d = params[8];
     double k3 = params[9];
     double ki_fac = params[10];
-    double t_L = params[11];
+    double t_L = params[11]; //* forcing_values[3];
     double NoFlow = params[12];
     double Td = params[13];
     double Beta = params[14];
@@ -820,10 +822,19 @@ void TilesModel_Base(double t, const double * const y_i, unsigned int dim, const
     double s_p = y_i[1];	                                        // [m]
     double s_l = y_i[2];	                                        // [m]
     double s_s = y_i[3];
-    double q_b = y_i[4];                                // for base flow separation
+
+    //double s_c = y_i[4];
+    double q_b = (1.0e-7>y_i[4])? 1.0e-7: y_i[4];                                // for base flow separation
+    //double q_b = y_i[4];
+
+
     //Fluxes
     double q_in = forcing_values[0] * (0.001/60);	//[m/min]
-    
+    //Crop (experimental)
+    //double crop = forcing_values[3] * (1e-3 / (30.0*24.0*60.0)); //[mm/month] -> [m/min]
+    //double q_cp = (s_c + q_in - crop > 0.0)? s_c + q_in - crop: 0.0; // Crop acting as a bucket
+    //double q_cp = (crop > 0.0)? q_in*(1-s_c/crop): q_in
+
     double pow_t = (1.0 - s_l/t_L > 0.0)? pow(1.0 - s_l/t_L,3): 0.0;
     double q_pl = k2*99.0*pow_t*s_p;
     double q_ls = k2*ki_fac*s_l;
@@ -848,11 +859,13 @@ void TilesModel_Base(double t, const double * const y_i, unsigned int dim, const
     double C_p = s_p;
     double C_l = s_l/t_L;
     double C_s = s_s/(Beta-NoFlow);
+    //double C_c = (crop > 0.0)? s_c: 0.0;
     double Corr_evap = 1/(C_p + C_l + C_s);
     double e_pot = forcing_values[1] * (1e-3 / (30.0*24.0*60.0));	//[mm/month] -> [m/min]
     double e_p = Corr_evap * C_p * e_pot;
     double e_l = Corr_evap * C_l * e_pot;
     double e_s = Corr_evap * C_s * e_pot;
+    //double e_c = Corr_evap * C_c * e_pot;
     //Update variables
 	double q_parent;
 	int q_pidx;
@@ -866,9 +879,13 @@ void TilesModel_Base(double t, const double * const y_i, unsigned int dim, const
         q_parent = y_p[q_pidx+4];
 		ans[4] += q_parent;
 	}
-    ans[0] = invtau * pow(q, lambda_1) * ans[0];
-    ans[4] = invtau * pow(q_b, lambda_1) * ans[4]; 
+
+    ans[0] = invtau * pow(q, lambda_1) * ans[0]; //
+    ans[4] = invtau * pow(q, lambda_1) * ans[4];
+
     //ans[4] = (q_b/q)*ans[4];
+    //Crops
+    //ans[4] = q_in - q_cp - e_c;
     //Ponded
     ans[1] = q_in - q_pl - q_pLink - e_p;
     //Top Soil Layer
