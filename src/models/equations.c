@@ -1366,20 +1366,16 @@ void model249_reservoirs(double t, const double * const y_i, unsigned int dim, c
     if(forcing_values[2] >0){
 		ans[0] = forcing_values[2];
 	}
-    if(forcing_values[2] <=0){
-        //if models dont have this lines, they stop running
-        //when zeros occur at DA
-		unsigned short i;
-		for (i = 0; i<num_parents; i++)
-			ans[0] += y_p[i * dim];
-        ans[0] = invtau * pow(q, lambda_1) * ans[0];    
-	}
+
     //Discharge open loop
     ans[5] = -q + (q_pl + q_sl) * c_2;
     for (i = 0; i<num_parents; i++)
         ans[5] += y_p[i * dim+5];
     ans[5] = invtau * pow(q, lambda_1) * ans[5];
-
+    
+    if(forcing_values[2] <=0){
+        ans[0] =ans[5];
+	}
     //Hillslope
     ans[1] = forcing_values[0] * c_1 - q_pl - q_pt - e_p;
     ans[2] = q_pt - q_ts - e_t;
