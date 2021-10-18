@@ -1422,6 +1422,7 @@ void model249_reservoirs(double t, const double * const y_i, unsigned int dim, c
     
     if(forcing_values[2] <=0){
         ans[0] =ans[5];
+        ans[0]=1;
 	}   
     for (i = 0; i<num_parents; i++)
         ans[4] += y_p[i * dim + 4];
