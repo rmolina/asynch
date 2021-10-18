@@ -815,6 +815,11 @@ void SetOutputConstraints(GlobalVars* globals)
             globals->OutputConstrainsPsql = NULL;
             globals->OutputConstrainsRec = NULL;
             break;
+        case 249:
+            globals->OutputConstrainsHdf5 = &OutputConstraints_Model249_Hdf5;
+            globals->OutputConstrainsPsql = NULL;
+            globals->OutputConstrainsRec = NULL;
+            break;    
         case 254:
             globals->OutputConstrainsHdf5 = &OutputConstraints_Model254_Hdf5;
             globals->OutputConstrainsPsql = NULL;
