@@ -3352,7 +3352,12 @@ int ReadInitData(
 		//The numbering is:        0      1        2     3   4   5  6
 		y_0[1] = params[0] / (global_params[6] + global_params[0]) * y_0[0];
 		return 0;
-	} else if (model_uid == 254) {
+	}else if (model_uid == 249) {
+		//For this model_uid, the extra states need to be set (4,5,6)
+		y_0[4] = y_0[0];
+		y_0[5] = y_0[0];
+	}
+     else if (model_uid == 254) {
 		//For this model_uid, the extra states need to be set (4,5,6)
 		y_0[4] = 0.0;
 		y_0[5] = 0.0;
