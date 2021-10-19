@@ -1408,7 +1408,9 @@ void model249_reservoirs(double t, const double * const y_i, unsigned int dim, c
     ans[1]=0;
     ans[2]=0;
     ans[3]=0;
-
+    double invtau = params[3];	//[1/min]
+    double lambda_1 = global_params[1];
+    double q_openloop = y_i[5];
     unsigned short i;
     //Discharge data assim
     if(forcing_values[2] >0){
@@ -1416,9 +1418,10 @@ void model249_reservoirs(double t, const double * const y_i, unsigned int dim, c
 	}
 
     //Discharge open loop
+    ans[5] = -q_openloop ;
     for (i = 0; i<num_parents; i++)
         ans[5] += y_p[i * dim+5];
-    //ans[5] = invtau * pow(q, lambda_1) * ans[5];
+    ans[5] = invtau * pow(q_openloop, lambda_1) * ans[5];
     
     if(forcing_values[2] <=0){
         ans[0] =ans[5];
