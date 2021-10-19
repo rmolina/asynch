@@ -1411,6 +1411,8 @@ void model249_reservoirs(double t, const double * const y_i, unsigned int dim, c
     double invtau = params[3];	//[1/min]
     double lambda_1 = global_params[1];
     double q_openloop = y_i[5];
+    double q_b = y_i[4];	//[m^3/s]
+
     unsigned short i;
     //Discharge data assim
     if(forcing_values[2] >0){
@@ -1425,11 +1427,12 @@ void model249_reservoirs(double t, const double * const y_i, unsigned int dim, c
     
     if(forcing_values[2] <=0){
         ans[0] =ans[5];
-        ans[0]=1;
+        //ans[0]=1;
 	}   
+    ans[4] = - q_b*60.0;
     for (i = 0; i<num_parents; i++)
         ans[4] += y_p[i * dim + 4];
-    //ans[4] = invtau * pow(q, lambda_1) * ans[4];
+    ans[4] = invtau * pow(q_b, lambda_1) * ans[4];
 }
 //Type 253
 // 4 states.
