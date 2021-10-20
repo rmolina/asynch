@@ -1395,7 +1395,8 @@ void model249_reservoirs(double t, const double * const y_i, unsigned int dim, c
     //Discharge open loop
     ans[5] = -q_openloop + (q_pl + q_sl) * c_2;
     for (i = 0; i<num_parents; i++)
-        ans[5] += y_p[i * dim+5];
+        //ans[5] += y_p[i * dim+5];
+        ans[5] += y_p[i * dim];
     ans[5] = invtau * pow(q_openloop, lambda_1) * ans[5];
     printf(" q_openloop: %f invtau: %f lambda1: %f\n", q_openloop, invtau, lambda_1);
     printf(" ans5: %f \n", ans[5]);
