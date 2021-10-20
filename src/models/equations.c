@@ -1360,7 +1360,8 @@ void model249_reservoirs(double t, const double * const y_i, unsigned int dim, c
                             //double V_r = y_i[5];	//[m^3]
     double q_b =  y_i[4];	//[m^3/s]
     //double q_openloop = (0.001>y_i[5])? 0.001 : y_i[5];
-    double q_openloop = y_i[5];
+    //double q_openloop = y_i[5];
+    double q_openloop = y_i[0];
     //double q_b = (1.0e-7>y_i[4])? 1.0e-7: y_i[4];   
                             //Evaporation
     double e_p, e_t, e_s;
