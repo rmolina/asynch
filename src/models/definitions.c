@@ -2896,7 +2896,7 @@ void Precalculations(
         vals[6] = (0.001 / 60.0);		//(mm/hr->m/min)  c_1
         vals[7] = A_h / 60.0;	//  c_2
     }
-    else if (model_uid == 249 ||model_uid == 254 || model_uid == 256 || model_uid == 264)
+    else if (model_uid == 249 ||model_uid == 251 ||model_uid == 254 || model_uid == 256 || model_uid == 264)
     {
         //Order of parameters: A_i,L_i,A_h,invtau,k_2,k_i,c_1,c_2
         //The numbering is:     0   1   2    3     4   5   6   7 
