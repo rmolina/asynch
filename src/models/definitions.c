@@ -1641,6 +1641,26 @@ void InitRoutines(
         link->check_state = NULL;
         link->check_consistency = &CheckConsistency_Nonzero_3States;
     }
+            else if (model_uid == 251)
+    {
+        link->dim = 4;
+        link->no_ini_start = link->dim;
+        link->diff_start = 0;
+
+        link->num_dense = 1;
+        link->dense_indices = (unsigned int*)realloc(link->dense_indices, link->num_dense * sizeof(unsigned int));
+        link->dense_indices[0] = 0;
+
+        if (link->has_res)
+        {
+            link->differential = &TopLayerHillslope_Reservoirs;
+            link->solver = &ForcedSolutionSolver;
+        }
+        else			link->differential = &model251;
+        link->algebraic = NULL;
+        link->check_state = NULL;
+        link->check_consistency = &CheckConsistency_Nonzero_4States;
+    }
     else if (model_uid == 252)
     {
         link->dim = 4;
