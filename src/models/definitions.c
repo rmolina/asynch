@@ -531,6 +531,19 @@ case 20:	num_global_params = 9;
         globals->num_forcings = 1;
         globals->min_error_tolerances = 1;	//This should probably be higher...
         break;
+
+//--------------------------------------------------------------------------------------------
+    case 251:	num_global_params = 11;
+        globals->uses_dam = 0;
+        globals->num_params = 8;
+        globals->dam_params_size = 0;
+        globals->area_idx = 0;
+        globals->areah_idx = 2;
+        globals->num_disk_params = 3;
+        globals->convertarea_flag = 0;
+        globals->num_forcings = 5;
+        globals->min_error_tolerances = 4;
+        break;
         //--------------------------------------------------------------------------------------------
     case 252:	num_global_params = 11;
         globals->uses_dam = 0;
