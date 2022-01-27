@@ -3167,9 +3167,7 @@ void Precalculations(
 		double A_i = params[0]; //upstream area of the hillslope
 		double L_i = params[1];	// channel lenght
 		double A_h = params[2]; //area of the hillslope
-		vals[3] = 60.0 * v_0 * pow(A_i, lambda_2) / ((1.0 - lambda_1) * L_i);//[1/min]  invtau params[3]
-		vals[4] = (0.001 / 60.0);		//(mm/hr->m/min)  c_1
-		vals[5] = A_h / 60.0;	//  c_2
+
 
 		double v_0 = global_params[0]; //velocity river in channels [m/s]
 		double lambda_1 = global_params[1]; //power discharge in routing function
@@ -3181,7 +3179,9 @@ void Precalculations(
 		double alfa3 = global_params[7]; //linear reserv. coef gravitational storage [days]
 		double alfa4 = global_params[8]; //linear reserv. coef aquifer storage [days]
 		//double v_B = global_params[9]; //baseflow velocity [m/s]
-
+		vals[3] = 60.0 * v_0 * pow(A_i, lambda_2) / ((1.0 - lambda_1) * L_i);//[1/min]  invtau params[3]
+		vals[4] = (0.001 / 60.0);		//(mm/hr->m/min)  c_1
+		vals[5] = A_h / 60.0;	//  c_2
 
 
 	} else if (model_uid == 401 || model_uid == 402) //tetis02 & 03 model
