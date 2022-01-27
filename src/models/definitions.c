@@ -742,7 +742,7 @@ case 20:	num_global_params = 9;
 		break;
 		//--------------------------------------------------------------------------------------------
 	case 400://tetis01
-		num_global_params = 10;
+		num_global_params = 9;
 		globals->uses_dam = 0;
 		globals->num_params = 6;
 		globals->dam_params_size = 0;
@@ -1939,15 +1939,15 @@ void InitRoutines(
     }
 	else if (model_uid == 400) //tetis01
 			{
-		link->dim = 8;
+		link->dim = 5;
 		link->no_ini_start = 5;
 		link->diff_start = 0;
 
-		link->num_dense = 2;
+		link->num_dense = 1;
 		link->dense_indices = (unsigned int*) realloc(link->dense_indices,
 				link->num_dense * sizeof(unsigned int));
 		link->dense_indices[0] = 0;
-		link->dense_indices[1] = 7;
+		//link->dense_indices[1] = 7;
 
 		if (link->has_res) {
 			link->differential = &TopLayerHillslope_Reservoirs;
@@ -1957,7 +1957,8 @@ void InitRoutines(
 		link->algebraic = NULL;
 		link->check_state = NULL;
 		link->check_consistency = &CheckConsistency_Nonzero_AllStates_q;
-	} else if (model_uid == 401) //tetis02
+	} 
+    else if (model_uid == 401) //tetis02
 			{
 		link->dim = 8;
 		link->no_ini_start = 5;
@@ -3166,21 +3167,23 @@ void Precalculations(
 		double A_i = params[0]; //upstream area of the hillslope
 		double L_i = params[1];	// channel lenght
 		double A_h = params[2]; //area of the hillslope
+		vals[3] = 60.0 * v_0 * pow(A_i, lambda_2) / ((1.0 - lambda_1) * L_i);//[1/min]  invtau params[3]
+		vals[4] = (0.001 / 60.0);		//(mm/hr->m/min)  c_1
+		vals[5] = A_h / 60.0;	//  c_2
 
 		double v_0 = global_params[0]; //velocity river in channels [m/s]
 		double lambda_1 = global_params[1]; //power discharge in routing function
 		double lambda_2 = global_params[2]; //power of area in routing function
-		double Hu = global_params[3]; //max available storage static storage [m]
+		double Hu = global_params[3]; //max available storage static storage [mm]
 		double infiltration = global_params[4]; //infiltration rate [mm/hr]
-		double alfa2 = global_params[5]; //linear reservoir coef. surface storage [1/min]
-		double percolation = global_params[6]; //percolation rate [mm/hr]
-		double alfa3 = global_params[7]; //linear reserv. coef gravitational storage [1/min]
-		double alfa4 = global_params[8]; //linear reserv. coef aquifer storage [1/min]
-		double v_B = global_params[9]; //baseflow velocity [m/s]
+		double percolation = global_params[5]; //percolation rate [mm/hr]
+		double alfa2 = global_params[6]; //linear reservoir coef. surface storage [days]
+		double alfa3 = global_params[7]; //linear reserv. coef gravitational storage [days]
+		double alfa4 = global_params[8]; //linear reserv. coef aquifer storage [days]
+		//double v_B = global_params[9]; //baseflow velocity [m/s]
 
-		vals[3] = 60.0 * v_0 * pow(A_i, lambda_2) / ((1.0 - lambda_1) * L_i);//[1/min]  invtau params[3]
-		vals[4] = (0.001 / 60.0);		//(mm/hr->m/min)  c_1
-		vals[5] = A_h / 60.0;	//  c_2
+
+
 	} else if (model_uid == 401 || model_uid == 402) //tetis02 & 03 model
 			{
 		double* vals = params;
