@@ -751,7 +751,7 @@ case 20:	num_global_params = 9;
 		globals->num_disk_params = 3;
 		globals->convertarea_flag = 0;
 		globals->num_forcings = 3;
-		globals->min_error_tolerances = 8;
+		globals->min_error_tolerances = 5;
 		break;
 		//--------------------------------------------------------------------------------------------
 	case 401://tetis02
@@ -959,7 +959,10 @@ void ConvertParams(
         params[2] *= 1e6;		//A_h: km^2 -> m^2
         params[4] *= .001;		//H_h: mm -> m
     }
-    else if (model_uid == 249 || model_uid == 251 || model_uid == 252 || model_uid == 253 || model_uid == 254 || model_uid == 255 || model_uid == 256 || model_uid == 257 || model_uid == 258 || model_uid == 259 || model_uid == 260 || model_uid == 261 || model_uid == 262 || model_uid == 263 || model_uid == 264)
+    else if (model_uid == 249 || model_uid == 251 || model_uid == 252 || model_uid == 253 || 
+    model_uid == 254 || model_uid == 255 || model_uid == 256 || model_uid == 257 || model_uid == 258 ||
+     model_uid == 259 || model_uid == 260 || model_uid == 261 || model_uid == 262 || model_uid == 263 || 
+     model_uid == 264 || model_uid==400)
     {
         params[1] *= 1000;		//L_h: km -> m
         params[2] *= 1e6;		//A_h: km^2 -> m^2
