@@ -3791,11 +3791,7 @@ int ReadInitData(
 		return 0;
 	} else if (model_uid == 400)        //tetis01
 			{
-		//For this model_uid, the extra states need to be set (4,5,6,7)
-		y_0[4] = 0.0;
-		y_0[5] = 0.0;
-		y_0[6] = 0.0;
-		y_0[7] = y_0[0];
+
 	} else if (model_uid == 401)        //tetis02
 	{
 		//For this model_uid, the extra states need to be set (4,5,6,7)
