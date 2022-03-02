@@ -1964,7 +1964,7 @@ void InitRoutines(
     else if (model_uid == 401) //tetis02
 	{
 		link->dim = 9;
-		link->no_ini_start = 5;
+		link->no_ini_start = 9;
 		link->diff_start = 0;
 
 		link->num_dense = 1;
