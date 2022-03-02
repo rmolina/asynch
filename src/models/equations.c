@@ -2622,10 +2622,10 @@ void model401(double t, \
         ans[1] = -basin_rainfall + rainfall * 60 * 1000 * (A_h / A_i); //[m/min] to [mm/hour]
 
         if (rainfall>0) {
-        printf("time: %f\n", t);
-        printf(" rain in mm/hour: %f\n", rainfall);
-        printf(" area ratio: %f\n", A_h / A_i);
-    }
+            printf("time: %f\n", t);
+            printf(" rain in mm/hour: %f\n", rainfall);
+            printf(" area ratio: %f\n", A_h / A_i);
+        }
 
         ans[2] = -surface_runoff + out2*60*1000*(A_h / A_i); //[m/min] to [mm/hour]
         ans[3] = -subsurface_runoff + out3*60*1000*(A_h / A_i); //[m/min] to [mm/hour]
