@@ -2621,11 +2621,11 @@ void model401(double t, \
 
 	    ans[0] = -q + (out2 + out3 + out4) * c_2; //[m/min] to [m3/s]
         ans[1] = -basin_rainfall + rainfall * 60 * 1000 * (A_h / A_i); //[m/min] to [mm/hour]
-
-        if (forcing_values[0]>1) {
+        double ratio=A_h / A_i;
+        if (forcing_values[0]>1 && ratio<1) {
             printf("time: %f\n", t);
-            printf(" rain in mm/hour: %f\n", rainfall);
-            printf(" area hill, area basin, area ratio: %f %f %f\n", A_h,A_i,(A_h/A_i));
+            printf(" rain in mm/hour: %f\n", forcing_values[0]);
+            printf(" area hill, area basin, area ratio: %f %f %f\n", A_h,A_i,ratio);
             MPI_Abort(MPI_COMM_WORLD, 1);
         }
 
