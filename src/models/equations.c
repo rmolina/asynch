@@ -2547,7 +2547,8 @@ void model401(double t, \
 	 	unsigned short i; //auxiliary variable for loops
 	    double L = params[1];   // Length of the channel [m]
 	    double A_h = params[2]; //Area of the hillslopes [m^2]
-        double A_i = params[0]*1E6; //Area of the basin [m^2]
+        double A_i = params[0]; //Area of the basin [km^2]
+        A_i*=1e6; //[m^2]
 	    double c_1 = params[4]; //factor .converts [mm/hr] to [m/min]
 	    double rainfall = forcing_values[0] * c_1; //rainfall. from [mm/hr] to [m/min]
 		//double snowmelt = forcing_values[2]; //we need to put it in [m/min]
@@ -2621,7 +2622,7 @@ void model401(double t, \
 	    ans[0] = -q + (out2 + out3 + out4) * c_2; //[m/min] to [m3/s]
         ans[1] = -basin_rainfall + rainfall * 60 * 1000 * (A_h / A_i); //[m/min] to [mm/hour]
 
-        if (rainfall>0) {
+        if (forcing_values[0]>1) {
             printf("time: %f\n", t);
             printf(" rain in mm/hour: %f\n", rainfall);
             printf(" area hill, area basin, area ratio: %f %f %f\n", A_h,A_i,(A_h/A_i));
