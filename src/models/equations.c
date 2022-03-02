@@ -2621,7 +2621,7 @@ void model401(double t, \
 
         //double ratio=A_h / A_i;
 	    ans[0] = -q + (out2 + out3 + out4) * c_2; //[m/min] to [m3/s]
-        double aux = forcing_values[0] *(1/1000) * A_h;//[mm/h] to [m3/h] 
+        double aux = forcing_values[0] *(1/1000.0) * A_h;//[mm/h] to [m3/h] 
         ans[1] = -basin_rainfall + aux; //[mm/hour] to []
 
         // if (forcing_values[0]>1 && ratio<1) {
@@ -2631,9 +2631,9 @@ void model401(double t, \
         //     MPI_Abort(MPI_COMM_WORLD, 1);
         // }
 
-        ans[2] = -surface_runoff + out2 * 60 * A_h; //[m/min] to [m3/hour]
-        ans[3] = -subsurface_runoff + out3 *60 * A_h ; //[m/min] to [m3/hour]
-        ans[4] = -groundwater_runoff + out4 *60 *A_h ; //[m/min] to [m3/hour]
+        ans[2] = -surface_runoff + out2 * 60.0 * A_h; //[m/min] to [m3/hour]
+        ans[3] = -subsurface_runoff + out3 *60.0 * A_h ; //[m/min] to [m3/hour]
+        ans[4] = -groundwater_runoff + out4 *60.0 *A_h ; //[m/min] to [m3/hour]
 
 	    for (i = 0; i < num_parents; i++){
             ans[0] += y_p[i * dim];
