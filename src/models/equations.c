@@ -2619,10 +2619,10 @@ void model401(double t, \
 	   	double c_2 = params[5];// = A_h / 60.0;	//  c_2
 
 	    ans[0] = -q + (out2 + out3 + out4) * c_2; //[m/min] to [m3/s]
-        ans[1] = -basin_rainfall + rainfall*60*1000*A_h / A_i; //[m/min] to [mm/hour]
-        ans[2] = -surface_runoff + out2*60*1000; //[m/min] to [mm/hour]
-        ans[3] = -subsurface_runoff + out3*60*1000; //[m/min] to [mm/hour]
-        ans[4] = -groundwater_runoff + out4*60*1000; //[m/min] to [mm/hour]
+        ans[1] = -basin_rainfall + rainfall*60*1000*(A_h / A_i); //[m/min] to [mm/hour]
+        ans[2] = -surface_runoff + out2*60*1000*(A_h / A_i); //[m/min] to [mm/hour]
+        ans[3] = -subsurface_runoff + out3*60*1000*(A_h / A_i); //[m/min] to [mm/hour]
+        ans[4] = -groundwater_runoff + out4*60*1000*(A_h / A_i); //[m/min] to [mm/hour]
 
 	    for (i = 0; i < num_parents; i++){
             ans[0] += y_p[i * dim];
