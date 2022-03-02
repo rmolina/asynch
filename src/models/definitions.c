@@ -755,7 +755,7 @@ case 20:	num_global_params = 9;
 		break;
 		//--------------------------------------------------------------------------------------------
 	case 401://tetis02
-		num_global_params = 9;
+		num_global_params = 8;
 		globals->uses_dam = 0;
 		globals->num_params = 6;
 		globals->dam_params_size = 0;
@@ -764,7 +764,7 @@ case 20:	num_global_params = 9;
 		globals->num_disk_params = 3;
 		globals->convertarea_flag = 0;
 		globals->num_forcings = 3;
-		globals->min_error_tolerances = 9;  //as many as states
+		globals->min_error_tolerances = 8;  //as many as states
 		break;
 		//--------------------------------------------------------------------------------------------
 	case 402://tetis03

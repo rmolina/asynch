@@ -2573,7 +2573,7 @@ void model401(double t, \
 		double alfa2 = global_params[6]* 24*60; //residence time [days] to [min].
 		double out2 = h2 / alfa2 ; //direct runoff [m/min]
 		ans[2] = d2 - out2; //differential equation of surface storage
-        double surface_runoff = y_i[6]; //[m]
+        double surface_runoff = y_i[5]; //[m]
 
 		// gravitational storage
 		double h3 = y_i[3]; //water in the gravitational storage in the upper part of soil [m]
@@ -2583,7 +2583,7 @@ void model401(double t, \
 		double alfa3 = global_params[7]* 24*60; //residence time [days] to [min].
 		double out3 = h3/alfa3; //interflow [m/min]
 		ans[3] = d3 - out3; //differential equation for gravitational storage
-        double subsurface_runoff = y_i[7];  //[m]
+        double subsurface_runoff = y_i[6];  //[m]
 
 		//aquifer storage
 		double h4 = y_i[4]; //water in the aquifer storage [m]
@@ -2594,27 +2594,27 @@ void model401(double t, \
 		double alfa4 = global_params[8]* 24*60; //residence time [days] to [min].
 		double out4 = h4/alfa4 ; //base flow [m/min]
 		ans[4] = d4 - out4; //differential equation for aquifer storage
-        double groundwater_runoff = y_i[8]; //[m]
+        double groundwater_runoff = y_i[7]; //[m]
 
 		//channel storage
 		double lambda_1 = global_params[1];
 	    double invtau = params[3];// 60.0*v_0*pow(A_i, lambda_2) / ((1.0 - lambda_1)*L_i);	//[1/min]  invtau
 	    double q = y_i[0];      //[m^3/s]
-        double total_runoff = y_i[5];
+        //double total_runoff = y_i[5];
 	   	double c_2 = params[5];// = A_h / 60.0;	//  c_2
 
 	    ans[0] = -q + (out2 + out3 + out4) * c_2; //[m/min] to [m3/s]
-        ans[5] = -total_runoff + (out2 + out3 + out4); //[m]
-        ans[6] = -surface_runoff + (out2); //[m]
-        ans[7] = -subsurface_runoff + (out3); //[m]
-        ans[8] = -groundwater_runoff + (out3); //[m]
+        //ans[5] = -total_runoff + (out2 + out3 + out4); //[m]
+        ans[5] = -surface_runoff + (out2); //[m]
+        ans[6] = -subsurface_runoff + (out3); //[m]
+        ans[7] = -groundwater_runoff + (out3); //[m]
 
 	    for (i = 0; i < num_parents; i++){
             ans[0] += y_p[i * dim];
+            //ans[5] += y_p[i * dim +5];
             ans[5] += y_p[i * dim +5];
             ans[6] += y_p[i * dim +6];
             ans[7] += y_p[i * dim +7];
-            ans[7] += y_p[i * dim +8];
         }
 	        
 	    ans[0] = invtau * pow(q, lambda_1) * ans[0];    // discharge[0]
