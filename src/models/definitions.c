@@ -755,7 +755,7 @@ case 20:	num_global_params = 9;
 		break;
 		//--------------------------------------------------------------------------------------------
 	case 401://tetis02
-		num_global_params = 8;
+		num_global_params = 9;
 		globals->uses_dam = 0;
 		globals->num_params = 6;
 		globals->dam_params_size = 0;
@@ -1963,8 +1963,8 @@ void InitRoutines(
 	} 
     else if (model_uid == 401) //tetis02
 	{
-		link->dim = 9;
-		link->no_ini_start = 9;
+		link->dim = 8;
+		link->no_ini_start = 8;
 		link->diff_start = 0;
 
 		link->num_dense = 1;
