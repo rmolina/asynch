@@ -2449,7 +2449,7 @@ void OfflineTopLayerInterflowHillslope_Reservoirs(double t, const double * const
 //state: unused
 //user: unused
 //ans: unused
-void Tetis01(double t, \
+void model400(double t, \
 		const double * const y_i, \
 		unsigned int dim, \
 		const double * const y_p, \
@@ -2520,29 +2520,16 @@ void Tetis01(double t, \
 	    double invtau = params[3];// 60.0*v_0*pow(A_i, lambda_2) / ((1.0 - lambda_1)*L_i);	//[1/min]  invtau
 	    double q = y_i[0];      //[m^3/s]
 	   	double c_2 = params[5];// = A_h / 60.0;	//  c_2
-	   // double q_b = y_i[7];    //[m^3/s]
-	    //double v_B = global_params[9];
 
 	    ans[0] = -q + (out2 + out3 + out4) * c_2; //[m/min] to [m3/s]
 	    for (i = 0; i < num_parents; i++)
 	        ans[0] += y_p[i * dim];
 	    ans[0] = invtau * pow(q, lambda_1) * ans[0];    // discharge[0]
 
-	   //ans[7] = out4 * A_h - q_b*60.0;     // baseflow[7] //[m3/min]
-	    //for (i = 0; i < num_parents; i++)
-	    //    ans[7] += y_p[i * dim + 7] * 60.0;
-	    //ans[7] *= v_B / L; //[m3/min] to [m3/s]
-
-
-
-	    //Additional states
-	 //   ans[5] = forcing_values[0] * c_1;   // precip[4]
-	//    ans[5] = forcing_values[1] * c_1;   // et[5]
-	    //ans[6] = out2;                      // runoff[]
-	//    ans[6] = out1;                      // et[]
 }
 //Type 401
-void Tetis02(double t, \
+//model 400 + tracking of total runoff, surface runoff, subsurface runoff and groundwater runoff
+void model401(double t, \
 		const double * const y_i, \
 		unsigned int dim, \
 		const double * const y_p, \
@@ -2560,7 +2547,7 @@ void Tetis02(double t, \
 	 	unsigned short i; //auxiliary variable for loops
 	    double L = params[1];   // Length of the channel [m]
 	    double A_h = params[2]; //Area of the hillslopes [m^2]
-	    double c_1 = (0.001 / 60.0); //params[10]; //factor .converts [mm/hr] to [m/min]
+	    double c_1 = params[4]; //factor .converts [mm/hr] to [m/min]
 	    double rainfall = forcing_values[0] * c_1; //rainfall. from [mm/hr] to [m/min]
 		//double snowmelt = forcing_values[2]; //we need to put it in [m/min]
 	    double x1 = rainfall; // x1 can be rainfall + snowmelt when last available
@@ -2569,7 +2556,7 @@ void Tetis02(double t, \
 
 		//static storage
 		double h1 = y_i[1]; //static storage [m]
-		double Hu = params[3]; //max available storage in static tank [m]
+		double Hu = global_params[3]/1000; //max available storage in static tank [mm] to [m]
 		double x2 = max(0,x1 + h1 - Hu ); //excedance flow to the second storage [m] [m/min] check units
 		//double x2 = (x1 + h1 -Hu>0.0) ? x1 + h1 -Hu : 0.0;
 		double d1 = x1 - x2; // the input to static tank [m/min]
@@ -2580,61 +2567,57 @@ void Tetis02(double t, \
 
 		//surface storage tank
 		double h2 = y_i[2];//water in the hillslope surface [m]
-		double infiltration = params[4]*c_1; //infiltration rate [m/min]
+		double infiltration = global_params[4]*c_1; //infiltration rate [m/min]
 		double x3 = min(x2, infiltration); //water that infiltrates to gravitational storage [m/min]
 		double d2 = x2 - x3; // the input to surface storage [m] check units
-		double alfa2 = params[5]; //between 0 and 1, function of slope, roughness, hill lenght.
-		double out2 = alfa2 * h2 ; //direct runoff [m/min]
+		double alfa2 = global_params[6]* 24*60; //residence time [days] to [min].
+		double out2 = h2 / alfa2 ; //direct runoff [m/min]
 		ans[2] = d2 - out2; //differential equation of surface storage
-
+        double surface_runoff = y_i[6]; //[m]
 
 		// gravitational storage
-		double h3 = y_i[3]; //water in the gravitational storage in the upper part of soil
-		double percolation = params[6]*c_1; // percolation rate to aquifer [m/min]
+		double h3 = y_i[3]; //water in the gravitational storage in the upper part of soil [m]
+		double percolation = global_params[5]*c_1; // percolation rate to aquifer [m/min]
 		double x4 = min(x3,percolation); //water that percolates to aquifer storage [m/min]
 		double d3 = x3 - x4; // input to gravitational storage [m/min]
-		double alfa3 = params[7];
-		double out3 = alfa3 * h3; //interflow [m/min]
+		double alfa3 = global_params[7]* 24*60; //residence time [days] to [min].
+		double out3 = h3/alfa3; //interflow [m/min]
 		ans[3] = d3 - out3; //differential equation for gravitational storage
+        double subsurface_runoff = y_i[7];  //[m]
 
 		//aquifer storage
-		double h4 = y_i[4]; //water in the aquifer storage
+		double h4 = y_i[4]; //water in the aquifer storage [m]
 		double deepinf = 0; //water loss to deeper aquifer [m]
 		//double x5 = min(x4,deepinf);
 		double x5 = 0;
 		double d4 = x4 - x5;
-		double alfa4 = params[8];
-		double out4 = alfa4 * h4 ; //base flow [m/min]
+		double alfa4 = global_params[8]* 24*60; //residence time [days] to [min].
+		double out4 = h4/alfa4 ; //base flow [m/min]
 		ans[4] = d4 - out4; //differential equation for aquifer storage
+        double groundwater_runoff = y_i[8]; //[m]
 
 		//channel storage
-
 		double lambda_1 = global_params[1];
-	    double invtau = params[9];// 60.0*v_0*pow(A_i, lambda_2) / ((1.0 - lambda_1)*L_i);	//[1/min]  invtau
+	    double invtau = params[3];// 60.0*v_0*pow(A_i, lambda_2) / ((1.0 - lambda_1)*L_i);	//[1/min]  invtau
 	    double q = y_i[0];      //[m^3/s]
-	    double q_b = y_i[7];    //[m^3/s]
-	    double v_B = global_params[3];
-	   	double c_2 = params[10];// = A_h / 60.0;	//  c_2
+        double total_runoff = y_i[5];
+	   	double c_2 = params[5];// = A_h / 60.0;	//  c_2
 
 	    ans[0] = -q + (out2 + out3 + out4) * c_2; //[m/min] to [m3/s]
-	    for (i = 0; i < num_parents; i++)
-	        ans[0] += y_p[i * dim];
+        ans[5] = -total_runoff + (out2 + out3 + out4); //[m]
+        ans[6] = -surface_runoff + (out2); //[m]
+        ans[7] = -subsurface_runoff + (out3); //[m]
+        ans[8] = -groundwater_runoff + (out3); //[m]
+
+	    for (i = 0; i < num_parents; i++){
+            ans[0] += y_p[i * dim];
+            ans[5] += y_p[i * dim +5];
+            ans[6] += y_p[i * dim +6];
+            ans[7] += y_p[i * dim +7];
+            ans[7] += y_p[i * dim +8];
+        }
+	        
 	    ans[0] = invtau * pow(q, lambda_1) * ans[0];    // discharge[0]
-
-
-
-	   ans[7] = out4 * A_h - q_b*60.0;     // baseflow[7] //[m3/min]
-	    for (i = 0; i < num_parents; i++)
-	        ans[7] += y_p[i * dim + 7] * 60.0;
-	    ans[7] *= v_B / L; //[m3/min] to [m3/s]
-
-
-
-	    //Additional states
-	    ans[5] = forcing_values[0] * c_1;   // precip[4]
-	//    ans[5] = forcing_values[1] * c_1;   // et[5]
-	    //ans[6] = out2;                      // runoff[]
-	    ans[6] = out1;                      // et[]
 }
 //Type 402
 void Tetis03(double t, \

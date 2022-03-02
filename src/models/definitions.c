@@ -751,20 +751,20 @@ case 20:	num_global_params = 9;
 		globals->num_disk_params = 3;
 		globals->convertarea_flag = 0;
 		globals->num_forcings = 3;
-		globals->min_error_tolerances = 5;
+		globals->min_error_tolerances = 5; //as many as states
 		break;
 		//--------------------------------------------------------------------------------------------
 	case 401://tetis02
-		num_global_params = 4;
+		num_global_params = 9;
 		globals->uses_dam = 0;
-		globals->num_params = 11;
+		globals->num_params = 6;
 		globals->dam_params_size = 0;
 		globals->area_idx = 0;
 		globals->areah_idx = 2;
-		globals->num_disk_params = 9;//read from the dbc file + linkid
+		globals->num_disk_params = 3;
 		globals->convertarea_flag = 0;
 		globals->num_forcings = 3;
-		globals->min_error_tolerances = 8;
+		globals->min_error_tolerances = 9;  //as many as states
 		break;
 		//--------------------------------------------------------------------------------------------
 	case 402://tetis03
@@ -962,7 +962,7 @@ void ConvertParams(
     else if (model_uid == 249 || model_uid == 251 || model_uid == 252 || model_uid == 253 || 
     model_uid == 254 || model_uid == 255 || model_uid == 256 || model_uid == 257 || model_uid == 258 ||
      model_uid == 259 || model_uid == 260 || model_uid == 261 || model_uid == 262 || model_uid == 263 || 
-     model_uid == 264 || model_uid==400)
+     model_uid == 264 || model_uid==400 || model_uid==401)
     {
         params[1] *= 1000;		//L_h: km -> m
         params[2] *= 1e6;		//A_h: km^2 -> m^2
@@ -1956,32 +1956,32 @@ void InitRoutines(
 			link->differential = &TopLayerHillslope_Reservoirs;
 			link->solver = &ForcedSolutionSolver;
 		} else
-			link->differential = &Tetis01;
-		link->algebraic = NULL;
-		link->check_state = NULL;
-		link->check_consistency = &CheckConsistency_Nonzero_AllStates_q;
+			link->differential = &model400;
+		    link->algebraic = NULL;
+		    link->check_state = NULL;
+		    link->check_consistency = &CheckConsistency_Nonzero_AllStates_q;
 	} 
     else if (model_uid == 401) //tetis02
-			{
-		link->dim = 8;
+	{
+		link->dim = 9;
 		link->no_ini_start = 5;
 		link->diff_start = 0;
 
-		link->num_dense = 2;
+		link->num_dense = 1;
 		link->dense_indices = (unsigned int*) realloc(link->dense_indices,
-				link->num_dense * sizeof(unsigned int));
+		link->num_dense * sizeof(unsigned int));
 		link->dense_indices[0] = 0;
-		link->dense_indices[1] = 7;
+		//link->dense_indices[1] = 7;
 
 		if (link->has_res) {
 			link->differential = &TopLayerHillslope_Reservoirs;
 			link->solver = &ForcedSolutionSolver;
 		} else
-			link->differential = &Tetis02;
+			link->differential = &model401;
 		link->algebraic = NULL;
 		link->check_state = NULL;
 		link->check_consistency = &CheckConsistency_Nonzero_AllStates_q;
-	}
+	} 
 	else if (model_uid == 402) //tetis03
 				{
 			link->dim = 9;
@@ -3178,10 +3178,9 @@ void Precalculations(
 		double Hu = global_params[3]; //max available storage static storage [mm]
 		double infiltration = global_params[4]; //infiltration rate [mm/hr]
 		double percolation = global_params[5]; //percolation rate [mm/hr]
-		double alfa2 = global_params[6]; //linear reservoir coef. surface storage [days]
+		double alfa2 = global_params[6]; //linear reservoir coef. surface storage [minutes]
 		double alfa3 = global_params[7]; //linear reserv. coef gravitational storage [days]
 		double alfa4 = global_params[8]; //linear reserv. coef aquifer storage [days]
-		//double v_B = global_params[9]; //baseflow velocity [m/s]
 		vals[3] = 60.0 * v_0 * pow(A_i, lambda_2) / ((1.0 - lambda_1) * L_i);//[1/min]  invtau params[3]
 		vals[4] = (0.001 / 60.0);		//(mm/hr->m/min)  c_1
 		vals[5] = A_h / 60.0;	//  c_2
@@ -3193,26 +3192,20 @@ void Precalculations(
 		double A_i = params[0]; //upstream area of the hillslope
 		double L_i = params[1];	// channel lenght
 		double A_h = params[2]; //area of the hillslope
-		double Hu =  params[3];	//max available storage static storage [m]
-		double infiltration = params[4]; //infiltration rate [m/min]
-		double alfa2 = params[5]; //linear reservoir coef. surface storage [1/min]
-		double percolation = params[6]; //percolation rate [m/min]
-		double alfa3 = params[7]; //linear reserv. coef gravitational storage [1/min]
-		double alfa4 = params[8]; //linear reserv. coef aquifer storage [1/min]
 
 
-		double v_0 = global_params[0]; //velocity river in channels
+		double v_0 = global_params[0]; //velocity river in channels [m/s]
 		double lambda_1 = global_params[1]; //power discharge in routing function
 		double lambda_2 = global_params[2]; //power of area in routing function
-		double v_B = global_params[3]; //baseflow velocity [m/s]
-
-		vals[9] = 60.0 * v_0 * pow(A_i, lambda_2) / ((1.0 - lambda_1) * L_i);//[1/min]  invtau params[9]
-		//double v_h = 1;
-		//vals[4] = v_h * L_i / A_h * 60.0;	// params[4]
-		//double k_i_factor = 1;
-		//vals[5] = vals[4] * k_i_factor;	//params[5]
-		//vals[10] = (0.001 / 60.0);		//(mm/hr->m/min)  c_1
-		vals[10] = A_h / 60.0;	//  c_2
+		double Hu = global_params[3]; //max available storage static storage [mm]
+		double infiltration = global_params[4]; //infiltration rate [mm/hr]
+		double percolation = global_params[5]; //percolation rate [mm/hr]
+		double alfa2 = global_params[6]; //linear reservoir coef. surface storage [minutes]
+		double alfa3 = global_params[7]; //linear reserv. coef gravitational storage [days]
+		double alfa4 = global_params[8]; //linear reserv. coef aquifer storage [days]
+		vals[3] = 60.0 * v_0 * pow(A_i, lambda_2) / ((1.0 - lambda_1) * L_i);//[1/min]  invtau params[3]
+		vals[4] = (0.001 / 60.0);		//(mm/hr->m/min)  c_1
+		vals[5] = A_h / 60.0;	//  c_2
 
 	} else if (model_uid == 2000) {
 		//Order of parameters: L_i,A_h,A_i,h_b,h_H,max_inf_rate,K_sat,S_h,eta,b_H,c_H,d_H,invtau,epsilon,c_1,c_2,c_3,c_4,c_5,c_6
@@ -3793,16 +3786,13 @@ int ReadInitData(
 
 		return 0;
 	} else if (model_uid == 400)        //tetis01
-			{
+		{
 
-	} else if (model_uid == 401)        //tetis02
-	{
-		//For this model_uid, the extra states need to be set (4,5,6,7)
-		y_0[4] = 0.0;
-		y_0[5] = 0.0;
-		y_0[6] = 0.0;
-		y_0[7] = y_0[0];
-	}
+	    } 
+    else if (model_uid == 401)        //tetis02
+	    {
+
+	    }
 	else if (model_uid == 402)        //tetis03
 			{
 		//For this model_uid, the extra states need to be set (4,5,6,7)
