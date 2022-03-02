@@ -2624,7 +2624,8 @@ void model401(double t, \
         if (rainfall>0) {
             printf("time: %f\n", t);
             printf(" rain in mm/hour: %f\n", rainfall);
-            printf(" area ratio: %f\n", A_h / A_i);
+            printf(" area hill, area basin, area ratio: %f %f %f\n", A_h,A_i,(A_h/A_i));
+            MPI_Abort(MPI_COMM_WORLD, 1);
         }
 
         ans[2] = -surface_runoff + out2*60*1000*(A_h / A_i); //[m/min] to [mm/hour]
