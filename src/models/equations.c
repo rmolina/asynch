@@ -2547,6 +2547,7 @@ void model401(double t, \
 	 	unsigned short i; //auxiliary variable for loops
 	    double L = params[1];   // Length of the channel [m]
 	    double A_h = params[2]; //Area of the hillslopes [m^2]
+        double A_i = params[0]*1E6; //Area of the basin [m^2]
 	    double c_1 = params[4]; //factor .converts [mm/hr] to [m/min]
 	    double rainfall = forcing_values[0] * c_1; //rainfall. from [mm/hr] to [m/min]
 		//double snowmelt = forcing_values[2]; //we need to put it in [m/min]
@@ -2618,7 +2619,7 @@ void model401(double t, \
 	   	double c_2 = params[5];// = A_h / 60.0;	//  c_2
 
 	    ans[0] = -q + (out2 + out3 + out4) * c_2; //[m/min] to [m3/s]
-        ans[1] = -basin_rainfall + rainfall*60*1000; //[m/min] to [mm/hour]
+        ans[1] = -basin_rainfall + rainfall*60*1000*A_h / A_i; //[m/min] to [mm/hour]
         ans[2] = -surface_runoff + out2*60*1000; //[m/min] to [mm/hour]
         ans[3] = -subsurface_runoff + out3*60*1000; //[m/min] to [mm/hour]
         ans[4] = -groundwater_runoff + out4*60*1000; //[m/min] to [mm/hour]
