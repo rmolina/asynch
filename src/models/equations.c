@@ -2553,9 +2553,23 @@ void model401(double t, \
 	    double x1 = rainfall; // x1 can be rainfall + snowmelt when last available
 	    double e_pot = forcing_values[1] * (1e-3 / (30.0*24.0*60.0));//potential et[mm/month] -> [m/min]
 
+        // 9 states
+        // i need to put the fluxes on top because cant print more than state7. bug
+        //y0=q discharge[m3/s]
+        //y1 = basin rainfall [mm/hour]
+        //y2 = basin surface runoff [mm/hour]
+        //y3= basin subsurface runoff [mm/hour]
+        //y4 = basin gw rounoff [mm/hour]
+        //y5= h1 static storage[m]
+        //y6= h2 water hill surface[m]
+        //y7 = h3 water upper soil [m]
+        //y8 = h4  water lower soil [m]
+
+        //rainfall
+        double basin_rainfall = y_i[1]; //[mm/hour]
 
 		//static storage
-		double h1 = y_i[1]; //static storage [m]
+		double h1 = y_i[5]; //static storage [m]
 		double Hu = global_params[3]/1000; //max available storage in static tank [mm] to [m]
 		double x2 = max(0,x1 + h1 - Hu ); //excedance flow to the second storage [m] [m/min] check units
 		//double x2 = (x1 + h1 -Hu>0.0) ? x1 + h1 -Hu : 0.0;
@@ -2566,27 +2580,27 @@ void model401(double t, \
 
 
 		//surface storage tank
-		double h2 = y_i[2];//water in the hillslope surface [m]
+		double h2 = y_i[6];//water in the hillslope surface [m]
 		double infiltration = global_params[4]*c_1; //infiltration rate [m/min]
 		double x3 = min(x2, infiltration); //water that infiltrates to gravitational storage [m/min]
 		double d2 = x2 - x3; // the input to surface storage [m] check units
 		double alfa2 = global_params[6]* 24*60; //residence time [days] to [min].
 		double out2 = h2 / alfa2 ; //direct runoff [m/min]
 		ans[2] = d2 - out2; //differential equation of surface storage
-        double surface_runoff = y_i[5]; //[m]
+        double surface_runoff = y_i[2]; //[mm/hour]
 
 		// gravitational storage
-		double h3 = y_i[3]; //water in the gravitational storage in the upper part of soil [m]
+		double h3 = y_i[7]; //water in the gravitational storage in the upper part of soil [m]
 		double percolation = global_params[5]*c_1; // percolation rate to aquifer [m/min]
 		double x4 = min(x3,percolation); //water that percolates to aquifer storage [m/min]
 		double d3 = x3 - x4; // input to gravitational storage [m/min]
 		double alfa3 = global_params[7]* 24*60; //residence time [days] to [min].
 		double out3 = h3/alfa3; //interflow [m/min]
 		ans[3] = d3 - out3; //differential equation for gravitational storage
-        double subsurface_runoff = y_i[6];  //[m]
+        double subsurface_runoff = y_i[3];  //[mm/hour]
 
 		//aquifer storage
-		double h4 = y_i[4]; //water in the aquifer storage [m]
+		double h4 = y_i[8]; //water in the aquifer storage [m]
 		double deepinf = 0; //water loss to deeper aquifer [m]
 		//double x5 = min(x4,deepinf);
 		double x5 = 0;
@@ -2594,7 +2608,7 @@ void model401(double t, \
 		double alfa4 = global_params[8]* 24*60; //residence time [days] to [min].
 		double out4 = h4/alfa4 ; //base flow [m/min]
 		ans[4] = d4 - out4; //differential equation for aquifer storage
-        double groundwater_runoff = y_i[7]; //[m]
+        double groundwater_runoff = y_i[4]; //[mm/hour]
 
 		//channel storage
 		double lambda_1 = global_params[1];
@@ -2604,17 +2618,17 @@ void model401(double t, \
 	   	double c_2 = params[5];// = A_h / 60.0;	//  c_2
 
 	    ans[0] = -q + (out2 + out3 + out4) * c_2; //[m/min] to [m3/s]
-        //ans[5] = -total_runoff + (out2 + out3 + out4); //[m]
-        ans[5] = -surface_runoff + (out2); //[m]
-        ans[6] = -subsurface_runoff + (out3); //[m]
-        ans[7] = -groundwater_runoff + (out3); //[m]
+        ans[1] = -basin_rainfall + rainfall*60*1000; //[m/min] to [mm/hour]
+        ans[2] = -surface_runoff + out2*60*1000; //[m/min] to [mm/hour]
+        ans[3] = -subsurface_runoff + out3*60*1000; //[m/min] to [mm/hour]
+        ans[4] = -groundwater_runoff + out4*60*1000; //[m/min] to [mm/hour]
 
 	    for (i = 0; i < num_parents; i++){
             ans[0] += y_p[i * dim];
-            //ans[5] += y_p[i * dim +5];
-            ans[5] += y_p[i * dim +5];
-            ans[6] += y_p[i * dim +6];
-            ans[7] += y_p[i * dim +7];
+            ans[1] += y_p[i * dim +1];
+            ans[2] += y_p[i * dim +2];
+            ans[3] += y_p[i * dim +3];
+            ans[4] += y_p[i * dim +4];
         }
 	        
 	    ans[0] = invtau * pow(q, lambda_1) * ans[0];    // discharge[0]
