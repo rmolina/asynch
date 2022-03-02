@@ -2548,7 +2548,7 @@ void model401(double t, \
 	    double L = params[1];   // Length of the channel [m]
 	    double A_h = params[2]; //Area of the hillslopes [m^2]
         double A_i = params[0]; //Area of the basin [km^2]
-        A_i*=1e6; //[m^2]
+         A_i*=1e6; //[m^2]
 	    double c_1 = params[4]; //factor .converts [mm/hr] to [m/min]
 	    double rainfall = forcing_values[0] * c_1; //rainfall. from [mm/hr] to [m/min]
 		//double snowmelt = forcing_values[2]; //we need to put it in [m/min]
@@ -2558,17 +2558,17 @@ void model401(double t, \
         // 9 states
         // i need to put the fluxes on top because cant print more than state7. bug
         //y0=q discharge[m3/s]
-        //y1 = basin rainfall [mm/hour]
-        //y2 = basin surface runoff [mm/hour]
-        //y3= basin subsurface runoff [mm/hour]
-        //y4 = basin gw rounoff [mm/hour]
+        //y1 = basin rainfall [m3/hour]
+        //y2 = basin surface runoff [m3/hour]
+        //y3= basin subsurface runoff [m3/hour]
+        //y4 = basin gw rounoff [m3/hour]
         //y5= h1 static storage[m]
         //y6= h2 water hill surface[m]
         //y7 = h3 water upper soil [m]
         //y8 = h4  water lower soil [m]
 
         //rainfall
-        double basin_rainfall = y_i[1]; //[mm/hour]
+        double basin_rainfall = y_i[1]; //[m3/hour]
 
 		//static storage
 		double h1 = y_i[5]; //static storage [m]
@@ -2589,7 +2589,7 @@ void model401(double t, \
 		double alfa2 = global_params[6]* 24*60; //residence time [days] to [min].
 		double out2 = h2 / alfa2 ; //direct runoff [m/min]
 		ans[2] = d2 - out2; //differential equation of surface storage
-        double surface_runoff = y_i[2]; //[mm/hour]
+        double surface_runoff = y_i[2]; //[m3/hour]
 
 		// gravitational storage
 		double h3 = y_i[7]; //water in the gravitational storage in the upper part of soil [m]
@@ -2599,7 +2599,7 @@ void model401(double t, \
 		double alfa3 = global_params[7]* 24*60; //residence time [days] to [min].
 		double out3 = h3/alfa3; //interflow [m/min]
 		ans[3] = d3 - out3; //differential equation for gravitational storage
-        double subsurface_runoff = y_i[3];  //[mm/hour]
+        double subsurface_runoff = y_i[3];  //[m3/hour]
 
 		//aquifer storage
 		double h4 = y_i[8]; //water in the aquifer storage [m]
@@ -2610,7 +2610,7 @@ void model401(double t, \
 		double alfa4 = global_params[8]* 24*60; //residence time [days] to [min].
 		double out4 = h4/alfa4 ; //base flow [m/min]
 		ans[4] = d4 - out4; //differential equation for aquifer storage
-        double groundwater_runoff = y_i[4]; //[mm/hour]
+        double groundwater_runoff = y_i[4]; //[m3/hour]
 
 		//channel storage
 		double lambda_1 = global_params[1];
@@ -2619,19 +2619,21 @@ void model401(double t, \
         //double total_runoff = y_i[5];
 	   	double c_2 = params[5];// = A_h / 60.0;	//  c_2
 
+        //double ratio=A_h / A_i;
 	    ans[0] = -q + (out2 + out3 + out4) * c_2; //[m/min] to [m3/s]
-        ans[1] = -basin_rainfall + rainfall * 60 * 1000 * (A_h / A_i); //[m/min] to [mm/hour]
-        double ratio=A_h / A_i;
-        if (forcing_values[0]>1 && ratio<1) {
-            printf("time: %f\n", t);
-            printf(" rain in mm/hour: %f\n", forcing_values[0]);
-            printf(" area hill, area basin, area ratio: %f %f %f\n", A_h,A_i,ratio);
-            MPI_Abort(MPI_COMM_WORLD, 1);
-        }
+        double aux = forcing_values[0] *(1/1000) * A_h;//[mm/h] to [m3/h] 
+        ans[1] = -basin_rainfall + aux; //[mm/hour] to []
 
-        ans[2] = -surface_runoff + out2*60*1000*(A_h / A_i); //[m/min] to [mm/hour]
-        ans[3] = -subsurface_runoff + out3*60*1000*(A_h / A_i); //[m/min] to [mm/hour]
-        ans[4] = -groundwater_runoff + out4*60*1000*(A_h / A_i); //[m/min] to [mm/hour]
+        // if (forcing_values[0]>1 && ratio<1) {
+        //     printf("time: %f\n", t);
+        //     printf(" rain in mm/hour: %f\n", forcing_values[0]);
+        //     printf(" area hill, area basin, area ratio: %f %f %f\n", A_h,A_i,ratio);
+        //     MPI_Abort(MPI_COMM_WORLD, 1);
+        // }
+
+        ans[2] = -surface_runoff + out2 * 60 * A_h; //[m/min] to [m3/hour]
+        ans[3] = -subsurface_runoff + out3 *60 * A_h ; //[m/min] to [m3/hour]
+        ans[4] = -groundwater_runoff + out4 *60 *A_h ; //[m/min] to [m3/hour]
 
 	    for (i = 0; i < num_parents; i++){
             ans[0] += y_p[i * dim];
