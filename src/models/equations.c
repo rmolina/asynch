@@ -738,6 +738,9 @@ void TilesModel(double t, const double * const y_i, unsigned int dim, const doub
         q_sLink += q_inT;         // Tile flow in function of the tile act depth and tile slopei 
     }    
     //Evaporation
+    double e_p = 0;
+    double e_l = 0;
+    double e_s = 0;
     if (s_s > NoFlow){
         double C_p = s_p;
         double C_l = s_l/t_L;
@@ -748,12 +751,6 @@ void TilesModel(double t, const double * const y_i, unsigned int dim, const doub
         double e_l = Corr_evap * C_l * e_pot;
         double e_s = Corr_evap * C_s * e_pot;
     }
-    else{
-        double e_p = 0.0;
-        double e_l = 0.0;
-        double e_s = 0.0;
-    }
-
     //Update variables
 	double q_parent;
 	int q_pidx;
