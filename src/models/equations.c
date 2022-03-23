@@ -2491,7 +2491,9 @@ void model400(double t, \
 		double x3 = min(x2, infiltration); //water that infiltrates to gravitational storage [m/min]
 		double d2 = x2 - x3; // the input to surface storage [m] check units
 		double alfa2 = global_params[6]* 24*60; //residence time [days] to [min].
-		double out2 = h2 / alfa2 ; //direct runoff [m/min]
+        double out2 =0;
+        if(alfa2>=1)
+		    out2 = h2 / alfa2 ; //direct runoff [m/min]
 		ans[2] = d2 - out2; //differential equation of surface storage
 
 
@@ -2501,7 +2503,9 @@ void model400(double t, \
 		double x4 = min(x3,percolation); //water that percolates to aquifer storage [m/min]
 		double d3 = x3 - x4; // input to gravitational storage [m/min]
 		double alfa3 = global_params[7]* 24*60; //residence time [days] to [min].
-		double out3 = h3/alfa3; //interflow [m/min]
+        double out3=0;
+        if(alfa3>=1)
+		    out3 = h3/alfa3; //interflow [m/min]
 		ans[3] = d3 - out3; //differential equation for gravitational storage
 
 		//aquifer storage
@@ -2511,7 +2515,9 @@ void model400(double t, \
 		double x5 = 0;
 		double d4 = x4 - x5;
 		double alfa4 = global_params[8]* 24*60; //residence time [days] to [min].
-		double out4 = h4/alfa4 ; //base flow [m/min]
+        double out4=0;
+        if(alfa4>=1)
+		    out4 = h4/alfa4 ; //base flow [m/min]
 		ans[4] = d4 - out4; //differential equation for aquifer storage
 
 		//channel storage
@@ -2525,6 +2531,13 @@ void model400(double t, \
 	    for (i = 0; i < num_parents; i++)
 	        ans[0] += y_p[i * dim];
 	    ans[0] = invtau * pow(q, lambda_1) * ans[0];    // discharge[0]
+
+        // if (forcing_values[0]>1 && ratio<1) {
+        //     printf("time: %f\n", t);
+        //     printf(" rain in mm/hour: %f\n", forcing_values[0]);
+        //     printf(" area hill, area basin, area ratio: %f %f %f\n", A_h,A_i,ratio);
+        //     MPI_Abort(MPI_COMM_WORLD, 1);
+        // }
 
 }
 //Type 401
