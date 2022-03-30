@@ -693,7 +693,7 @@ void TilesModel(double t, const double * const y_i, unsigned int dim, const doub
     double d = params[8];
     double k3 = params[9];
     double ki_fac = params[10];
-    double t_L = params[11];
+    double t_L = params[11]*forcing_values[3];
     double NoFlow = params[12];
     double Td = params[13];
     double Beta = params[14];
@@ -711,8 +711,8 @@ void TilesModel(double t, const double * const y_i, unsigned int dim, const doub
 
     //In forcings rainfall and snowmelt
     double q_in = forcing_values[0] * (0.001/60);	//[m/min]
-    double snowmelt = forcing_values[3] * (0.001)/60; //mm/hour to m/min
-    q_in += snowmelt;
+    //double snowmelt = forcing_values[3] * (0.001)/60; //mm/hour to m/min
+    //q_in += snowmelt;
 
     //Vertical fluxes
     double pow_t = (1.0 - s_l/t_L > 0.0)? pow(1.0 - s_l/t_L,3): 0.0;
