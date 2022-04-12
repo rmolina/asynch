@@ -2503,10 +2503,10 @@ void tetis_nicoV1(double t, \
 		double percolation = global_params[5]*c_1; // percolation rate to aquifer [m/min]
 		double x4 = min(x3,percolation); //water that percolates to aquifer storage [m/min]
 		double d3 = x3 - x4; // input to gravitational storage [m/min]
-		double alfa3 = global_params[7]; //hillslope subsurface reference speed [m/s].
+		double alfa3 = global_params[7]*60*24; //hillslope subsurface reference speed [m/s].
         double out3=0;
         if(alfa3>=1)
-		    out3 = h3*alfa3*c_3; // h3[m]*alfa3[m/s]*c_3[s/(min*m)] -> interflow [m/min]
+		    out3 = h3/alfa3;//*c_3; // h3[m]*alfa3[m/s]*c_3[s/(min*m)] -> interflow [m/min]
 		ans[3] = d3 - out3; //differential equation for gravitational storage
 
 		//aquifer storage
