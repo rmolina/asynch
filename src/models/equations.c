@@ -2473,7 +2473,11 @@ void tetis_nicoV1(double t, \
 		//double snowmelt = forcing_values[2]; //we need to put it in [m/min]
 	    double x1 = rainfall; // x1 can be rainfall + snowmelt when last available
 	    double e_pot = forcing_values[1] * (1e-3 / (30.0*24.0*60.0));//potential et[mm/month] -> [m/min]
-
+        //Lenght area relation fix 
+        if (c_3<0.025)
+            c_3 = 0.025;
+        if (c_3>1)
+            c_3 = 1;
 
 		//static storage
 		double h1 = y_i[1]; //static storage [m]
