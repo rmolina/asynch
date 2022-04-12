@@ -2497,8 +2497,7 @@ void tetis_nicoV1(double t, \
 		double d2 = x2 - x3; // the input to surface storage [m] check units
 		double alfa2 = global_params[6]; //hillslope surface reference speed [m/s].
         double out2 = 0;
-        if(alfa2>=1)
-		    out2 = h2 * alfa2 * c_3; //h2[m]*alfa2[m/s]*c_3[s/(min*m)] -> direct runoff [m/min] 
+        out2 = h2 * alfa2 * c_3; //h2[m]*alfa2[m/s]*c_3[s/(min*m)] -> direct runoff [m/min] 
 		ans[2] = d2 - out2; //differential equation of surface storage
 
 
@@ -2509,8 +2508,7 @@ void tetis_nicoV1(double t, \
 		double d3 = x3 - x4; // input to gravitational storage [m/min]
 		double alfa3 = global_params[7]; //hillslope subsurface reference speed [m/s].
         double out3=0;
-        if(alfa3>=1)
-		    out3 = h3 * alfa3*c_3; // h3[m]*alfa3[m/s]*c_3[s/(min*m)] -> interflow [m/min]
+        out3 = h3 * alfa3*c_3; // h3[m]*alfa3[m/s]*c_3[s/(min*m)] -> interflow [m/min]
 		ans[3] = d3 - out3; //differential equation for gravitational storage
 
 		//aquifer storage
