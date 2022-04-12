@@ -2481,7 +2481,8 @@ void tetis_nicoV1(double t, \
 
 		//static storage
 		double h1 = y_i[1]; //static storage [m]
-		double Hu = global_params[3]/1000; //max available storage in static tank [mm] to [m]
+		double H_season_fact = forcing_values[3]; //seasonality factor
+        double Hu = (global_params[3]/1000)*H_season_fact; //max available storage in static tank [mm] to [m]
 		double x2 = max(0,x1 + h1 - Hu ); //excedance flow to the second storage [m] [m/min] check units
 		//double x2 = (x1 + h1 -Hu>0.0) ? x1 + h1 -Hu : 0.0;
 		double d1 = x1 - x2; // the input to static tank [m/min]
@@ -2491,7 +2492,7 @@ void tetis_nicoV1(double t, \
 
 
 		//surface storage tank
-		double h2 = y_i[2];//water in the hillslope surface [m]
+		double h2 = y_i[2];//water in the hillslope surface [m]cd 
 		double infiltration = global_params[4]*c_1; //infiltration rate [m/min]
 		double x3 = min(x2, infiltration); //water that infiltrates to gravitational storage [m/min]
 		double d2 = x2 - x3; // the input to surface storage [m] check units
