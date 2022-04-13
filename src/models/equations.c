@@ -2490,10 +2490,13 @@ void model400(double t, \
 		double infiltration = global_params[4]*c_1; //infiltration rate [m/min]
 		double x3 = min(x2, infiltration); //water that infiltrates to gravitational storage [m/min]
 		double d2 = x2 - x3; // the input to surface storage [m] check units
-		double alfa2 = global_params[6]* 24*60; //residence time [days] to [min].
+		//double alfa2 = global_params[6]* 24*60; //residence time [days] to [min].
+        double alfa2 =global_params[6]; //velocity in m/s
+        double w = alfa2 * L / A_h  * 60; // [1/min]
         double out2 =0;
         if(alfa2>=1)
-		    out2 = h2 / alfa2 ; //direct runoff [m/min]
+		    //out2 = h2 / alfa2 ; //direct runoff [m/min]
+            out2  = h2 * alfa2; //direct runoff [m/min]
 		ans[2] = d2 - out2; //differential equation of surface storage
 
 
