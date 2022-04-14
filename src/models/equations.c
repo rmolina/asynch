@@ -2469,9 +2469,24 @@ void model400(double t, \
 	    double A_h = params[2]; //Area of the hillslopes [m^2]
 	    double c_1 = params[4]; //factor .converts [mm/hr] to [m/min]
 	    double rainfall = forcing_values[0] * c_1; //rainfall. from [mm/hr] to [m/min]
-		//double snowmelt = forcing_values[2]; //we need to put it in [m/min]
-	    double x1 = rainfall; // x1 can be rainfall + snowmelt when last available
 	    double e_pot = forcing_values[1] * (1e-3 / (30.0*24.0*60.0));//potential et[mm/month] -> [m/min]
+        double temperature = forcing_values[2]; //daily temperature in Celsius
+        double temp_thres=global_params[10]; // celsius degrees
+        double melt_factor = global_params[9] *(1/60.0) *(1/1000.0); // mm/hour/degree to m/min/degree
+        double x1 =0;
+
+        //snow storage
+        double h5 = y_i[5];//snow storage [m]
+        if(temperature = -99 || temperature>=temp_thres){
+            double snowmelt = min(h5,temperature * melt_factor); // in [m]
+            ans[5]=-snowmelt; //melting outs of snow storage
+            x1 = rainfall + snowmelt; // in [m]
+        }
+        if(temperature <temp_thres){
+            ans[5]=rainfall; //all precipitation is stored in the snow storage
+            x1=0;
+        }
+
 
 
 		//static storage

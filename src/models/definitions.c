@@ -742,7 +742,7 @@ case 20:	num_global_params = 9;
 		break;
 		//--------------------------------------------------------------------------------------------
 	case 400://tetis01
-		num_global_params = 9;
+		num_global_params = 11;//v0,l1,l2,hu,infil,perc,surfvel,subrestime,gwrestime,meltfactor,tempthres
 		globals->uses_dam = 0;
 		globals->num_params = 6;
 		globals->dam_params_size = 0;
@@ -750,8 +750,8 @@ case 20:	num_global_params = 9;
 		globals->areah_idx = 2;
 		globals->num_disk_params = 3;
 		globals->convertarea_flag = 0;
-		globals->num_forcings = 3;
-		globals->min_error_tolerances = 5; //as many as states
+		globals->num_forcings = 4; //precip, et, temperature,discharge
+		globals->min_error_tolerances = 6; //as many as states:static,surface,subsurf,gw,channel,snow,
 		break;
 		//--------------------------------------------------------------------------------------------
 	case 401://tetis02
@@ -1942,7 +1942,7 @@ void InitRoutines(
     }
 	else if (model_uid == 400) //tetis01
 			{
-		link->dim = 5;
+		link->dim = 6;
 		link->no_ini_start = link->dim;
 		link->diff_start = 0;
 
@@ -3181,6 +3181,8 @@ void Precalculations(
 		double alfa2 = global_params[6]; //linear reservoir coef. surface storage [minutes]
 		double alfa3 = global_params[7]; //linear reserv. coef gravitational storage [days]
 		double alfa4 = global_params[8]; //linear reserv. coef aquifer storage [days]
+        double melt_factor = global_params[9]; // melting factor in mm/hour/degree
+        double temp_thres = global_params[10]; // in celsius degrees
 		vals[3] = 60.0 * v_0 * pow(A_i, lambda_2) / ((1.0 - lambda_1) * L_i);//[1/min]  invtau params[3]
 		vals[4] = (0.001 / 60.0);		//(mm/hr->m/min)  c_1
 		vals[5] = A_h / 60.0;	//  c_2
