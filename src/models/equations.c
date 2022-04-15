@@ -2473,6 +2473,7 @@ void model400(double t, \
         double temperature = forcing_values[2]; //daily temperature in Celsius
         double temp_thres=global_params[10]; // celsius degrees
         double melt_factor = global_params[9] *(1/60.0) *(1/1000.0); // mm/hour/degree to m/min/degree
+        double frozen_ground = forcing_values[3]; // 1 if ground is frozen, 0 if not frozen 
         double x1 =0;
 
         //snow storage
@@ -2493,6 +2494,9 @@ void model400(double t, \
 		double h1 = y_i[1]; //static storage [m]
 		double Hu = global_params[3]/1000; //max available storage in static tank [mm] to [m]
 		double x2 = max(0,x1 + h1 - Hu ); //excedance flow to the second storage [m] [m/min] check units
+        //if ground is frozen, x1 goes directly to the surface
+        if(frozen_ground=1)
+            x2 = x1;
 		//double x2 = (x1 + h1 -Hu>0.0) ? x1 + h1 -Hu : 0.0;
 		double d1 = x1 - x2; // the input to static tank [m/min]
 		double out1 = min(e_pot, h1); //evaporation from the static tank. it cannot evaporate more than h1 [m]
