@@ -2472,7 +2472,7 @@ void model400(double t, \
 	    double e_pot = forcing_values[1] * (1e-3 / (30.0*24.0*60.0));//potential et[mm/month] -> [m/min]
         double temperature = forcing_values[2]; //daily temperature in Celsius
         double temp_thres=global_params[10]; // celsius degrees
-        double melt_factor = global_params[9] *(1/60.0) *(1/1000.0); // mm/hour/degree to m/min/degree
+        double melt_factor = global_params[9] *(1/(24*60.0)) *(1/1000.0); // mm/day/degree to m/min/degree
         double frozen_ground = forcing_values[3]; // 1 if ground is frozen, 0 if not frozen 
         double x1 =0;
 
