@@ -2485,28 +2485,24 @@ void model400(double t, \
         // }
         double h5 = y_i[5];//snow storage [m]
         //temperature =0 is the flag for no forcing the variable. no snow process
-        //printf("forcing 2 : %f\n", forcing_values[2]);
-        //MPI_Abort(MPI_COMM_WORLD, 1);
-
         if(temperature==0){
             x1 = rainfall;
             ans[5]=0;
-            printf("temp eq 0: %f\n", temperature);
-            MPI_Abort(MPI_COMM_WORLD, 1); 
         }
-        if(temperature != 0 & temperature>=temp_thres){
-            double snowmelt = min(h5,temperature * melt_factor); // in [m]
-            ans[5]=-snowmelt; //melting outs of snow storage
-            x1 = rainfall + snowmelt; // in [m]
-            printf("temp > th: %f\n", temperature);
+        else{
+            if(temperature>=temp_thres){
+                double snowmelt = min(h5,temperature * melt_factor); // in [m]
+                ans[5]=-snowmelt; //melting outs of snow storage
+                x1 = rainfall + snowmelt; // in [m]
+                //printf("temp > th: %f\n", temperature);
+            }
+            if(temperature != 0 & temperature <temp_thres){
+                ans[5]=rainfall; //all precipitation is stored in the snow storage
+                x1=0;
+                //printf("temp < th: %f\n", temperature);
+            }
         }
-        if(temperature != 0 & temperature <temp_thres){
-            ans[5]=rainfall; //all precipitation is stored in the snow storage
-            x1=0;
-            printf("temp < th: %f\n", temperature);
-        }
-
-
+        
 
 		//static storage
 		double h1 = y_i[1]; //static storage [m]
