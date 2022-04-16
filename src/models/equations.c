@@ -2485,6 +2485,9 @@ void model400(double t, \
         // }
         double h5 = y_i[5];//snow storage [m]
         //temperature =0 is the flag for no forcing the variable. no snow process
+        printf("forcing 2 : %f\n", forcing_values[2]);
+        MPI_Abort(MPI_COMM_WORLD, 1);
+        
         if(temperature=0){
             x1 = rainfall;
             ans[5]=0;
