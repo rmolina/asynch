@@ -2478,12 +2478,16 @@ void model400(double t, \
 
         //snow storage
         double h5 = y_i[5];//snow storage [m]
-        if(temperature = -99 || temperature>=temp_thres){
+        //temperature =0 is the flag for no forcing the variable. no snow process
+        if(temperature=0){
+            x1 = rainfall;
+        }
+        if(temperature != 0 & temperature>=temp_thres){
             double snowmelt = min(h5,temperature * melt_factor); // in [m]
             ans[5]=-snowmelt; //melting outs of snow storage
             x1 = rainfall + snowmelt; // in [m]
         }
-        if(temperature <temp_thres){
+        if(temperature != 0 & temperature <temp_thres){
             ans[5]=rainfall; //all precipitation is stored in the snow storage
             x1=0;
         }
@@ -2513,7 +2517,6 @@ void model400(double t, \
         double alfa2 =global_params[6]; //velocity in m/s
         double w = alfa2 * L / A_h  * 60; // [1/min]
         double out2 =0;
-        if(alfa2>=1)
 		    //out2 = h2 / alfa2 ; //direct runoff [m/min]
             out2  = h2 * alfa2; //direct runoff [m/min]
 		ans[2] = d2 - out2; //differential equation of surface storage
