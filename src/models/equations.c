@@ -2477,19 +2477,29 @@ void model400(double t, \
         double x1 =0;
 
         //snow storage
+        
+             
+        //     printf(" rain in mm/hour: %f\n", forcing_values[0]);
+        //     printf(" area hill, area basin, area ratio: %f %f %f\n", A_h,A_i,ratio);
+        //     MPI_Abort(MPI_COMM_WORLD, 1);
+        // }
         double h5 = y_i[5];//snow storage [m]
         //temperature =0 is the flag for no forcing the variable. no snow process
         if(temperature=0){
             x1 = rainfall;
+            ans[5]=0;
+            printf("temp eq 0: %f\n", temperature);
         }
         if(temperature != 0 & temperature>=temp_thres){
             double snowmelt = min(h5,temperature * melt_factor); // in [m]
             ans[5]=-snowmelt; //melting outs of snow storage
             x1 = rainfall + snowmelt; // in [m]
+            printf("temp > th: %f\n", temperature);
         }
         if(temperature != 0 & temperature <temp_thres){
             ans[5]=rainfall; //all precipitation is stored in the snow storage
             x1=0;
+            printf("temp < th: %f\n", temperature);
         }
 
 
