@@ -2494,7 +2494,8 @@ void model400(double t, \
                 double snowmelt = min(h5,temperature * melt_factor); // in [m]
                 ans[5]=-snowmelt; //melting outs of snow storage
                 x1 = rainfall + snowmelt; // in [m]
-                //printf("temp > th: %f\n", temperature);
+                printf("temp > th: %f\n", temperature);
+                printf("snowmelt : %f\n", snowmelt);
             }
             if(temperature != 0 & temperature <temp_thres){
                 ans[5]=rainfall; //all precipitation is stored in the snow storage
