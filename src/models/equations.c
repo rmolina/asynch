@@ -2482,7 +2482,7 @@ void tetis_nicoV1(double t, \
 		//static storage
 		double h1 = y_i[1]; //static storage [m]
 		double H_season_fact = forcing_values[3]; //seasonality factor
-        double Hu = (global_params[3]/1000)*H_season_fact; //max available storage in static tank [mm] to [m]
+        double Hu = (global_params[3]/1000);//*H_season_fact; //max available storage in static tank [mm] to [m]
 		double x2 = max(0,x1 + h1 - Hu ); //excedance flow to the second storage [m] [m/min] check units
 		//double x2 = (x1 + h1 -Hu>0.0) ? x1 + h1 -Hu : 0.0;
 		double d1 = x1 - x2; // the input to static tank [m/min]
