@@ -2626,20 +2626,20 @@ void model401(double t, \
         }
         else{
             if(temperature>=temp_thres){
-                double snowmelt = min(h5,temperature * melt_factor); // in [m]
+                double snowmelt = min(h5,temperature * melt_factor); // in [m/min]
                 ans[9]=-snowmelt; //melting outs of snow storage
-                x1 = rainfall + snowmelt; // in [m]
+                x1 = rainfall + snowmelt; // in [m/min]
                 //printf("temp > th: %f\n", temperature);
                 //printf("snowmelt : %f\n", snowmelt);
             }
             if(temperature != 0 & temperature <temp_thres){
-                ans[5]=rainfall; //all precipitation is stored in the snow storage
+                ans[9]=rainfall; //all precipitation is stored in the snow storage
                 x1=0;
                 //printf("temp < th: %f\n", temperature);
             }
         }
         //rainfall
-        double basin_rainfall = y_i[1]; //[m3/hour]
+        double basin_rainfall = y_i[1]; //[m3/hour] see last lines
 
 		//static storage
 		double h1 = y_i[5]; //static storage [m]
@@ -2704,15 +2704,7 @@ void model401(double t, \
         //double ratio=A_h / A_i;
 	    ans[0] = -q + (out2 + out3 + out4) * c_2; //[m/min] to [m3/s]
         double aux = forcing_values[0] *(1/1000.0) * A_h;//[mm/h] to [m3/h] 
-        ans[1] = -basin_rainfall + aux; //[mm/hour] to []
-
-        // if (forcing_values[0]>1 && ratio<1) {
-        //     printf("time: %f\n", t);
-        //     printf(" rain in mm/hour: %f\n", forcing_values[0]);
-        //     printf(" area hill, area basin, area ratio: %f %f %f\n", A_h,A_i,ratio);
-        //     MPI_Abort(MPI_COMM_WORLD, 1);
-        // }
-
+        ans[1] = -basin_rainfall + aux; //[m3/hour] 
         ans[2] = -surface_runoff + out2 * 60.0 * A_h; //[m/min] to [m3/hour]
         ans[3] = -subsurface_runoff + out3 *60.0 * A_h ; //[m/min] to [m3/hour]
         ans[4] = -groundwater_runoff + out4 *60.0 *A_h ; //[m/min] to [m3/hour]
