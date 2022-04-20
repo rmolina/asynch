@@ -764,7 +764,7 @@ case 20:	num_global_params = 9;
 		globals->num_disk_params = 3;
 		globals->convertarea_flag = 0;
 		globals->num_forcings = 5; //precip, et, temperature,soil temperature,discharge
-		globals->min_error_tolerances = 8;  //as many as states
+		globals->min_error_tolerances = 10;  //as many as states
 		break;
 		//--------------------------------------------------------------------------------------------
 	case 402://tetis03
@@ -1963,7 +1963,7 @@ void InitRoutines(
 	} 
     else if (model_uid == 401) //tetis02
 	{
-		link->dim = 9;
+		link->dim = 10;//q,basinrain,basinsurf,basinsubsur,basingw,static,surf,subsurf,gw,snow
 		link->no_ini_start = link->dim;
 		link->diff_start = 0;
 
