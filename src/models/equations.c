@@ -2477,12 +2477,6 @@ void model400(double t, \
         double x1 =0;
 
         //snow storage
-        
-             
-        //     printf(" rain in mm/hour: %f\n", forcing_values[0]);
-        //     printf(" area hill, area basin, area ratio: %f %f %f\n", A_h,A_i,ratio);
-        //     MPI_Abort(MPI_COMM_WORLD, 1);
-        // }
         double h5 = y_i[5];//snow storage [m]
         //temperature =0 is the flag for no forcing the variable. no snow process
         if(temperature==0){
@@ -2494,8 +2488,8 @@ void model400(double t, \
                 double snowmelt = min(h5,temperature * melt_factor); // in [m]
                 ans[5]=-snowmelt; //melting outs of snow storage
                 x1 = rainfall + snowmelt; // in [m]
-                printf("temp > th: %f\n", temperature);
-                printf("snowmelt : %f\n", snowmelt);
+               // printf("temp > th: %f\n", temperature);
+               // printf("snowmelt : %f\n", snowmelt);
             }
             if(temperature != 0 & temperature <temp_thres){
                 ans[5]=rainfall; //all precipitation is stored in the snow storage
@@ -2603,14 +2597,17 @@ void model401(double t, \
          A_i*=1e6; //[m^2]
 	    double c_1 = params[4]; //factor .converts [mm/hr] to [m/min]
 	    double rainfall = forcing_values[0] * c_1; //rainfall. from [mm/hr] to [m/min]
-		//double snowmelt = forcing_values[2]; //we need to put it in [m/min]
-	    double x1 = rainfall; // x1 can be rainfall + snowmelt when last available
 	    double e_pot = forcing_values[1] * (1e-3 / (30.0*24.0*60.0));//potential et[mm/month] -> [m/min]
+		double temperature = forcing_values[2]; //daily temperature in Celsius
+        double temp_thres=global_params[10]; // celsius degrees
+        double melt_factor = global_params[9] *(1/(24*60.0)) *(1/1000.0); // mm/day/degree to m/min/degree
+        double frozen_ground = forcing_values[3]; // 1 if ground is frozen, 0 if not frozen 
+        double x1 =0;
 
         // 9 states
         // i need to put the fluxes on top because cant print more than state7. bug
         //y0=q discharge[m3/s]
-        //y1 = basin rainfall [m3/hour]
+        //y1 = basin rainfall and snowmelt [m3/hour]
         //y2 = basin surface runoff [m3/hour]
         //y3= basin subsurface runoff [m3/hour]
         //y4 = basin gw rounoff [m3/hour]
@@ -2618,7 +2615,29 @@ void model401(double t, \
         //y6= h2 water hill surface[m]
         //y7 = h3 water upper soil [m]
         //y8 = h4  water lower soil [m]
+        //y9 = h5 snow storage [m]
 
+        //snow storage
+        double h5 = y_i[9];//snow storage [m]
+        //temperature =0 is the flag for no forcing the variable. no snow process
+        if(temperature==0){
+            x1 = rainfall;
+            ans[9]=0;
+        }
+        else{
+            if(temperature>=temp_thres){
+                double snowmelt = min(h5,temperature * melt_factor); // in [m]
+                ans[9]=-snowmelt; //melting outs of snow storage
+                x1 = rainfall + snowmelt; // in [m]
+                //printf("temp > th: %f\n", temperature);
+                //printf("snowmelt : %f\n", snowmelt);
+            }
+            if(temperature != 0 & temperature <temp_thres){
+                ans[5]=rainfall; //all precipitation is stored in the snow storage
+                x1=0;
+                //printf("temp < th: %f\n", temperature);
+            }
+        }
         //rainfall
         double basin_rainfall = y_i[1]; //[m3/hour]
 
@@ -2626,7 +2645,11 @@ void model401(double t, \
 		double h1 = y_i[5]; //static storage [m]
 		double Hu = global_params[3]/1000; //max available storage in static tank [mm] to [m]
 		double x2 = max(0,x1 + h1 - Hu ); //excedance flow to the second storage [m] [m/min] check units
-		//double x2 = (x1 + h1 -Hu>0.0) ? x1 + h1 -Hu : 0.0;
+        //if ground is frozen, x1 goes directly to the surface
+        //therefore nothing is diverted to static tank
+        if(frozen_ground == 1){
+            x2 = x1;
+        }
 		double d1 = x1 - x2; // the input to static tank [m/min]
 		double out1 = min(e_pot, h1); //evaporation from the static tank. it cannot evaporate more than h1 [m]
 		//double out1 = (e_pot > h1) ? e_pot : 0.0;
@@ -2638,8 +2661,11 @@ void model401(double t, \
 		double infiltration = global_params[4]*c_1; //infiltration rate [m/min]
 		double x3 = min(x2, infiltration); //water that infiltrates to gravitational storage [m/min]
 		double d2 = x2 - x3; // the input to surface storage [m] check units
-		double alfa2 = global_params[6]* 24*60; //residence time [days] to [min].
-		double out2 = h2 / alfa2 ; //direct runoff [m/min]
+		//double alfa2 = global_params[6]* 24*60; //residence time [days] to [min].
+		double alfa2 =global_params[6]; //velocity in m/s
+        double w = alfa2 * L / A_h  * 60; // [1/min]
+        double out2 =0;
+        out2  = h2 * alfa2; //direct runoff [m/min]
 		ans[2] = d2 - out2; //differential equation of surface storage
         double surface_runoff = y_i[2]; //[m3/hour]
 
@@ -2649,7 +2675,9 @@ void model401(double t, \
 		double x4 = min(x3,percolation); //water that percolates to aquifer storage [m/min]
 		double d3 = x3 - x4; // input to gravitational storage [m/min]
 		double alfa3 = global_params[7]* 24*60; //residence time [days] to [min].
-		double out3 = h3/alfa3; //interflow [m/min]
+		double out3=0;
+        if(alfa3>=1)
+		    out3 = h3/alfa3; //interflow [m/min]
 		ans[3] = d3 - out3; //differential equation for gravitational storage
         double subsurface_runoff = y_i[3];  //[m3/hour]
 
@@ -2660,7 +2688,9 @@ void model401(double t, \
 		double x5 = 0;
 		double d4 = x4 - x5;
 		double alfa4 = global_params[8]* 24*60; //residence time [days] to [min].
-		double out4 = h4/alfa4 ; //base flow [m/min]
+		double out4=0;
+        if(alfa4>=1)
+		    out4 = h4/alfa4 ; //base flow [m/min]
 		ans[4] = d4 - out4; //differential equation for aquifer storage
         double groundwater_runoff = y_i[4]; //[m3/hour]
 
