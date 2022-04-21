@@ -744,7 +744,7 @@ case 20:	num_global_params = 9;
 	case 400://tetis01
 		num_global_params = 11;//v0,l1,l2,hu,infil,perc,surfvel,subrestime,gwrestime,meltfactor,tempthres
 		globals->uses_dam = 0;
-		globals->num_params = 6;
+		globals->num_params = 6;//ai,li,ah,invtau,c1,c2
 		globals->dam_params_size = 0;
 		globals->area_idx = 0;
 		globals->areah_idx = 2;
