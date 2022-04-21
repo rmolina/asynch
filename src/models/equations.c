@@ -2531,9 +2531,9 @@ void model400(double t, \
 		double d2 = x2 - x3; // the input to surface storage [m] check units
         double alfa2 =global_params[6]; //velocity in m/s
         double w = alfa2 * L / A_h  * 60; // [1/min]
+        w = min(1,w); //water can take less than 1 min (dt) to leave surface
         double out2 =0;
-		    //out2 = h2 / alfa2 ; //direct runoff [m/min]
-            out2  = h2 * alfa2; //direct runoff [m/min]
+        out2  = h2 * w; //direct runoff [m/min]
 		ans[STATE_SURFACE] = d2 - out2; //differential equation of surface storage
 
 
@@ -2681,8 +2681,9 @@ void model401(double t, \
 		//double alfa2 = global_params[6]* 24*60; //residence time [days] to [min].
 		double alfa2 =global_params[6]; //velocity in m/s
         double w = alfa2 * L / A_h  * 60; // [1/min]
+        w = min(w,1); // water can take less than 1 min to
         double out2 =0;
-        out2  = h2 * alfa2; //direct runoff [m/min]
+        out2  = h2 * w; //direct runoff [m/min]
 		ans[STATE_SURFACE] = d2 - out2; //differential equation of surface storage
         double surface_runoff = y_i[STATE_CUMSURF]; //[m3/hour]
 
