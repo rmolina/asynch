@@ -770,6 +770,65 @@ void TilesModel(double t, const double * const y_i, unsigned int dim, const doub
     //ans[7] = q_in;
 }
 
+//model 620 Hymod
+void Hymod(double t, const double * const y_i, unsigned int dim, const double * const y_p, unsigned short num_parents, unsigned int max_dim, const double * const global_params, const double * const params, const double * const forcing_values, const QVSData * const qvs, int state, void* user, double *ans)
+{
+    unsigned short i; 
+    //Distributed variables
+    double A_i = params[0];
+    double L_i = params[1];
+    double A_h = params[2];
+    double Cmax = params[3];
+    double B = params[4];
+    double a = params[5];
+    double kq = params[6];
+    double ks = params[7];    
+    double lambda_1 = params[8];
+    double invtau = params[9;
+    //states
+    double q = y_i[0];	
+    double s_c = y_i[1];	                                        // [m]
+    double s_1 = y_i[2];	                                        // [m]
+    double s_2 = y_i[3];
+    double s_3 = y_i[4];
+    double s_4 = y_i[5];
+
+    //In forcings rainfall and snowmelt
+    double q_in = forcing_values[0] * (0.001/60);	//[m/min]
+    double e_pot = forcing_values[1] * (1e-3 / (30.0*24.0*60.0));	//[mm/month] -> [m/min]
+
+    //Vertical fluxes
+    double Fc = (1.0 - s_c/Cmax > 0.0)? 1.0-pow(1.0 - s_c/Cmax,b): 1.0;
+    double qc4 = s_c * Fc * (1-a); //[m/min] from canopy to fast flow
+    double qc1 = s_c * Fc * a; //[m/min] from canopy to slow flow
+    double q12 = s_1 * kq; //[m/min] from slow flow to slow flow 1
+    double q23 = s_2 * kq; //[m/min] from slow flow to slow flow 1
+    double q3L = s_3 * kq; //[m/min] from slow flow to link
+    double q4L = s_4 * ks; //[m/min] from fast flow to link
+
+    //Update variables
+	double q_parent;
+	int q_pidx;
+    //Discharge
+    ans[0] = -q + ((q4L + q3L) * A_h / 60.0);	
+    for (i = 0; i < num_parents; i++) {
+		  q_pidx = i * dim;
+		  q_parent = y_p[q_pidx];
+		  ans[0] += q_parent;
+	  }
+    ans[0] = invtau * pow(q, lambda_1) * ans[0];
+    //Canopy
+    ans[1] = q_in - e_pot - qc4 - qc1;
+    //Slow 1
+    ans[2] = qc1 - q12;
+    //Slow 2
+    ans[3] = q12 - q23;
+    //Slow 3
+    ans[4] = q23 - q3L;
+    //Fast
+    ans[5] = qc4 - q4L;
+}
+
 //Type 609
 //TilesModelBaseSep: Model 608 with baseflow separation
 // Ai, Li, Ah, So, v1, a1, v2, a2, v3, a3,   h1, h2, h3, k1, k2, k3, lam1, lam2, v0.
@@ -2486,7 +2545,9 @@ void tetis_nicoV1(double t, \
 		double x2 = max(0,x1 + h1 - Hu ); //excedance flow to the second storage [m] [m/min] check units
 		//double x2 = (x1 + h1 -Hu>0.0) ? x1 + h1 -Hu : 0.0;
 		double d1 = x1 - x2; // the input to static tank [m/min]
-		double out1 = min(e_pot*pow(h1/Hu,0.6), h1); //evaporation from the static tank. it cannot evaporate more than h1 [m]
+		//double out1 = min(e_pot*pow(h1/Hu,0.6), h1); //evaporation from the static tank. it cannot evaporate more than h1 [m]
+        double out1 = min(e_pot, h1);
+        e_pot = min(e_pot - out1, 0);
 		//double out1 = (e_pot > h1) ? e_pot : 0.0;
 		ans[1] = d1 - out1; //differential equation of static storage
 
@@ -2499,7 +2560,9 @@ void tetis_nicoV1(double t, \
 		double alfa2 = global_params[6]; //hillslope surface reference speed [m/s].
         double out2 = 0;
         out2 = h2 * alfa2 * c_3; //h2[m]*alfa2[m/s]*c_3[s/(min*m)] -> direct runoff [m/min] 
-		ans[2] = d2 - out2; //differential equation of surface storage
+        double out2_2 = min(e_pot, h2-out2);
+        e_pot = min(e_pot - out2_2, 0);
+		ans[2] = d2 - out2- out2_2; //differential equation of surface storage
 
 
 		// gravitational storage
@@ -2510,7 +2573,9 @@ void tetis_nicoV1(double t, \
 		double alfa3 = global_params[7]; //hillslope subsurface reference speed [m/s].
         double out3=0;
         out3 = h3 * alfa3*c_3; // h3[m]*alfa3[m/s]*c_3[s/(min*m)] -> interflow [m/min]
-		ans[3] = d3 - out3; //differential equation for gravitational storage
+        double out3_2 = min(e_pot, h3-out3);
+        e_pot = min(e_pot - out3_2, 0);
+		ans[3] = d3 - out3 - out3_2; //differential equation for gravitational storage
 
 		//aquifer storage
 		double h4 = y_i[4]; //water in the aquifer storage [m]
@@ -2519,10 +2584,9 @@ void tetis_nicoV1(double t, \
 		double x5 = 0;
 		double d4 = x4 - x5;
 		double alfa4 = global_params[8]* 24*60; //residence time [days] to [min].
-        double out4=0;
-        if(alfa4>=1)
-		    out4 = h4/alfa4 ; //base flow [m/min]
-		ans[4] = d4 - out4; //differential equation for aquifer storage
+        double out4 = h4/alfa4;
+        double out4_2 = min(e_pot, h4-out4);        
+        ans[4] = d4 - out4 - out4_2; //differential equation for aquifer storage
 
 		//channel storage
 
