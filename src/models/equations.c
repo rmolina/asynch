@@ -2671,10 +2671,11 @@ void model401(double t, \
 		double out1 = min(e_pot, h1); //evaporation from the static tank. it cannot evaporate more than h1 [m]
 		//double out1 = (e_pot > h1) ? e_pot : 0.0;
 		ans[STATE_STATIC] = d1 - out1; //differential equation of static storage
-        printf('out1 %f ',out1);
-        printf('h1 %f ',h1)
+        printf("out1 %f\n", out1);
+        //printf(" rain in mm/hour: %f\n", forcing_values[0]);
+        printf("h1 %f/n ",h1);
         MPI_Abort(MPI_COMM_WORLD, 1);
-        
+
 		//surface storage tank
 		double h2 = y_i[STATE_SURFACE];//water in the hillslope surface [m]
 		double infiltration = global_params[4]*c_1; //infiltration rate [m/min]
