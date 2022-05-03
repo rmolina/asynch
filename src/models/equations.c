@@ -2673,7 +2673,7 @@ void model401(double t, \
 		ans[STATE_STATIC] = d1 - out1; //differential equation of static storage
         printf("out1 %f\n", out1);
         //printf(" rain in mm/hour: %f\n", forcing_values[0]);
-        printf("h1 %f/n ",h1);
+        printf("h1 %f\n ",h1);
         MPI_Abort(MPI_COMM_WORLD, 1);
 
 		//surface storage tank
