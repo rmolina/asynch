@@ -2634,6 +2634,14 @@ void model401(double t, \
         unsigned int STATE_GW = 8;
         unsigned int STATE_SNOW = 9;
 
+        #ifndef minf
+        #define minf(a,b) ((a) < (b) ? (a) : (b))
+        #endif
+
+        #ifndef maxf
+        #define maxf(a,b) ((a) > (b) ? (a) : (b))
+        #endif
+
         //snow storage
         double h5 = y_i[STATE_SNOW];//snow storage [m]
         //temperature =0 is the flag for no forcing the variable. no snow process
@@ -2661,14 +2669,14 @@ void model401(double t, \
 		//static storage
 		double h1 = y_i[STATE_STATIC]; //static storage [m]
 		double Hu = global_params[3]/1000; //max available storage in static tank [mm] to [m]
-		double x2 = max(0,x1 + h1 - Hu ); //excedance flow to the second storage [m] [m/min] check units
+		double x2 = maxf(0,x1 + h1 - Hu ); //excedance flow to the second storage [m] [m/min] check units
         //if ground is frozen, x1 goes directly to the surface
         //therefore nothing is diverted to static tank
         if(frozen_ground == 1){
             x2 = x1;
         }
 		double d1 = x1 - x2; // the input to static tank [m/min]
-		double out1 = min(e_pot, h1); //evaporation from the static tank. it cannot evaporate more than h1 [m]
+		double out1 = minf(e_pot, h1); //evaporation from the static tank. it cannot evaporate more than h1 [m]
 		//double out1 = (e_pot > h1) ? e_pot : 0.0;
 		ans[STATE_STATIC] = d1 - out1; //differential equation of static storage
         printf("t %f\n",t);
@@ -2682,12 +2690,12 @@ void model401(double t, \
 		//surface storage tank
 		double h2 = y_i[STATE_SURFACE];//water in the hillslope surface [m]
 		double infiltration = global_params[4]*c_1; //infiltration rate [m/min]
-		double x3 = min(x2, infiltration); //water that infiltrates to gravitational storage [m/min]
+		double x3 = minf(x2, infiltration); //water that infiltrates to gravitational storage [m/min]
 		double d2 = x2 - x3; // the input to surface storage [m] check units
 		//double alfa2 = global_params[6]* 24*60; //residence time [days] to [min].
 		double alfa2 =global_params[6]; //velocity in m/s
         double w = alfa2 * L / A_h  * 60; // [1/min]
-        w = min(w,1); // water can take less than 1 min to
+        w = minf(w,1); // water can take less than 1 min to
         double out2 =0;
         out2  = h2 * w; //direct runoff [m/min]
 		ans[STATE_SURFACE] = d2 - out2; //differential equation of surface storage
@@ -2696,7 +2704,7 @@ void model401(double t, \
 		// SUBSURFACE storage
 		double h3 = y_i[STATE_SUBSURF]; //water in the gravitational storage in the upper part of soil [m]
 		double percolation = global_params[5]*c_1; // percolation rate to aquifer [m/min]
-		double x4 = min(x3,percolation); //water that percolates to aquifer storage [m/min]
+		double x4 = minf(x3,percolation); //water that percolates to aquifer storage [m/min]
 		double d3 = x3 - x4; // input to gravitational storage [m/min]
 		double alfa3 = global_params[7]* 24*60; //residence time [days] to [min].
 		double out3=0;
