@@ -2673,6 +2673,7 @@ void model401(double t, \
 		ans[STATE_STATIC] = d1 - out1; //differential equation of static storage
         printf("t %f\n",t);
         printf("d1 %f\n",d1);
+        print("x1 and x2 %f %f\n",x1,x2);
         printf("out1 %f\n", out1);
         //printf(" rain in mm/hour: %f\n", forcing_values[0]);
         printf("h1 %f\n ",h1);
