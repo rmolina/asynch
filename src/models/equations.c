@@ -2669,9 +2669,9 @@ void model401(double t, \
 		//static storage
 		double h1 = y_i[STATE_STATIC]; //static storage [m]
 		double Hu = global_params[3]/1000; //max available storage in static tank [mm] to [m]
-        double aux = x1 + h1 - Hu;
+        double aux1 = x1 + h1 - Hu;
 		//double x2 = maxf(0,aux); //excedance flow to the second storage [m] [m/min] check units
-        double x2 = (aux>0)? aux: 0.0;
+        double x2 = (aux1>0)? aux1: 0.0;
         //if ground is frozen, x1 goes directly to the surface
         //therefore nothing is diverted to static tank
         if(frozen_ground == 1){
