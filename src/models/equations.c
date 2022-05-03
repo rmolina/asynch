@@ -2674,7 +2674,7 @@ void model401(double t, \
         printf("out1 %f\n", out1);
         //printf(" rain in mm/hour: %f\n", forcing_values[0]);
         printf("h1 %f\n ",h1);
-        MPI_Abort(MPI_COMM_WORLD, 1);
+        //MPI_Abort(MPI_COMM_WORLD, 1);
 
 		//surface storage tank
 		double h2 = y_i[STATE_SURFACE];//water in the hillslope surface [m]
