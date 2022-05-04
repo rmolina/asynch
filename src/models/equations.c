@@ -784,7 +784,7 @@ void Hymod(double t, const double * const y_i, unsigned int dim, const double * 
     double kq = params[6];
     double ks = params[7];    
     double lambda_1 = params[8];
-    double invtau = params[9;
+    double invtau = params[9]; //invtau
     //states
     double q = y_i[0];	
     double s_c = y_i[1];	                                        // [m]
