@@ -2547,7 +2547,7 @@ void tetis_nicoV1(double t, \
 		double d1 = x1 - x2; // the input to static tank [m/min]
 		//double out1 = min(e_pot*pow(h1/Hu,0.6), h1); //evaporation from the static tank. it cannot evaporate more than h1 [m]
         double out1 = min(e_pot, h1);
-        e_pot = min(e_pot - out1, 0);
+        //e_pot = min(e_pot - out1, 0);
 		//double out1 = (e_pot > h1) ? e_pot : 0.0;
 		ans[1] = d1 - out1; //differential equation of static storage
 
@@ -2560,9 +2560,9 @@ void tetis_nicoV1(double t, \
 		double alfa2 = global_params[6]; //hillslope surface reference speed [m/s].
         double out2 = 0;
         out2 = h2 * alfa2 * c_3; //h2[m]*alfa2[m/s]*c_3[s/(min*m)] -> direct runoff [m/min] 
-        double out2_2 = min(e_pot, h2-out2);
-        e_pot = min(e_pot - out2_2, 0);
-		ans[2] = d2 - out2- out2_2; //differential equation of surface storage
+        //double out2_2 = min(e_pot, h2-out2);
+        //e_pot = min(e_pot - out2_2, 0);
+		ans[2] = d2 - out2; //- out2_2; //differential equation of surface storage
 
 
 		// gravitational storage
@@ -2573,9 +2573,9 @@ void tetis_nicoV1(double t, \
 		double alfa3 = global_params[7]; //hillslope subsurface reference speed [m/s].
         double out3=0;
         out3 = h3 * alfa3*c_3; // h3[m]*alfa3[m/s]*c_3[s/(min*m)] -> interflow [m/min]
-        double out3_2 = min(e_pot, h3-out3);
-        e_pot = min(e_pot - out3_2, 0);
-		ans[3] = d3 - out3 - out3_2; //differential equation for gravitational storage
+        //double out3_2 = min(e_pot, h3-out3);
+        //e_pot = min(e_pot - out3_2, 0);
+		ans[3] = d3 - out3; //- out3_2; //differential equation for gravitational storage
 
 		//aquifer storage
 		double h4 = y_i[4]; //water in the aquifer storage [m]
@@ -2585,8 +2585,8 @@ void tetis_nicoV1(double t, \
 		double d4 = x4 - x5;
 		double alfa4 = global_params[8]* 24*60; //residence time [days] to [min].
         double out4 = h4/alfa4;
-        double out4_2 = min(e_pot, h4-out4);        
-        ans[4] = d4 - out4 - out4_2; //differential equation for aquifer storage
+        //double out4_2 = min(e_pot, h4-out4);        
+        ans[4] = d4 - out4; //- out4_2; //differential equation for aquifer storage
 
 		//channel storage
 
