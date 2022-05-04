@@ -798,7 +798,7 @@ void Hymod(double t, const double * const y_i, unsigned int dim, const double * 
     double e_pot = forcing_values[1] * (1e-3 / (30.0*24.0*60.0));	//[mm/month] -> [m/min]
 
     //Vertical fluxes
-    double Fc = (1.0 - s_c/Cmax > 0.0)? 1.0-pow(1.0 - s_c/Cmax,b): 1.0;
+    double Fc = (1.0 - s_c/Cmax > 0.0)? 1.0-pow(1.0 - s_c/Cmax,B): 1.0;
     double qc4 = s_c * Fc * (1-a); //[m/min] from canopy to fast flow
     double qc1 = s_c * Fc * a; //[m/min] from canopy to slow flow
     double q12 = s_1 * kq; //[m/min] from slow flow to slow flow 1
