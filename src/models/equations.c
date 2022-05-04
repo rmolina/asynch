@@ -2642,8 +2642,19 @@ void model401(double t, \
         #define maxf(a,b) ((a) > (b) ? (a) : (b))
         #endif
 
-        //snow storage
+        //INITIAL VALUES
         double h5 = y_i[STATE_SNOW];//snow storage [m]
+        double basin_rainfall = y_i[STATE_CUMRAINFALL]; //[m3/hour] see last lines
+		double h1 = y_i[STATE_STATIC]; //static storage [m]
+		double h2 = y_i[STATE_SURFACE];//water in the hillslope surface [m]
+		double h3 = y_i[STATE_SUBSURF]; //water in the gravitational storage in the upper part of soil [m]
+		double h4 = y_i[STATE_GW]; //water in the aquifer storage [m]
+	    double q = y_i[STATE_DISCHARGE];      //[m^3/s]
+
+        //verify param and init conditions 
+        // initial h1 cant be larger than Hu
+        
+        //snow storage
         //temperature =0 is the flag for no forcing the variable. no snow process
         if(temperature==0){
             x1 = rainfall;
@@ -2663,11 +2674,8 @@ void model401(double t, \
                 //printf("temp < th: %f\n", temperature);
             }
         }
-        //rainfall
-        double basin_rainfall = y_i[STATE_CUMRAINFALL]; //[m3/hour] see last lines
 
 		//static storage
-		double h1 = y_i[STATE_STATIC]; //static storage [m]
 		double Hu = global_params[3]/1000; //max available storage in static tank [mm] to [m]
         double aux1 = x1 + h1 - Hu;
 		double x2 = maxf(0,aux1); //excedance flow to the second storage [m] [m/min] check units
@@ -2690,7 +2698,6 @@ void model401(double t, \
         //MPI_Abort(MPI_COMM_WORLD, 1);
 
 		//surface storage tank
-		double h2 = y_i[STATE_SURFACE];//water in the hillslope surface [m]
 		double infiltration = global_params[4]*c_1; //infiltration rate [m/min]
 		double x3 = minf(x2, infiltration); //water that infiltrates to gravitational storage [m/min]
 		double d2 = x2 - x3; // the input to surface storage [m] check units
@@ -2704,7 +2711,6 @@ void model401(double t, \
         double surface_runoff = y_i[STATE_CUMSURF]; //[m3/hour]
 
 		// SUBSURFACE storage
-		double h3 = y_i[STATE_SUBSURF]; //water in the gravitational storage in the upper part of soil [m]
 		double percolation = global_params[5]*c_1; // percolation rate to aquifer [m/min]
 		double x4 = minf(x3,percolation); //water that percolates to aquifer storage [m/min]
 		double d3 = x3 - x4; // input to gravitational storage [m/min]
@@ -2716,7 +2722,6 @@ void model401(double t, \
         double subsurface_runoff = y_i[STATE_CUMSUB];  //[m3/hour]
 
 		//aquifer storage
-		double h4 = y_i[STATE_GW]; //water in the aquifer storage [m]
 		double deepinf = 0; //water loss to deeper aquifer [m]
 		//double x5 = min(x4,deepinf);
 		double x5 = 0;
@@ -2731,7 +2736,6 @@ void model401(double t, \
 		//channel storage
 		double lambda_1 = global_params[1];
 	    double invtau = params[3];// 60.0*v_0*pow(A_i, lambda_2) / ((1.0 - lambda_1)*L_i);	//[1/min]  invtau
-	    double q = y_i[STATE_DISCHARGE];      //[m^3/s]
         //double total_runoff = y_i[5];
 	   	double c_2 = params[5];// = A_h / 60.0;	//  c_2
 
