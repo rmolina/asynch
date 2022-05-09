@@ -2681,12 +2681,12 @@ void model401(double t, \
 		double out1 = minf(e_pot, h1); //evaporation from the static tank. it cannot evaporate more than h1 [m]
 		//double out1 = (e_pot > h1) ? e_pot : 0.0;
 		ans[STATE_STATIC] = d1 - out1; //differential equation of static storage
-        printf("t %f\n",t);
-        printf("d1 %f\n",d1);
-        printf("x1 and x2 %f %f\n",x1,x2);
-        printf("out1 %f\n", out1);
+        //printf("t %f\n",t);
+        //printf("d1 %f\n",d1);
+        //printf("x1 and x2 %f %f\n",x1,x2);
+        //printf("out1 %f\n", out1);
         //printf(" rain in mm/hour: %f\n", forcing_values[0]);
-        printf("h1 %f\n ",h1);
+        //printf("h1 %f\n ",h1);
         //MPI_Abort(MPI_COMM_WORLD, 1);
 
 		//surface storage tank
