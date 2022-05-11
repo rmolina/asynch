@@ -2699,6 +2699,9 @@ void model401(double t, \
 
 		//surface storage tank
 		double infiltration = global_params[4]*c_1; //infiltration rate [m/min]
+        if(frozen_ground == 1){
+            infiltration = 0;
+        }
 		double x3 = minf(x2, infiltration); //water that infiltrates to gravitational storage [m/min]
 		double d2 = x2 - x3; // the input to surface storage [m] check units
 		//double alfa2 = global_params[6]* 24*60; //residence time [days] to [min].
