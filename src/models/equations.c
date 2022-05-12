@@ -2562,7 +2562,7 @@ void tetis_nicoV1(double t, \
         out2 = h2 * alfa2 * c_3; //h2[m]*alfa2[m/s]*c_3[s/(min*m)] -> direct runoff [m/min] 
         //double out2_2 = min(e_pot, h2-out2);
         //e_pot = min(e_pot - out2_2, 0);
-		ans[2] = d2 - out2; //- out2_2; //differential equation of surface storage
+        ans[2] = d2 - out2; //- out2_2; //differential equation of surface storage
 
 
 		// gravitational storage
