@@ -2581,9 +2581,13 @@ void tetis_nicoV1(double t, \
 		//double out1 = (e_pot > h1) ? e_pot : 0.0;
 		ans[1] = d1 - out1; //differential equation of static storage
 
+        if(frozen_ground == 1){
+            x2 = x1;
+            infiltration = 0;
+        }
 
-		//surface storage tank				
-		double x3 = min(x2, infiltration); //excedance flow to the second storage [m] [m/min] check units
+		//surface storage tank						
+        double x3 = min(x2, infiltration); //excedance flow to the second storage [m] [m/min] check units
         double d2 = x2 - x3; // the input to surface storage [m] check units		
         double out2 = 0;
         out2 = h2 * alfa2 * c_3; //h2[m]*alfa2[m/s]*c_3[s/(min*m)] -> direct runoff [m/min] 
