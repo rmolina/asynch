@@ -754,7 +754,7 @@ case 20:	num_global_params = 9;
 		globals->min_error_tolerances = 6; //as many as states:static,surface,subsurf,gw,channel,snow,
 		break;
 	case 612://tetis01
-		num_global_params = 9;
+		num_global_params = 11;
 		globals->uses_dam = 0;
 		globals->num_params = 7;
 		globals->dam_params_size = 0;
@@ -762,7 +762,7 @@ case 20:	num_global_params = 9;
 		globals->areah_idx = 2;
 		globals->num_disk_params = 3;
 		globals->convertarea_flag = 0;
-		globals->num_forcings = 4;
+		globals->num_forcings = 5;
 		globals->min_error_tolerances = 5; //as many as states
 		break;
     	//--------------------------------------------------------------------------------------------
@@ -1954,7 +1954,7 @@ void InitRoutines(
     }
 	else if (model_uid == 612) //tetis01
 			{
-		link->dim = 5;
+		link->dim = 6;
 		link->no_ini_start = link->dim;
 		link->diff_start = 0;
 
