@@ -2544,7 +2544,7 @@ void tetis_nicoV1(double t, \
 	    //Forcings
         double rainfall = forcing_values[0] * c_1; //rainfall. from [mm/hr] to [m/min]
         double e_pot = forcing_values[1] * (1e-3 / (30.0*24.0*60.0));//potential et[mm/month] -> [m/min]
-		double temp = forcing_valuesp[2]; //daily temp in celcius
+		double temp = forcing_values[2]; //daily temp in celcius
         double frozen_ground = forcing_values[3]; // 1 if frozen ground, 0 if not
         //State of the storage 
         double q = y_i[0]; //discharge [m]
