@@ -2743,7 +2743,9 @@ void model401(double t, \
 	   	double c_2 = params[5];// = A_h / 60.0;	//  c_2
 
         //double ratio=A_h / A_i;
-	    ans[STATE_DISCHARGE] = -q + (out2 + out3 + out4) * c_2; //[m/min] to [m3/s]
+	   // ans[STATE_DISCHARGE] = -q + (out2 + out3 + out4) * c_2; //[m/min] to [m3/s]
+        ans[STATE_DISCHARGE] = -q + (out3 + out4) * c_2; //[m/min] to [m3/s]
+
         double aux = forcing_values[0] *(1/1000.0) * A_h;//[mm/h] to [m3/h] 
         ans[STATE_CUMRAINFALL] = -basin_rainfall + aux; //[m3/hour] 
         ans[STATE_CUMSURF] = -surface_runoff + out2 * 60.0 * A_h; //[m/min] to [m3/hour]
