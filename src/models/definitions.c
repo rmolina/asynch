@@ -762,8 +762,8 @@ case 20:	num_global_params = 9;
 		globals->areah_idx = 2;
 		globals->num_disk_params = 3;
 		globals->convertarea_flag = 0;
-		globals->num_forcings = 5;
-		globals->min_error_tolerances = 5; //as many as states
+		globals->num_forcings = 6;
+		globals->min_error_tolerances = 7; //as many as states
 		break;
     	//--------------------------------------------------------------------------------------------
 	case 401://tetis02
@@ -1954,7 +1954,7 @@ void InitRoutines(
     }
 	else if (model_uid == 612) //tetis01
 			{
-		link->dim = 6;
+		link->dim = 7;
 		link->no_ini_start = link->dim;
 		link->diff_start = 0;
 

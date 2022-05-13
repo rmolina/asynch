@@ -2583,13 +2583,13 @@ void tetis_nicoV1(double t, \
 
 		//static storage		
 		double x2 = max(0,x1 + h1 - Hu); //excedance flow to the second storage [m] [m/min] check units		
-		double x22 = max(h1, crop_wat_consup); // takes the water for the plants
-        double d1 = x1 - x2; // the input to static tank [m/min]
-		//double out1 = min(e_pot*pow(h1/Hu,0.6), h1); //evaporation from the static tank. it cannot evaporate more than h1 [m]
+		double x22 = min(h1, crop_wat_consup); // takes the water for the plants
+        ans[6] = x22 - h6; // change in the crops water consumption
+        //double out1 = min(e_pot*pow(h1/Hu,0.6), h1); //evaporation from the static tank. it cannot evaporate more than h1 [m]
         double out1 = min(e_pot, h1);
         //e_pot = min(e_pot - out1, 0);
 		//double out1 = (e_pot > h1) ? e_pot : 0.0;
-		ans[1] = d1 - out1; //differential equation of static storage
+		ans[1] = x1 - x2 - out1 - x22; //differential equation of static storage
 
         if(frozen_ground == 1){
             x2 = x1;
