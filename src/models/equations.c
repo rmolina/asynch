@@ -2546,6 +2546,7 @@ void tetis_nicoV1(double t, \
         double e_pot = forcing_values[1] * (1e-3 / (30.0*24.0*60.0));//potential et[mm/month] -> [m/min]
 		double temp = forcing_values[2]; //daily temp in celcius
         double frozen_ground = forcing_values[3]; // 1 if frozen ground, 0 if not
+        double crop_wat_consup = forcing_values[4] * (1e-3/(60*24)); // Water consumption of the plants [mm/day] -> [m/min]
         //State of the storage 
         double q = y_i[0]; //discharge [m]
         double h1 = y_i[1]; //capilar storage [m]
@@ -2553,28 +2554,37 @@ void tetis_nicoV1(double t, \
         double h3 = y_i[3]; //soil storage [m]
         double h4 = y_i[4]; //ground storage [m]
         double h5 = y_i[5]; //snow storage [m]
+        double h6 = y_i[6]; //plants consumption [m]
         //Lenght area relation fix 
         if (c_3<0.025)
             c_3 = 0.025;
         if (c_3>1)
             c_3 = 1;
         double x1 = 0;
+        
         //Snow storage
         if(temp==0){
             x1 = rainfall;
             ans[5] = 0;
         }
         else{
+            // If high temp all metls
             if (temp>=temp_thres){
                 double snowmelt = min(h5, temp*melt_factor);
                 ans[5] =- snowmelt;
                 x1 = rainfall + snowmelt;
             }
+            // If low temp, all freezes
+            else{
+                ans[5] = rainfall; //all rainfall becames snow if temp below the threshold
+                x1 = 0; // No rainfall
+            }
         }
 
 		//static storage		
-		double x2 = max(0,x1 + h1 - Hu ); //excedance flow to the second storage [m] [m/min] check units		
-		double d1 = x1 - x2; // the input to static tank [m/min]
+		double x2 = max(0,x1 + h1 - Hu); //excedance flow to the second storage [m] [m/min] check units		
+		double x22 = max(h1, crop_wat_consup); // takes the water for the plants
+        double d1 = x1 - x2; // the input to static tank [m/min]
 		//double out1 = min(e_pot*pow(h1/Hu,0.6), h1); //evaporation from the static tank. it cannot evaporate more than h1 [m]
         double out1 = min(e_pot, h1);
         //e_pot = min(e_pot - out1, 0);
