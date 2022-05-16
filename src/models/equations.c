@@ -2579,45 +2579,40 @@ void tetis_nicoV1(double t, \
                 ans[5] = rainfall; //all rainfall becames snow if temp below the threshold
                 x1 = 0; // No rainfall
             }
-        }
-
-		//static storage		
-		double x2 = max(0,x1 + h1 - Hu); //excedance flow to the second storage [m] [m/min] check units		
-		//Crops water extraction from the capilar layer
+        }		
+		
+        //Crops water extraction from the capilar layer
         double x22 = 0;
         if(crop_wat_consup > 0){
             x22 = min(h1, crop_wat_consup); // takes the water for the plants
             ans[6] = x22 - h6; // change in the crops water consumption
         }        
-        //double out1 = min(e_pot*pow(h1/Hu,0.6), h1); //evaporation from the static tank. it cannot evaporate more than h1 [m]
-        double out1 = min(e_pot, h1);
-        //e_pot = min(e_pot - out1, 0);
-		//double out1 = (e_pot > h1) ? e_pot : 0.0;
-		ans[1] = x1 - x2 - out1 - x22; //differential equation of static storage
-
+        
+        //static storage		        
+        // If ground frozen all the water goes to the runoff tank
+        double x2 = 0; //Water going to the runoff
         if(frozen_ground == 1){
             x2 = x1;
             infiltration = 0;
         }
+        else{
+            x2 = max(0,x1+h1-Hu); //excedance flow to the second storage [m] [m/min] check units		
+        }
+        double out1 = min(e_pot, h1);
+        ans[1] = x1 - x2 - out1 - x22; //differential equation of static storag
 
 		//surface storage tank						
         double x3 = min(x2, infiltration); //excedance flow to the second storage [m] [m/min] check units
         double d2 = x2 - x3; // the input to surface storage [m] check units		
-        double out2 = 0;
-        out2 = h2 * alfa2 * c_3; //h2[m]*alfa2[m/s]*c_3[s/(min*m)] -> direct runoff [m/min] 
-        //double out2_2 = min(e_pot, h2-out2);
-        //e_pot = min(e_pot - out2_2, 0);
+        double out2 = h2 * alfa2 * c_3; //h2[m]*alfa2[m/s]*c_3[s/(min*m)] -> direct runoff [m/min] 
         ans[2] = d2 - out2; //- out2_2; //differential equation of surface storage
 
 
 		// gravitational storage		
 		double x4 = min(x3,percolation); //water that percolates to aquifer storage [m/min]
 		double d3 = x3 - x4; // input to gravitational storage [m/min]		
-        double out3=0;
-        out3 = h3 * alfa3*c_3; // h3[m]*alfa3[m/s]*c_3[s/(min*m)] -> interflow [m/min]
-        //double out3_2 = min(e_pot, h3-out3);
-        //e_pot = min(e_pot - out3_2, 0);
-		ans[3] = d3 - out3; //- out3_2; //differential equation for gravitational storage
+        double out3=h3 * alfa3*c_3; // h3[m]*alfa3[m/s]*c_3[s/(min*m)] -> interflow [m/min]
+        ans[3] = d3 - out3; //- out3_2; //differential equation for gravitational storage
 
 		//aquifer storage		
         double out4 = h4/alfa4;        
