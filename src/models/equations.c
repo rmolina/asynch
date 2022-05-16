@@ -2598,7 +2598,7 @@ void tetis_nicoV1(double t, \
         // else{
         //     x2 = max(0,x1+h1-Hu); //excedance flow to the second storage [m] [m/min] check units		
         // }
-        printf("frozen: %f\n", frozen_ground);
+        //printf("frozen: %f\n", frozen_ground);
         x2 = max(0,x1+h1-Hu); //excedance flow to the second storage [m] [m/min] check units		
         double out1 = min(e_pot, h1);
         ans[1] = x1 - x2 - out1 - x22; //differential equation of static storag
