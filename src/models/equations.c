@@ -2591,14 +2591,13 @@ void tetis_nicoV1(double t, \
         //static storage		        
         // If ground frozen all the water goes to the runoff tank
         double x2 = 0; //Water going to the runoff
-        // if(frozen_ground == 1){
-        //     x2 = x1;
-        //     infiltration = 0;
-        // }
-        // else{
-        //     x2 = max(0,x1+h1-Hu); //excedance flow to the second storage [m] [m/min] check units		
-        // }
-        //printf("frozen: %f\n", frozen_ground);
+        if(frozen_ground == 1){
+            x2 = x1;
+            infiltration = 0;
+        }
+        else{
+            x2 = max(0,x1+h1-Hu); //excedance flow to the second storage [m] [m/min] check units		
+        }        
         x2 = max(0,x1+h1-Hu); //excedance flow to the second storage [m] [m/min] check units		
         double out1 = min(e_pot, h1);
         ans[1] = x1 - x2 - out1 - x22; //differential equation of static storag
