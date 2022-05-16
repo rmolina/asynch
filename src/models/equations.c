@@ -2579,14 +2579,7 @@ void tetis_nicoV1(double t, \
                 ans[5] = rainfall; //all rainfall becames snow if temp below the threshold
                 x1 = 0; // No rainfall
             }
-        }		
-		
-        //Crops water extraction from the capilar layer
-        double x22 = 0;
-        if(crop_wat_consup > 0){
-            x22 = min(h1, crop_wat_consup); // takes the water for the plants
-            ans[6] = x22 - h6; // change in the crops water consumption
-        }        
+        }		        
         
         //static storage		        
         // If ground frozen all the water goes to the runoff tank
@@ -2597,9 +2590,14 @@ void tetis_nicoV1(double t, \
         }
         else{
             x2 = max(0,x1+h1-Hu); //excedance flow to the second storage [m] [m/min] check units		
-        }        
-        x2 = max(0,x1+h1-Hu); //excedance flow to the second storage [m] [m/min] check units		
+        }                
         double out1 = min(e_pot, h1);
+        //Crops water extraction from the capilar layer
+        double x22 = 0;
+        if(crop_wat_consup > 0){
+            x22 = min(h1-out1, crop_wat_consup); // takes the water for the plants
+            ans[6] = x22 - h6; // change in the crops water consumption
+        }
         ans[1] = x1 - x2 - out1 - x22; //differential equation of static storag
 
 		//surface storage tank						
