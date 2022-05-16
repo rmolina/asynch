@@ -2593,7 +2593,7 @@ void tetis_nicoV1(double t, \
         double x2 = 0; //Water going to the runoff
         if(frozen_ground == 1){
             x2 = x1;
-            infiltration = 0;
+            //infiltration = 0;
         }
         else{
             x2 = max(0,x1+h1-Hu); //excedance flow to the second storage [m] [m/min] check units		
