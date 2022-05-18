@@ -2540,7 +2540,7 @@ void tetis_nicoV1(double t, \
         double alfa3 = global_params[7]; //hillslope subsurface reference speed [m/s].
         double alfa4 = global_params[8]*24*60; //residence time [days] to [min].
         double temp_thres = global_params[9]; //temperature threshold for snowfall [C]
-        double melt_factor = global_params[10]; //melt factor [mm/C]
+        double melt_factor = global_params[10]*(1e-3)*(1/1440); //melt factor [mm/(d*C)] -> [m/(min*C)]
 	    //Forcings
         double rainfall = forcing_values[0] * c_1; //rainfall. from [mm/hr] to [m/min]
         double e_pot = forcing_values[1] * (1e-3 / (30.0*24.0*60.0));//potential et[mm/month] -> [m/min]
