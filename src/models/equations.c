@@ -2582,7 +2582,7 @@ void tetis_nicoV1(double t, \
                 x1 = rainfall + snowmelt;
             }
             // If low temp, all freezes
-            else{
+            if (temp2<temp_thres){
                 ans[5] = rainfall; //all rainfall becames snow if temp below the threshold
                 x1 = 0; // No rainfall
             }
