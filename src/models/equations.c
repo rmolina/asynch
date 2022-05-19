@@ -2563,7 +2563,7 @@ void tetis_nicoV1(double t, \
         double x1 = 0;
         
         //Snow storage
-        if(temp==0){
+        if(temp==-9999){
             x1 = rainfall;
             ans[5] = 0;
         }
@@ -2571,7 +2571,8 @@ void tetis_nicoV1(double t, \
             // If high temp all metls
             double temp2 = temp - 273.15;
             if (temp2>=temp_thres){
-                double snowmelt = min(h5, temp2*melt_factor);
+                //double snowmelt = min(h5, temp2*melt_factor);
+                double snowmelt = (h5 <= temp2*melt_factor)? h5: temp2*melt_factor;
                 ans[5] =- snowmelt;
                 x1 = rainfall + snowmelt;
             }
