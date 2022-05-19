@@ -2570,7 +2570,7 @@ void tetis_nicoV1(double t, \
         else{
             // If high temp all metls
             double temp2 = temp - 273.15;
-            printf(temp2);
+            printf("temp: %f\n", temp2);
             if (temp2>=temp_thres){
                 //double snowmelt = min(h5, temp2*melt_factor);
                 double snowmelt = (h5 <= temp2*melt_factor)? h5: temp2*melt_factor;
