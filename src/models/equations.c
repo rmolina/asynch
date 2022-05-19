@@ -2572,7 +2572,6 @@ void tetis_nicoV1(double t, \
             double temp2 = temp - 273.15;
             if (temp2<-50){
                 printf("temp: %f, %f\n", temp2, t);
-            
             }
             if (temp2>=temp_thres){
                 //double snowmelt = min(h5, temp2*melt_factor);
