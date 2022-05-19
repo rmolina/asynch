@@ -2573,8 +2573,8 @@ void tetis_nicoV1(double t, \
             printf(temp2);
             if (temp2>=temp_thres){
                 //double snowmelt = min(h5, temp2*melt_factor);
-                //double snowmelt = (h5 <= temp2*melt_factor)? h5: temp2*melt_factor;
-                double snowmelt = h5;
+                double snowmelt = (h5 <= temp2*melt_factor)? h5: temp2*melt_factor;
+                //double snowmelt = h5;
                 ans[5] =- snowmelt;
                 x1 = rainfall + snowmelt;
             }
