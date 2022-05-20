@@ -2560,14 +2560,16 @@ void tetis_nicoV1(double t, \
             c_3 = 0.025;
         if (c_3>1)
             c_3 = 1;
-        double x1 = 0;
-        
+        //double x1 = 0;
+        double x1 = rainfall;
+        ans[5] = 0.0;
         //Snow storage
-        if(temp==0){
-            x1 = rainfall;
-            ans[5] = 0;
-        }
-        else{
+        // if(temp==0){
+        //     x1 = rainfall;
+        //     ans[5] = 0;
+        // }
+        //else{
+        if (temp!=0){
             // If high temp all metls
             double temp2 = temp - 273.15;
             if (temp2<-50){
@@ -2575,14 +2577,12 @@ void tetis_nicoV1(double t, \
                 temp2 = 20;
             }
             if (temp2>=temp_thres){
-                //double snowmelt = min(h5, temp2*melt_factor);
-                double snowmelt = (h5 <= temp2*melt_factor)? h5: temp2*melt_factor;
-                //double snowmelt = h5;
+                double snowmelt = (h5 <= temp2*melt_factor)? h5: temp2*melt_factor;                
                 ans[5] =- snowmelt;
-                x1 = rainfall + snowmelt;
-            }
-            // If low temp, all freezes
-            if (temp2<temp_thres){
+                x1 = x1 + snowmelt;
+            }            
+            else{
+                // If low temp, all freezes
                 ans[5] = rainfall; //all rainfall becames snow if temp below the threshold
                 x1 = 0; // No rainfall
             }
