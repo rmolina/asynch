@@ -2544,7 +2544,7 @@ void tetis_nicoV1(double t, \
 	    //Forcings
         double rainfall = forcing_values[0] * c_1; //rainfall. from [mm/hr] to [m/min]
         double e_pot = forcing_values[1] * (1e-3 / (30.0*24.0*60.0));//potential et[mm/month] -> [m/min]
-		double temperature = forcing_values[2]; //daily temp in [kelvin] to [C]
+		double temperature = forcing_values[2] - 273.15; //daily temp in [kelvin] to [C]
         double frozen_ground = forcing_values[3]; // 1 if frozen ground, 0 if not
         double crop_wat_consup = forcing_values[4] * (1e-3/(60*24)); // Water consumption of the plants [mm/day] -> [m/min]
         //State of the storage 
@@ -2587,7 +2587,7 @@ void tetis_nicoV1(double t, \
         //         x1 = 0; // No rainfall
         //     }
         // }		        
-        double temperature = temp - 273.15;
+        //double temperature = temp - 273.15;
         if (temperature < temp_thres){
             ans[5] = rainfall;
             x1 = 0;
