@@ -2587,7 +2587,7 @@ void tetis_nicoV1(double t, \
         //         x1 = 0; // No rainfall
         //     }
         // }		        
-        //double temperature = temp - 273.15;
+        double temperature = temp - 273.15;
         if (temperature < temp_thres){
             ans[5] = rainfall;
             x1 = 0;
