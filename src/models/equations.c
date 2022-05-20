@@ -2593,8 +2593,8 @@ void tetis_nicoV1(double t, \
             x1 = 0;
         }
         else{
-            //double snowmelt = (h5 <= temperature*melt_factor)? h5: temperature*melt_factor;
-            double snowmelt = h5*0.1;
+            double snowmelt = (h5 <= temperature*melt_factor)? h5: temperature*melt_factor;
+            //double snowmelt = h5*0.1;
             ans[5] =- snowmelt;
             x1 = x1 + snowmelt;
         }
