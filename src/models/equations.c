@@ -2562,32 +2562,44 @@ void tetis_nicoV1(double t, \
             c_3 = 1;
         //double x1 = 0;
         double x1 = rainfall;
-        ans[5] = 0.0;
+        //ans[5] = 0.0;
         //Snow storage
         // if(temp==0){
         //     x1 = rainfall;
         //     ans[5] = 0;
         // }
         //else{
-        if (temp!=0){
-            // If high temp all metls
-            double temp2 = temp - 273.15;
-            if (temp2<-50){
-                //printf("temp: %f, %f\n", temp2, t);
-                temp2 = 20;
-            }
-            if (temp2>=temp_thres){
-                double snowmelt = (h5 <= temp2*melt_factor)? h5: temp2*melt_factor;                
-                ans[5] =- snowmelt;
-                x1 = x1 + snowmelt;
-            }            
-            else{
-                // If low temp, all freezes
-                ans[5] = rainfall; //all rainfall becames snow if temp below the threshold
-                x1 = 0; // No rainfall
-            }
-        }		        
-        
+        // if (temp!=0){
+        //     // If high temp all metls
+        //     double temp2 = temp - 273.15;
+        //     if (temp2<-50){
+        //         //printf("temp: %f, %f\n", temp2, t);
+        //         temp2 = 20;
+        //     }
+        //     if (temp2>=temp_thres){
+        //         double snowmelt = (h5 <= temp2*melt_factor)? h5: temp2*melt_factor;                
+        //         ans[5] =- snowmelt;
+        //         x1 = x1 + snowmelt;
+        //     }            
+        //     else{
+        //         // If low temp, all freezes
+        //         ans[5] = rainfall; //all rainfall becames snow if temp below the threshold
+        //         x1 = 0; // No rainfall
+        //     }
+        // }		        
+        double temperature = temp - 273.15;
+        if (temperature < temp_thres){
+            ans[5] = rainfall;
+            x1 = 0;
+        }
+        else{
+            //double snowmelt = (h5 <= temperature*melt_factor)? h5: temperature*melt_factor;
+            double snowmelt = h5*0.1;
+            ans[5] =- snowmelt;
+            x1 = x1 + snowmelt;
+        }
+
+
         //static storage		        
         // If ground frozen all the water goes to the runoff tank
         double x2 = 0; //Water going to the runoff
