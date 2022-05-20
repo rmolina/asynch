@@ -2563,7 +2563,7 @@ void tetis_nicoV1(double t, \
         double x1 = 0;
         
         //Snow storage
-        if(temp==-9999){
+        if(temp==0){
             x1 = rainfall;
             ans[5] = 0;
         }
