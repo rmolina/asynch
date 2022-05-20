@@ -2540,11 +2540,11 @@ void tetis_nicoV1(double t, \
         double alfa3 = global_params[7]; //hillslope subsurface reference speed [m/s].
         double alfa4 = global_params[8]*24*60; //residence time [days] to [min].
         double temp_thres = global_params[9]; //temperature threshold for snowfall [C]
-        double melt_factor = global_params[10];//*(1e-3)*(1/1440); //melt factor [mm/(d*C)] -> [m/(min*C)]
+        double melt_factor = global_params[10]*(1/(24*60.0)) *(1/1000.0);//*(1e-3)*(1/1440); //melt factor [mm/(d*C)] -> [m/(min*C)]
 	    //Forcings
         double rainfall = forcing_values[0] * c_1; //rainfall. from [mm/hr] to [m/min]
         double e_pot = forcing_values[1] * (1e-3 / (30.0*24.0*60.0));//potential et[mm/month] -> [m/min]
-		double temp = forcing_values[2]; //daily temp in [kelvin] to [C]
+		double temperature = forcing_values[2]; //daily temp in [kelvin] to [C]
         double frozen_ground = forcing_values[3]; // 1 if frozen ground, 0 if not
         double crop_wat_consup = forcing_values[4] * (1e-3/(60*24)); // Water consumption of the plants [mm/day] -> [m/min]
         //State of the storage 
@@ -2587,7 +2587,7 @@ void tetis_nicoV1(double t, \
         //         x1 = 0; // No rainfall
         //     }
         // }		        
-        double temperature = temp - 273.15;
+        //double temperature = temp - 273.15;
         if (temperature < temp_thres){
             ans[5] = rainfall;
             x1 = 0;
