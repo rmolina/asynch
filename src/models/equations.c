@@ -2541,11 +2541,12 @@ void tetis_nicoV1(double t, \
         double alfa4 = global_params[8]*24*60; //residence time [days] to [min].
         double temp_thres = global_params[9]; //temperature threshold for snowfall [C]
         double melt_factor = global_params[10]*(1/(24*60.0)) *(1/1000.0);//*(1e-3)*(1/1440); //melt factor [mm/(d*C)] -> [m/(min*C)]
+        double frozen_thres = global_params[11]; //frozen threshold [C]
 	    //Forcings
         double rainfall = forcing_values[0] * c_1; //rainfall. from [mm/hr] to [m/min]
         double e_pot = forcing_values[1] * (1e-3 / (30.0*24.0*60.0));//potential et[mm/month] -> [m/min]
-		double temperature = forcing_values[2] - 273.15; //daily temp in [kelvin] to [C]
-        double frozen_ground = forcing_values[3]; // 1 if frozen ground, 0 if not
+		double temp_air = forcing_values[2] - 273.15; //daily temp in [kelvin] to [C]
+        double temp_soil = forcing_values[3]; // 1 if frozen ground, 0 if not
         double crop_wat_consup = forcing_values[4] * (1e-3/(60*24)); // Water consumption of the plants [mm/day] -> [m/min]
         //State of the storage 
         double q = y_i[0]; //discharge [m]
@@ -2555,61 +2556,39 @@ void tetis_nicoV1(double t, \
         double h4 = y_i[4]; //ground storage [m]
         double h5 = y_i[5]; //snow storage [m]
         double h6 = y_i[6]; //plants consumption [m]
+        
         //Lenght area relation fix 
         if (c_3<0.025)
             c_3 = 0.025;
         if (c_3>1)
             c_3 = 1;
-        //double x1 = 0;
-        double x1 = rainfall;
-        //ans[5] = 0.0;
-        //Snow storage
-        // if(temp==0){
-        //     x1 = rainfall;
-        //     ans[5] = 0;
-        // }
-        //else{
-        // if (temp!=0){
-        //     // If high temp all metls
-        //     double temp2 = temp - 273.15;
-        //     if (temp2<-50){
-        //         //printf("temp: %f, %f\n", temp2, t);
-        //         temp2 = 20;
-        //     }
-        //     if (temp2>=temp_thres){
-        //         double snowmelt = (h5 <= temp2*melt_factor)? h5: temp2*melt_factor;                
-        //         ans[5] =- snowmelt;
-        //         x1 = x1 + snowmelt;
-        //     }            
-        //     else{
-        //         // If low temp, all freezes
-        //         ans[5] = rainfall; //all rainfall becames snow if temp below the threshold
-        //         x1 = 0; // No rainfall
-        //     }
-        // }		        
-        //double temperature = temp - 273.15;
-        if (temperature < temp_thres){
+        double x1 = rainfall;          
+        
+        //Snow processes get activated when temp_air is below the threshold
+        if (temp_air < temp_thres){
             ans[5] = rainfall;
             x1 = 0;
         }
         else{
-            double snowmelt = (h5 <= temperature*melt_factor)? h5: temperature*melt_factor;
-            //double snowmelt = h5*0.1;
+            double snowmelt = (h5 <= temp_air*melt_factor)? h5: temp_air*melt_factor;
             ans[5] =- snowmelt;
             x1 = x1 + snowmelt;
         }
-
-
-        //static storage		        
+        
         // If ground frozen all the water goes to the runoff tank
         double x2 = 0; //Water going to the runoff
-        if(frozen_ground == 1){
-            x2 = x1;
-            infiltration = 0;
+        double d1 = 0; //Water going to the capilar storage
+        if(temp_soil < frozen_thres){
+            x2 = x1;             
+            infiltration = 0.0;
         }
-        else{
+        //Regular TETIS model if the grouind is not frozen
+        else{            
             x2 = max(0,x1+h1-Hu); //excedance flow to the second storage [m] [m/min] check units		
+            d1 = x1 - x2;
         }                
+        
+        //static storage		        
         double out1 = min(e_pot, h1);
         //Crops water extraction from the capilar layer
         double x22 = 0;
@@ -2617,7 +2596,7 @@ void tetis_nicoV1(double t, \
             x22 = min(h1-out1, crop_wat_consup); // takes the water for the plants
             ans[6] = x22 - h6; // change in the crops water consumption
         }
-        ans[1] = x1 - x2 - out1 - x22; //differential equation of static storag
+        ans[1] = d1 - out1 - x22; //differential equation of static storag
 
 		//surface storage tank						
         double x3 = min(x2, infiltration); //excedance flow to the second storage [m] [m/min] check units
