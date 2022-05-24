@@ -2542,6 +2542,7 @@ void tetis_nicoV1(double t, \
         double temp_thres = global_params[9]; //temperature threshold for snowfall [C]
         double melt_factor = global_params[10]*(1/(24*60.0)) *(1/1000.0);//*(1e-3)*(1/1440); //melt factor [mm/(d*C)] -> [m/(min*C)]
         double frozen_thres = global_params[11]; //frozen threshold [C]
+        double temp_range = global_params[12]; //temperature range [C]
 	    //Forcings
         double rainfall = forcing_values[0] * c_1; //rainfall. from [mm/hr] to [m/min]
         double e_pot = forcing_values[1] * (1e-3 / (30.0*24.0*60.0));//potential et[mm/month] -> [m/min]
@@ -2564,10 +2565,38 @@ void tetis_nicoV1(double t, \
             c_3 = 1;
         double x1 = rainfall;          
         
+        //S shaped snow conversion Rain fraction following Kienzle 2008
+        double prain, psnow;
+        if (temp_range > 0){
+            if (temp_air <= temp_thres){
+                prain = 5*pow((temp_air - temp_thres)/(1.4*temp_range),3) 
+                    + 6.76*pow((temp_air - temp_thres)/(1.4*temp_range),2)
+                    + 3.19*(temp_air - temp_thres)/(1.4*temp_range) + 0.5;
+                if (prain < 0)
+                    prain = 0;
+            }
+            else{
+                prain = 5*pow((temp_air - temp_thres)/(1.4*temp_range),3) 
+                    - 6.76*pow((temp_air - temp_thres)/(1.4*temp_range),2)
+                    + 3.19*(temp_air - temp_thres)/(1.4*temp_range) + 0.5;
+                if (prain > 1)
+                    prain = 1;
+            }            
+        }
+        else{
+            if (temp_air <= temp_thres){
+                prain = 0;
+            }
+            else{
+                prain = 1;
+            }            
+        }
+        psnow = 1 - prain;
+        
         //Snow processes get activated when temp_air is below the threshold
         if (temp_air < temp_thres){
-            ans[5] = rainfall;
-            x1 = 0;
+            ans[5] = rainfall*psnow;
+            x1 = rainfall*prain;
         }
         else{
             double snowmelt = (h5 <= temp_air*melt_factor)? h5: temp_air*melt_factor;

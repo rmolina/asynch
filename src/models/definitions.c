@@ -754,7 +754,7 @@ case 20:	num_global_params = 9;
 		globals->min_error_tolerances = 6; //as many as states:static,surface,subsurf,gw,channel,snow,
 		break;
 	case 612://tetis01
-		num_global_params = 12;
+		num_global_params = 13;
 		globals->uses_dam = 0;
 		globals->num_params = 7;
 		globals->dam_params_size = 0;
