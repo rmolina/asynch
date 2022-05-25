@@ -2566,37 +2566,37 @@ void tetis_nicoV1(double t, \
         double x1 = rainfall;          
         
         //S shaped snow conversion Rain fraction following Kienzle 2008
-        double prain, psnow;
-        if (temp_range > 0){
-            if (temp_air <= temp_thres){
-                prain = 5*pow((temp_air - temp_thres)/(1.4*temp_range),3) 
-                    + 6.76*pow((temp_air - temp_thres)/(1.4*temp_range),2)
-                    + 3.19*(temp_air - temp_thres)/(1.4*temp_range) + 0.5;
-                if (prain < 0)
-                    prain = 0;
-            }
-            else{
-                prain = 5*pow((temp_air - temp_thres)/(1.4*temp_range),3) 
-                    - 6.76*pow((temp_air - temp_thres)/(1.4*temp_range),2)
-                    + 3.19*(temp_air - temp_thres)/(1.4*temp_range) + 0.5;
-                if (prain > 1)
-                    prain = 1;
-            }            
-        }
-        else{
-            if (temp_air <= temp_thres){
-                prain = 0;
-            }
-            else{
-                prain = 1;
-            }            
-        }
-        psnow = 1 - prain;
+        // double prain, psnow;
+        // if (temp_range > 0){
+        //     if (temp_air <= temp_thres){
+        //         prain = 5*pow((temp_air - temp_thres)/(1.4*temp_range),3) 
+        //             + 6.76*pow((temp_air - temp_thres)/(1.4*temp_range),2)
+        //             + 3.19*(temp_air - temp_thres)/(1.4*temp_range) + 0.5;
+        //         if (prain < 0)
+        //             prain = 0;
+        //     }
+        //     else{
+        //         prain = 5*pow((temp_air - temp_thres)/(1.4*temp_range),3) 
+        //             - 6.76*pow((temp_air - temp_thres)/(1.4*temp_range),2)
+        //             + 3.19*(temp_air - temp_thres)/(1.4*temp_range) + 0.5;
+        //         if (prain > 1)
+        //             prain = 1;
+        //     }            
+        // }
+        // else{
+        //     if (temp_air <= temp_thres){
+        //         prain = 0;
+        //     }
+        //     else{
+        //         prain = 1;
+        //     }            
+        // }
+        // psnow = 1 - prain;
         
         //Snow processes get activated when temp_air is below the threshold
         if (temp_air < temp_thres){
-            ans[5] = rainfall*psnow;
-            x1 = rainfall*prain;
+            ans[5] = rainfall;//*psnow;
+            x1 = rainfall;//*prain;
         }
         else{
             double snowmelt = (h5 <= temp_air*melt_factor)? h5: temp_air*melt_factor;
@@ -2607,9 +2607,11 @@ void tetis_nicoV1(double t, \
         // If ground frozen all the water goes to the runoff tank
         double x2 = 0; //Water going to the runoff
         double d1 = 0; //Water going to the capilar storage
+        double runoff_corr = 1;
         if(temp_soil < frozen_thres){
             x2 = x1;             
             infiltration = 0.0;
+            runoff_corr = temp_range;
         }
         //Regular TETIS model if the grouind is not frozen
         else{            
@@ -2630,7 +2632,7 @@ void tetis_nicoV1(double t, \
 		//surface storage tank						
         double x3 = min(x2, infiltration); //excedance flow to the second storage [m] [m/min] check units
         double d2 = x2 - x3; // the input to surface storage [m] check units		
-        double out2 = h2 * alfa2 * c_3; //h2[m]*alfa2[m/s]*c_3[s/(min*m)] -> direct runoff [m/min] 
+        double out2 = h2 * alfa2 * c_3 * runoff_corr; //h2[m]*alfa2[m/s]*c_3[s/(min*m)] -> direct runoff [m/min] 
         ans[2] = d2 - out2; //- out2_2; //differential equation of surface storage
 
 
