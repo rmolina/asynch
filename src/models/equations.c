@@ -2622,11 +2622,12 @@ void tetis_nicoV1(double t, \
         // }
         // psnow = 1 - prain;
         double prain = rainfall_snowfall_partition(temp_air, temp_thres, temp_range);
+        double psnow = 1 - prain;
 
         //Snow processes get activated when temp_air is below the threshold
         if (temp_air < temp_thres){
-            ans[5] = rainfall;//*psnow;
-            x1 = rainfall;//*prain;
+            ans[5] = rainfall*psnow;
+            x1 = rainfall*prain;
         }
         else{
             double snowmelt = (h5 <= temp_air*melt_factor)? h5: temp_air*melt_factor;
