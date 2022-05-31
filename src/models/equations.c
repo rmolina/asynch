@@ -738,6 +738,10 @@ void TilesModel(double t, const double * const y_i, unsigned int dim, const doub
         q_sLink += q_inT;         // Tile flow in function of the tile act depth and tile slopei 
     }    
     //Evaporation
+    // double e_p = 0;
+    // double e_l = 0;
+    // double e_s = 0;
+    // if (s_s > NoFlow){
     double C_p = s_p;
     double C_l = (s_l/t_L > 1)? s_l/t_L: 1.0;//s_l/t_L;
     double C_s = s_s/(2.18-t_L); //(Beta-NoFlow);
@@ -746,6 +750,7 @@ void TilesModel(double t, const double * const y_i, unsigned int dim, const doub
     double e_p = Corr_evap * C_p * e_pot;
     double e_l = Corr_evap * C_l * e_pot;
     double e_s = Corr_evap * C_s * e_pot;
+    // }
     //Update variables
 	double q_parent;
 	int q_pidx;
@@ -952,6 +957,123 @@ void TilesModel_Base(double t, const double * const y_i, unsigned int dim, const
     //Subsurface (saturated) soil
     ans[3] = q_ls - q_sLink - e_s;
 }
+
+//Type 610
+//ActiveLayerSnow: This model has the active layer definition + snow melt formulation
+// Ai, Li, Ah, So, v1, a1, v2, a2, v3, a3,   h1, h2, h3, k1, k2, k3, lam1, lam2, v0.
+void ActiveLayerSnow_Reservoir(double t, const double * const y_i, unsigned int dim, const double * const y_p, unsigned short num_parents, unsigned int max_dim, const double * const global_params, const double * const params, const double * const forcing_values, const QVSData * const qvs, int state, void* user, double *ans)
+{
+    if(forcing_values[2] > 0){
+        ans[0] = forcing_values[2];
+    }
+    if(forcing_values[2] <=0){
+        unsigned short i;
+        for (i =0; i<num_parents; i++)
+            ans[0] += y_p[i*dim];
+    }
+    double Beta = params[14];
+    ans[1] = 0.0;
+    ans[2] = 0.0;
+    ans[3] = Beta;
+    ans[4] = 0.0;
+}
+
+void ActiveLayerSnow(double t, const double * const y_i, unsigned int dim, const double * const y_p, unsigned short num_parents, unsigned int max_dim, const double * const global_params, const double * const params, const double * const forcing_values, const QVSData * const qvs, int state, void* user, double *ans)
+{
+    unsigned short i; 
+    //Global parameters
+    double t_base = global_params[0];//params[18]; // Base temp to convert snow into runoff [c]
+    double ddf = global_params[1]; // degree day factor to convert snow into runoff [mm /c ]
+    //Distributed variables
+    double A_i = params[0];
+    double L_i = params[1];
+    double A_h = params[2];
+    double v_r = params[3];
+    double a_r = params[4];
+    double a = params[5];
+    double b = params[6];
+    double c = params[7];
+    double d = params[8];
+    double k3 = params[9];
+    double ki_fac = params[10];
+    double t_L = params[11];
+    double NoFlow = params[12];
+    double Td = params[13];
+    double Beta = params[14];
+    double lambda_1 = params[15];
+    //Processed parameters
+    double invtau = params[16];
+    double k2 = params[17];
+    //State variables
+    double q = y_i[0];      // [m^3/s]
+    double s_p = y_i[1];	// [m]
+    double s_l = y_i[2];	// [m]
+    double s_s = y_i[3];    // [m]
+    double s_snow = y_i[4]; // [m]
+    //Forcings 
+    double q_in = forcing_values[0] * (0.001/60);	//[m/min]    
+    double e_pot = forcing_values[1] * (1e-3 / (30.0*24.0*60.0));	//[mm/month] -> [m/min]
+    double temp = forcing_values[3];       //[c]    
+    //Vertical flow    
+    double pow_t = (1.0 - s_l/t_L > 0.0)? pow(1.0 - s_l/t_L,3): 0.0;
+    double q_pl = k2*99.0*pow_t*s_p;
+    double q_ls = k2*ki_fac*s_l;    
+    //Horizontal flow
+    double q_pLink = k2*s_p;    
+    double q_sLink = 0.0;
+    double q_inT = 0.0;
+    if (s_s > NoFlow){
+        q_sLink += k3 * (s_s - NoFlow);                       // Base flow or linear portion
+    } 
+    if (s_s>Beta){
+        q_sLink += (s_s - Beta) * a * exp(b * (s_s - Beta));  // Active runoff explained by an exponential func
+    }  
+    if (s_s > Td){
+        q_inT =  (s_s - Td) * c * exp(d *  (s_s - Td));
+        q_sLink += q_inT;                                     // Tile flow in function of the tile act depth and tile slopei 
+    }    
+    //Evaporation
+    double C_p = s_p;
+    double C_l = s_l/t_L;
+    double C_s = s_s/(Beta-NoFlow);
+    double Corr_evap = 1/(C_p + C_l + C_s);    
+    double e_p = Corr_evap * C_p * e_pot;
+    double e_l = Corr_evap * C_l * e_pot;
+    double e_s = Corr_evap * C_s * e_pot;
+    //Discharge
+    double q_parent;
+	int q_pidx;
+    ans[0] = -q + ((q_pLink + q_sLink) * A_h / 60.0);
+    for (i = 0; i < num_parents; i++) {
+		q_pidx = i * dim;
+		q_parent = y_p[q_pidx];
+		ans[0] += q_parent;     
+	}
+    //Snow process
+    double q_snow_p = 0;
+    double q_in_snow = 0;
+    if (t_base > -10){
+        if (temp <= t_base){        
+            q_in_snow = q_in; //Converts the rainfall into snowmelt
+            q_in *= 0; // no rainfall 
+            q_pl = 0;  // no infiltration to the topsoil (frozen ground)
+        }
+        if (temp > t_base){
+            q_snow_p = (ddf*temp <= s_snow)? ddf*temp: s_snow;        
+        }
+        ans[4] = q_in_snow - q_snow_p; // Snow water equivalent
+        ans[1] = q_in - q_pl - q_pLink - e_p + q_snow_p; //Ponded    
+    }
+    else {
+        ans[1] = q_in - q_pl - q_pLink - e_p; //Ponded
+        ans[4] = q_in;
+    }
+    //States update
+    ans[0] = invtau * pow(q, lambda_1) * ans[0]; //Channel update    
+    ans[2] = q_pl - q_ls - e_l;	 //Top Soil Layer    
+    ans[3] = q_ls - q_sLink - e_s; //Subsurface (saturated) soil
+}
+
 
 //Type 654
 //Variable_TopLayer: This is a version of the TopLayer model 254 with the

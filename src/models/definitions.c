@@ -473,8 +473,18 @@ case 20:	num_global_params = 9;
         globals->num_forcings = 4;
         globals->min_error_tolerances = 4;
         break;
-
     case 609:	num_global_params = 1;
+        globals->uses_dam = 0;
+        globals->num_params = 18;
+        globals->dam_params_size = 0;
+        globals->area_idx = 0;
+        globals->areah_idx = 2;
+        globals->num_disk_params = 18;
+        globals->convertarea_flag = 0;
+        globals->num_forcings = 4;
+        globals->min_error_tolerances = 4;
+        break;
+    case 610:	num_global_params = 2;
         globals->uses_dam = 0;
         globals->num_params = 18;
         globals->dam_params_size = 0;
@@ -959,8 +969,7 @@ void ConvertParams(
         params[1] *= 1000; //L: km -> m
         params[2] *= 1e6; // Ah: km^2 -> m^2
     }
-
-    else if (model_uid == 654 || model_uid == 608 || model_uid == 609)
+    else if (model_uid == 654 || model_uid == 608 || model_uid == 609 || model_uid == 610)
     {
         params[1] *= 1000; //L: km -> m
         params[2] *= 1e6; // Ah: km^2 -> m^2
@@ -1598,6 +1607,27 @@ void InitRoutines(
             link->solver = &ForcedSolutionSolver;
         }
         else    link->differential = &TilesModel_Base;
+        link->algebraic = NULL;
+        link->check_state = NULL;
+        link->check_consistency = &CheckConsistency_Nonzero_AllStates_q;
+    }
+
+    else if (model_uid == 610)
+    {
+        link->dim = 5;
+        link->no_ini_start = 5; //link->dim;
+        link->diff_start = 0;
+
+        link->num_dense = 1;
+        link->dense_indices = (unsigned int*)realloc(link->dense_indices, link->num_dense * sizeof(unsigned int));
+        link->dense_indices[0] = 0;
+
+        if (link->has_res)
+        { 
+            link->differential = &ActiveLayerSnow_Reservoir;
+            link->solver = &ForcedSolutionSolver;
+        }
+        else    link->differential = &ActiveLayerSnow;
         link->algebraic = NULL;
         link->check_state = NULL;
         link->check_consistency = &CheckConsistency_Nonzero_AllStates_q;
@@ -2821,8 +2851,7 @@ void Precalculations(
         double c = params[7];
         double d = params[8];
         double k3 = params[9];
-        double ki_fac = params[10];
-        //double k2 = params[11];
+        double ki_fac = params[10];        
         double t_L = params[11];
         double NoFlow = params[12];
         double Td = params[13];
@@ -2830,8 +2859,34 @@ void Precalculations(
         double lambda_1 = params[15];
         double lambda_2 = params[16];
         double v0 = params[17];
-        //double expo = params[18];
-
+        //Pre computed parameters
+        vals[16] = 60.0*v0*pow(A_i, lambda_2) / ((1.0 - lambda_1)*L_i);	//[1/min]  invtau
+        vals[17] = v_r * (L_i / A_h) * 60; // [1/min] runoff speed.
+    }
+    
+    else if (model_uid == 610)
+    { 
+         double* vals = params;
+        double A_i = params[0];
+        double L_i = params[1];
+        double A_h = params[2];
+        double v_r = params[3];
+        double a_r = params[4];
+        double a = params[5];
+        double b = params[6]; 
+        double c = params[7];
+        double d = params[8];
+        double k3 = params[9];
+        double ki_fac = params[10];        
+        double t_L = params[11];
+        double NoFlow = params[12];
+        double Td = params[13];
+        double Beta = params[14];
+        double lambda_1 = params[15];
+        double lambda_2 = params[16];
+        double v0 = params[17];
+        //double t_base = params[18];
+        //Pre computed parameters
         vals[16] = 60.0*v0*pow(A_i, lambda_2) / ((1.0 - lambda_1)*L_i);	//[1/min]  invtau
         vals[17] = v_r * (L_i / A_h) * 60; // [1/min] runoff speed.
     }
