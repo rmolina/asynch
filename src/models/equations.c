@@ -2490,6 +2490,35 @@ void OfflineTopLayerInterflowHillslope_Reservoirs(double t, const double * const
     ans[3] = 0.0;
 }
 
+double rainfall_snowfall_partition(double temp_air, double temp_thres, double temp_range){
+    double prain, psnow;
+    if (temp_range > 0){
+        if (temp_air <= temp_thres){
+            prain = 5*pow((temp_air - temp_thres)/(1.4*temp_range),3) 
+                + 6.76*pow((temp_air - temp_thres)/(1.4*temp_range),2)
+                + 3.19*(temp_air - temp_thres)/(1.4*temp_range) + 0.5;
+            if (prain < 0)
+                prain = 0;
+        }
+        else{
+            prain = 5*pow((temp_air - temp_thres)/(1.4*temp_range),3) 
+                - 6.76*pow((temp_air - temp_thres)/(1.4*temp_range),2)
+                + 3.19*(temp_air - temp_thres)/(1.4*temp_range) + 0.5;
+            if (prain > 1)
+                prain = 1;
+        }            
+    }
+    else{
+        if (temp_air <= temp_thres){
+            prain = 0;
+        }
+        else{
+            prain = 1;
+        }            
+    }
+    return prain;
+}
+
 //Type 612 Tetis edited by nicolas
 //Tetis model structure for runoff generation + normal routing (NO stream order based velocity)
 //Four layers
@@ -2592,7 +2621,8 @@ void tetis_nicoV1(double t, \
         //     }            
         // }
         // psnow = 1 - prain;
-        
+        double prain = rainfall_snowfall_partition(temp_air, temp_thres, temp_range);
+
         //Snow processes get activated when temp_air is below the threshold
         if (temp_air < temp_thres){
             ans[5] = rainfall;//*psnow;
