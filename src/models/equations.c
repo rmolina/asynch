@@ -1062,8 +1062,7 @@ void ActiveLayerSnow(double t, const double * const y_i, unsigned int dim, const
     if (frozen_thres < temp_soil){
         q_pl = 0.0;
     }
-    //Update SWE storage and total rainfall 
-    
+    //Updates total water entering the system as rainfall
     double q_in = rainfall*prain + snowmelt;
     //Updates what happens in the tanks
     ans[0] = invtau * pow(q, lambda_1) * ans[0]; //Channel update    
