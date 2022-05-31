@@ -1058,6 +1058,10 @@ void ActiveLayerSnow(double t, const double * const y_i, unsigned int dim, const
     double prain = snow_rainfall_partition(temp_air, temp_thres, temp_range);
     double snowmelt = snow_melt_degree_day(s_snow, temp_air, temp_thres, melt_factor);
     double psnow = 1 - prain;
+    //Turns off the infiltration if the water is frozen
+    if (frozen_thres < temp_soil){
+        q_pl = 0.0;
+    }
     //Update SWE storage and total rainfall 
     
     double q_in = rainfall*prain + snowmelt;
@@ -2734,11 +2738,9 @@ void tetis_nicoV1(double t, \
         // If ground frozen all the water goes to the runoff tank
         double x2 = 0; //Water going to the runoff
         double d1 = 0; //Water going to the capilar storage
-        double runoff_corr = 1;
         if(temp_soil < frozen_thres){
             x2 = x1;             
-            infiltration = 0.0;
-            runoff_corr = temp_range;
+            infiltration = 0.0;            
         }
         //Regular TETIS model if the grouind is not frozen
         else{            
@@ -2759,7 +2761,7 @@ void tetis_nicoV1(double t, \
 		//surface storage tank						
         double x3 = min(x2, infiltration); //excedance flow to the second storage [m] [m/min] check units
         double d2 = x2 - x3; // the input to surface storage [m] check units		
-        double out2 = h2 * alfa2 * c_3 * runoff_corr; //h2[m]*alfa2[m/s]*c_3[s/(min*m)] -> direct runoff [m/min] 
+        double out2 = h2 * alfa2 * c_3; //h2[m]*alfa2[m/s]*c_3[s/(min*m)] -> direct runoff [m/min] 
         ans[2] = d2 - out2; //- out2_2; //differential equation of surface storage
 
 
