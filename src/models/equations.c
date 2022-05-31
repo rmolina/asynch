@@ -2490,7 +2490,20 @@ void OfflineTopLayerInterflowHillslope_Reservoirs(double t, const double * const
     ans[3] = 0.0;
 }
 
-double rainfall_snowfall_partition(double temp_air, double temp_thres, double temp_range){
+double snow_melt_degree_day(double swe, double temp_air, double temp_thres, double melt_factor){
+    double snowmelt = 0;
+    //melts with negative values
+    if (temp_thres < 0 && temp_air > temp_thres){
+        melt_factor = melt_factor * -1;
+    }
+    //snow degree index melting
+    if (temp_air > temp_thres){
+        snowmelt = (swe <= temp_air*melt_factor)? swe: temp_air*melt_factor;
+    }
+    return snowmelt;
+}
+
+double snow_rainfall_partition(double temp_air, double temp_thres, double temp_range){
     double prain, psnow;
     if (temp_range > 0){
         if (temp_air <= temp_thres){
@@ -2592,48 +2605,14 @@ void tetis_nicoV1(double t, \
             c_3 = 0.025;
         if (c_3>1)
             c_3 = 1;
-        double x1 = rainfall;          
         
-        //S shaped snow conversion Rain fraction following Kienzle 2008
-        // double prain, psnow;
-        // if (temp_range > 0){
-        //     if (temp_air <= temp_thres){
-        //         prain = 5*pow((temp_air - temp_thres)/(1.4*temp_range),3) 
-        //             + 6.76*pow((temp_air - temp_thres)/(1.4*temp_range),2)
-        //             + 3.19*(temp_air - temp_thres)/(1.4*temp_range) + 0.5;
-        //         if (prain < 0)
-        //             prain = 0;
-        //     }
-        //     else{
-        //         prain = 5*pow((temp_air - temp_thres)/(1.4*temp_range),3) 
-        //             - 6.76*pow((temp_air - temp_thres)/(1.4*temp_range),2)
-        //             + 3.19*(temp_air - temp_thres)/(1.4*temp_range) + 0.5;
-        //         if (prain > 1)
-        //             prain = 1;
-        //     }            
-        // }
-        // else{
-        //     if (temp_air <= temp_thres){
-        //         prain = 0;
-        //     }
-        //     else{
-        //         prain = 1;
-        //     }            
-        // }
-        // psnow = 1 - prain;
-        double prain = rainfall_snowfall_partition(temp_air, temp_thres, temp_range);
+        //Calculate the percentage of snow and rainfall.
+        double prain = snow_rainfall_partition(temp_air, temp_thres, temp_range);
+        double snowmelt = snow_melt_degree_day(h5, temp_air, temp_thres, melt_factor);
         double psnow = 1 - prain;
-
-        //Snow processes get activated when temp_air is below the threshold
-        if (temp_air < temp_thres){
-            ans[5] = rainfall*psnow;
-            x1 = rainfall*prain;
-        }
-        else{
-            double snowmelt = (h5 <= temp_air*melt_factor)? h5: temp_air*melt_factor;
-            ans[5] =- snowmelt;
-            x1 = x1 + snowmelt;
-        }
+        //Update SWE storage and total rainfall 
+        ans[5] = rainfall*psnow - snowmelt;
+        double x1 = rainfall*prain + snowmelt;
         
         // If ground frozen all the water goes to the runoff tank
         double x2 = 0; //Water going to the runoff
