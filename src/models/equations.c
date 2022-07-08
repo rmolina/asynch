@@ -693,7 +693,7 @@ void TilesModel(double t, const double * const y_i, unsigned int dim, const doub
     double d = params[8];
     double k3 = params[9];
     double ki_fac = params[10];
-    double t_L = params[11]*forcing_values[3];
+    double t_L = params[11];
     double NoFlow = params[12];
     double Td = params[13];
     double Beta = params[14];
@@ -709,10 +709,19 @@ void TilesModel(double t, const double * const y_i, unsigned int dim, const doub
     double s_l = y_i[2];	                                        // [m]
     double s_s = y_i[3];
 
-    //In forcings rainfall and snowmelt
-    double q_in = forcing_values[0] * (0.001/60);	//[m/min]
-    //double snowmelt = forcing_values[3] * (0.001)/60; //mm/hour to m/min
-    //q_in += snowmelt;
+    //Forcings
+    double rainfall = forcing_values[0] * (0.001/60); //rainfall. from [mm/hr] to [m/min]
+    double e_pot = forcing_values[1] * (1e-3 / (30.0*24.0*60.0));//potential et[mm/month] -> [m/min]
+    double temp_air = forcing_values[2] - 273.15; //daily temp in [kelvin] to [C]
+    double temp_soil = forcing_values[3]; // 1 if frozen ground, 0 if not
+
+    //Partitions rainfall into liquid and solid
+    double prain = snow_rainfall_partition(temp_air, temp_thres, temp_range);
+    double snowmelt = snow_melt_degree_day(h5, temp_air, temp_thres, melt_factor);
+    double psnow = 1 - prain;
+    //Update SWE storage and total rainfall 
+    ans[4] = rainfall*psnow - snowmelt;
+    double q_in = rainfall*prain + snowmelt;
 
     //Vertical fluxes
     double pow_t = (1.0 - s_l/t_L > 0.0)? pow(1.0 - s_l/t_L,3): 0.0;
@@ -738,10 +747,6 @@ void TilesModel(double t, const double * const y_i, unsigned int dim, const doub
         q_sLink += q_inT;         // Tile flow in function of the tile act depth and tile slopei 
     }    
     //Evaporation
-    // double e_p = 0;
-    // double e_l = 0;
-    // double e_s = 0;
-    // if (s_s > NoFlow){
     double C_p = s_p;
     double C_l = (s_l/t_L > 1)? s_l/t_L: 1.0;//s_l/t_L;
     double C_s = s_s/(2.18-t_L); //(Beta-NoFlow);
@@ -749,8 +754,7 @@ void TilesModel(double t, const double * const y_i, unsigned int dim, const doub
     double e_pot = forcing_values[1] * (1e-3 / (30.0*24.0*60.0));	//[mm/month] -> [m/min]
     double e_p = Corr_evap * C_p * e_pot;
     double e_l = Corr_evap * C_l * e_pot;
-    double e_s = Corr_evap * C_s * e_pot;
-    // }
+    double e_s = Corr_evap * C_s * e_pot;    
     //Update variables
 	double q_parent;
 	int q_pidx;
@@ -767,12 +771,7 @@ void TilesModel(double t, const double * const y_i, unsigned int dim, const doub
     //Top Soil Layer
     ans[2] = q_pl - q_ls - e_l;	
     //Subsurface (saturated) soil
-    ans[3] = q_ls - q_sLink - e_s;
-    //Tile storage
-    //ans[6] = q_in;
-    //ans[7] = q_pLink;
-    //Record the total rainfall in the run
-    //ans[7] = q_in;
+    ans[3] = q_ls - q_sLink - e_s;    
 }
 
 //model 620 Hymod
