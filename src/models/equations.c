@@ -756,8 +756,7 @@ void TilesModel(double t, const double * const y_i, unsigned int dim, const doub
     double C_p = s_p;
     double C_l = (s_l/t_L > 1)? s_l/t_L: 1.0;//s_l/t_L;
     double C_s = s_s/(2.18-t_L); //(Beta-NoFlow);
-    double Corr_evap = 1/(C_p + C_l + C_s);
-    double e_pot = forcing_values[1] * (1e-3 / (30.0*24.0*60.0));	//[mm/month] -> [m/min]
+    double Corr_evap = 1/(C_p + C_l + C_s);    
     double e_p = Corr_evap * C_p * e_pot;
     double e_l = Corr_evap * C_l * e_pot;
     double e_s = Corr_evap * C_s * e_pot;    
