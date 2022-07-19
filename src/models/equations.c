@@ -713,6 +713,7 @@ void TilesModel(double t, const double * const y_i, unsigned int dim, const doub
     double s_p = y_i[1];	                                        // [m]
     double s_l = y_i[2];	                                        // [m]
     double s_s = y_i[3];
+    double s_snow = y_i[4];	                                        // [m]
 
     //Forcings
     double rainfall = forcing_values[0] * (0.001/60); //rainfall. from [mm/hr] to [m/min]
@@ -722,7 +723,7 @@ void TilesModel(double t, const double * const y_i, unsigned int dim, const doub
 
     //Partitions rainfall into liquid and solid
     double prain = snow_rainfall_partition(temp_air, temp_thres, temp_range);
-    double snowmelt = snow_melt_degree_day(h5, temp_air, temp_thres, melt_factor);
+    double snowmelt = snow_melt_degree_day(s_snow, temp_air, temp_thres, melt_factor);
     double psnow = 1 - prain;
     //Update SWE storage and total rainfall 
     ans[4] = rainfall*psnow - snowmelt;
