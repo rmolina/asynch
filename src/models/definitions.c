@@ -462,7 +462,7 @@ case 20:	num_global_params = 9;
         globals->min_error_tolerances = 3;
         break;
 
-    case 608:	num_global_params = 1;
+    case 608:	num_global_params = 4;
         globals->uses_dam = 0;
         globals->num_params = 18;
         globals->dam_params_size = 0;
@@ -470,8 +470,8 @@ case 20:	num_global_params = 9;
         globals->areah_idx = 2;
         globals->num_disk_params = 18;
         globals->convertarea_flag = 0;
-        globals->num_forcings = 4;
-        globals->min_error_tolerances = 4;
+        globals->num_forcings = 5;
+        globals->min_error_tolerances = 5;
         break;
     case 609:	num_global_params = 1;
         globals->uses_dam = 0;
@@ -1570,8 +1570,8 @@ void InitRoutines(
 
     else if (model_uid == 608)
     {
-        link->dim = 4;
-        link->no_ini_start = 4; //link->dim;
+        link->dim = 5;
+        link->no_ini_start = 5; //link->dim;
         link->diff_start = 0;
 
         link->num_dense = 1;

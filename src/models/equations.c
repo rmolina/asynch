@@ -701,6 +701,11 @@ void TilesModel(double t, const double * const y_i, unsigned int dim, const doub
     // Processed parameters
     double invtau = params[16];
     double k2 = params[17];
+    //Global parameters 
+    double temp_thres = global_params[0]; //temperature threshold for snowfall [C]
+    double melt_factor = global_params[1]*(1/(24*60.0)) *(1/1000.0);//*(1e-3)*(1/1440); //melt factor [mm/(d*C)] -> [m/(min*C)]
+    double frozen_thres = global_params[2]; //frozen threshold [C]
+    double temp_range = global_params[3]; //temperature range [C]
     //double expo = params[18];
     //Variables or sttates
     double q = y_i[0];	
@@ -1928,12 +1933,12 @@ void model255(double t, const double * const y_i, unsigned int dim, const double
 
     //Discharge
     dam_model255(y_i, dim, global_params, params, qvs, state, user, ans);	//ans is used for convenience !!!! Is q available in y_i? !!!!
-    double qm = ans[0] * 60.0;
+    double qm = ans[0] * 60.0; // [m3/s] -> [m3]
 
     //Storage
-    ans[1] = (q_pl + q_sl) * A_h - qm;
+    ans[1] = (q_pl + q_sl) * A_h - qm; //[m3]
     for (i = 0; i<num_parents; i++)
-        ans[1] += y_p[i * dim] * 60.0;
+        ans[1] += y_p[i * dim] * 60.0; // S [m3]
 
     //Hillslope
     ans[2] = rainfall - q_pl - q_pt - e_p;
@@ -1976,7 +1981,7 @@ void dam_model255(const double * const y_i, unsigned int num_dof, const double *
         q1 = qvs->points[state][1];
         S2 = qvs->points[state + 1][0];
         S1 = qvs->points[state][0];
-        ans[0] = (q2 - q1) / (S2 - S1) * (S - S1) + q1;
+        ans[0] = ((q2 - q1) / (S2 - S1)) * (S - S1) + q1;
     }
 }
 
