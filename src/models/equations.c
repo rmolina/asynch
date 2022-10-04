@@ -722,19 +722,19 @@ void TilesModel(double t, const double * const y_i, unsigned int dim, const doub
     double temp_soil = forcing_values[3]; // 1 if frozen ground, 0 if not
 
     //Partitions rainfall into liquid and solid
-    double prain = snow_rainfall_partition(temp_air, temp_thres, temp_range);
-    double snowmelt = snow_melt_degree_day(s_snow, temp_air, temp_thres, melt_factor);
-    double psnow = 1 - prain;
+    // double prain = snow_rainfall_partition(temp_air, temp_thres, temp_range);
+    // double snowmelt = snow_melt_degree_day(s_snow, temp_air, temp_thres, melt_factor);
+    // double psnow = 1 - prain;
     //Update SWE storage and total rainfall 
-    ans[4] = rainfall*psnow - snowmelt;
-    double q_in = rainfall*prain + snowmelt;
+    //ans[4] = rainfall*psnow - snowmelt;
+    double q_in = rainfall;//*prain + snowmelt;
 
     //Vertical fluxes (only operates when the ground is not frozen)
-    double q_pl = 0;
-    if(temp_soil > frozen_thres){
+    //double q_pl = 0.0;
+    // if(temp_soil > frozen_thres){
         double pow_t = (1.0 - s_l/t_L > 0.0)? pow(1.0 - s_l/t_L,3): 0.0;
-        q_pl = k2*99.0*pow_t*s_p;
-    }
+        double q_pl = k2*99.0*pow_t*s_p;
+    //}
     double q_ls = k2*ki_fac*s_l;
     //double q_ls = k2*ki_fac*pow_t2*s_l; //Exp Green y Ampt approach
     double q_pLink = k2*s_p;
