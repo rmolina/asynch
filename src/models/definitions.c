@@ -462,7 +462,7 @@ case 20:	num_global_params = 9;
         globals->min_error_tolerances = 3;
         break;
 
-    case 608:	num_global_params = 4;
+    case 608:	num_global_params = 5;
         globals->uses_dam = 0;
         globals->num_params = 18;
         globals->dam_params_size = 0;

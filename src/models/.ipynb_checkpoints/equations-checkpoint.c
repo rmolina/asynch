@@ -706,7 +706,6 @@ void TilesModel(double t, const double * const y_i, unsigned int dim, const doub
     double melt_factor = global_params[1]*(1/(24*60.0)) *(1/1000.0);//*(1e-3)*(1/1440); //melt factor [mm/(d*C)] -> [m/(min*C)]
     double frozen_thres = global_params[2]; //frozen threshold [C]
     double temp_range = global_params[3]; //temperature range [C]
-    double rain_factor = global_params[4]; // factor to change the rainfall 
     //double expo = params[18];
     //Variables or sttates
     double q = y_i[0];	
@@ -717,7 +716,7 @@ void TilesModel(double t, const double * const y_i, unsigned int dim, const doub
     double s_snow = y_i[4];	                                        // [m]
 
     //Forcings
-    double rainfall = forcing_values[0] * (0.001/60) * rain_factor; //rainfall. from [mm/hr] to [m/min]
+    double rainfall = forcing_values[0] * (0.001/60); //rainfall. from [mm/hr] to [m/min]
     double e_pot = forcing_values[1] * (1e-3 / (30.0*24.0*60.0));//potential et[mm/month] -> [m/min]
     double temp_air = forcing_values[2];// - 273.15; //daily temp in [kelvin] to [C]
     double temp_soil = forcing_values[3]; // 1 if frozen ground, 0 if not
