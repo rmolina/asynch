@@ -651,31 +651,20 @@ void ExponentialExp(double t, const double * const y_i, unsigned int dim, const 
 // Ai, Li, Ah, So, v1, a1, v2, a2, v3, a3,   h1, h2, h3, k1, k2, k3, lam1, lam2, v0.
 void Tiles_Reservoirs(double t, const double * const y_i, unsigned int dim, const double * const y_p, unsigned short num_parents, unsigned int max_dim, const double * const global_params, const double * const params, const double * const forcing_values, const QVSData * const qvs, int state, void* user, double *ans)
 {
-    if(forcing_values[2] > 0){
-        ans[0] = forcing_values[2];
-        //Copy Discharge open loop
-        double invtau = params[16];
-        double lambda_1 = params[15];
-        double q_openloop = y_i[5];	
-        //ans[5] = -q_openloop + ((q_pLink + q_sLink) * A_h / 60.0);
-        unsigned short i;
-        for (i =0; i<num_parents; i++)
-            ans[5] += y_p[i*dim+5];
-        
-        ans[5] = invtau * pow(q_openloop, lambda_1) * ans[5];
-
+    if(forcing_values[4] > 0){
+        ans[0] = forcing_values[4]; // Streamflow
     }
-    if(forcing_values[2] <=0){
+    if(forcing_values[4] <=0){
         unsigned short i;
         for (i =0; i<num_parents; i++)
             ans[0] += y_p[i*dim];
     }
     double Beta = params[14];
-    ans[1] = 0.0;
-    ans[2] = 0.0;
-    ans[3] = Beta;
-    //ans[4] = 0.0;
-    //ans[5] = 0.0;
+    double t_L = params[11];
+    ans[1] = 0.0; 
+    ans[2] = t_L;
+    ans[3] = Beta; 
+    ans[4] = 0.0; // Snow    
 }
 
 void TilesModel(double t, const double * const y_i, unsigned int dim, const double * const y_p, unsigned short num_parents, unsigned int max_dim, const double * const global_params, const double * const params, const double * const forcing_values, const QVSData * const qvs, int state, void* user, double *ans)
