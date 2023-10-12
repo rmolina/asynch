@@ -884,7 +884,7 @@ void TilesModel_Base(double t, const double * const y_i, unsigned int dim, const
     double s_s = y_i[3];
 
     //double s_c = y_i[4];
-    double q_b = (1.0e-7>y_i[4])? 1.0e-7: y_i[4];                                // for base flow separation
+    //double q_b = (1.0e-7>y_i[4])? 1.0e-7: y_i[4];                                // for base flow separation
     //double q_b = y_i[4];
 
 
@@ -931,17 +931,17 @@ void TilesModel_Base(double t, const double * const y_i, unsigned int dim, const
 	int q_pidx;
     //Discharge
     ans[0] = -q + ((q_pLink + q_sLink) * A_h / 60.0);
-	ans[4] = -q_b + ((q_sLink) * A_h / 60.0);
+	//ans[4] = -q_b + ((q_sLink) * A_h / 60.0);
     for (i = 0; i < num_parents; i++) {
 		q_pidx = i * dim;
 		q_parent = y_p[q_pidx];
 		ans[0] += q_parent;
-        q_parent = y_p[q_pidx+4];
-		ans[4] += q_parent;
+        //q_parent = y_p[q_pidx+4];
+		//ans[4] += q_parent;
 	}
 
     ans[0] = invtau * pow(q, lambda_1) * ans[0]; //
-    ans[4] = invtau * pow(q, lambda_1) * ans[4];
+    //ans[4] = invtau * pow(q, lambda_1) * ans[4];
 
     //ans[4] = (q_b/q)*ans[4];
     //Crops
