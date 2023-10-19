@@ -3817,3 +3817,133 @@ void Tiling(double t, const double * const y_i, unsigned int dim, const double *
         ans[0] += y_p[i * dim];
     ans[0] = invtau * pow(q, lambda_1) * ans[0];
 }
+
+
+double solar_radiation(double hsi, double sf){
+    double hs = 0.97*hs*(1 -sf);
+    return hs;
+}
+
+double longwave_radiation(double tair, double rh, double cloud, double twater){
+
+    // Stefan-Boltzmann constant (W/m2 K4)
+    const double sigma = 5.67e-8;
+    
+    if (rh > 100){
+        rh = 100;
+    }
+    // Saturation Vapor Pressure
+    es = 6.1275 * exp(17.27 * tair / (237.3 + twater));
+    
+    // Vapor Pressure
+    ea = (rh/100) * es;
+    // Vapor Pressure
+    double ea = (RH / 100) * es;
+    
+    // Atmospheric emissivity
+    double Ea = 1.72 * pow(((ea * 0.1) / (273.2 + tair)), 1.0 / 7.0) * (1 + 0.22 * pow(cloud, 2));
+    
+    // Net long-wave radiation
+    double hl = 0.97 * sigma * ((Ea * pow((tair + 273.2), 4)) - pow((Tw + 273.2), 4));
+    
+    return hl;
+}
+
+double evaporative_heat_transfer(double rh, double a, double b, double twater, double w2) {
+    // Water density (kg/m3)
+    const double p = 997
+
+    if (rh > 100) {
+        rh = 100;
+    }
+
+    // Latent heat of vaporization in J/kg
+    double l = 1000 * (2501.4 + (1.83 * twater));
+
+    // Saturation vapor pressure at water surface temperature
+    double es_ = 6.1275 * exp(17.27 * twater / (237.3 + twater));
+
+    // Vapor Pressure
+    double ea_ = (rh / 100) * es_;
+
+    // Wind function
+    double fw = a + b * w2;
+
+    // Evaporative Heat Transfer
+    double he = p * l * fw * (es_ - ea_);
+
+    return he;
+}
+
+double convective_heat_transfer(double pa, double tair, double twater, double a, double b, double w2) {
+    // Water density (kg/m3)
+    const double p = 997
+
+    // Latent heat of vaporization in J/kg
+    double L = 1000 * (2501.4 + (1.83 * twater));
+
+    // Wind function
+    double fw = a + b * w2;
+
+    // Convective Heat Transfer
+    double hc = 0.61 * (pa / 1000) * p * L * fw * (twater - tair);
+
+    return hc;
+}
+
+void Temperature_Model(double t, const double * const y_i, unsigned int dim, const double * const y_p, unsigned short num_parents, unsigned int max_dim, const double * const global_params, const double * const params, const double * const forcing_values, const QVSData * const qvs, int state, void* user, double *ans){
+    // Global paremeters
+    double sigma = global_params[0];                        // Stefan-Boltzmann constant [W/m2 K4]
+    double p = global_params[1];                            // Water density [kg/m3]
+    double c = global_params[2];                            // Specific heat of water [J/kg°C]
+    double forc_sf =  global_params[3];                     // Dimensionless
+    double w2_a =  global_params[4];                        // Wind coefficient - Dimensionless
+    double w2_b =  global_params[5];                        // Wind coefficient - Dimensionless    
+
+    // Local paremeters
+    double c_depth = params[0];                             // Dimensionless
+    double f_depth = params[1];                             // Dimensionless
+
+    // Forcings
+    double forc_hsi = forcing_values[0];                    // Incoming solar radiation [W/m2]
+    double forc_tair = forcing_values[1];                   // Air temperature [°C]       
+    double forc_rh = forcing_values[2];                     // Relative humidity - [0,1]
+    double forc_cloud = forcing_values[3] * 0.01;           // Cloud cover fraction - [0,1]
+    double forc_w2 = forcing_values[4];                     // Wind velocity at 2m [m/s]
+    double forc_pa = forcing_values[5] * 0.01;              // Atmospheric pressure [mbar]
+    double forc_qp[4] = {0};
+    double forc_qp[0] =  forcing_values[6];                 // Flow link 1 [m/s]
+    double forc_qp[1] =  forcing_values[7];                 // Flow link 2 [m/s]
+    double forc_qp[2] =  forcing_values[8];                 // Flow link 3 [m/s]
+    double forc_qp[3] =  forcing_values[9];                 // Flow link 4 [m/s]
+    double forc_ql =  forcing_values[10];                   // Flow local [m/s]
+
+    // Temperature states
+    double t_channel = y_i[0];                              // Water temperature previous step [°C]
+
+    // Heat Energy Budget
+    double Hs = solar_radiation(forc_hsi, forc_sf);                                                 // Solar radiation
+    double Hl = longwave_radiation(forc_tair, forc_rh, forc_cloud, t_channel);                      // Net Long-Wave Radiation
+    double He = evaporative_heat_transfer(forc_rh, w2_a, w2_b, t_channel, forc_w2);                 // Evaporative Heat Transfer
+    double Hc = convective_heat_transfer(forc_pa, forc_tair, t_channel, w2_a, w2_b, forc_w2);       // Convective Heat Transfer
+
+    double HT = (Hs + Hl - He - Hc)*3600;                   // Total Heat Flux [W/m2]
+    double depth = c_depth * pow(forc_ql, f_depth);         // Channel depth [m]
+    double E = HT/(60*c*p*depth);                           // Energy budget [°C]/[min]
+
+    // Mass Transfer
+    double total_q = forc_ql;
+    double t_parent;
+	int t_pidx;
+    unsigned short i;
+    ans[0] = forc_ql * t_channel;
+    for (i = 0; i < num_parents; i++) {
+        t_pidx = i * dim;
+		t_parent = y_p[t_pidx];
+		ans[0] += t_parent * forc_qp[i];
+        total_q += forc_qp[i];
+	}
+
+    // Update temperature with parents and local energy budget
+    ans[0] = (ans[0] / (60*total_q)) + E;
+}
