@@ -518,6 +518,19 @@ case 20:	num_global_params = 9;
         globals->num_forcings = 2;
         globals->min_error_tolerances = 3;
         break;
+
+    case 700:                               // Stream Temperature Model
+		num_global_params = 6;
+		globals->uses_dam = 0;
+		globals->num_params = 2;
+		globals->dam_params_size = 0;
+		globals->area_idx = 0;
+		globals->areah_idx = 2;
+		globals->num_disk_params = 2;
+		globals->convertarea_flag = 0;
+		globals->num_forcings = 11;
+		globals->min_error_tolerances = 5;
+		break;
 //--------------------------------------------------------------------------------------------
     case 249:	num_global_params = 12;
         globals->uses_dam = 0;
@@ -1648,6 +1661,23 @@ void InitRoutines(
         link->check_consistency = &CheckConsistency_Nonzero_4States;
         //link->check_consistency = &CheckConsistency_Nonzero_AllStates_q;
     }
+    else if (model_uid == 700)          //Stream Temperature Model
+    {
+        link->dim = 1;
+		link->no_ini_start = 1;
+		link->diff_start = 0;
+
+		link->num_dense = 1;
+		link->dense_indices = (unsigned int*) realloc(link->dense_indices, link->num_dense * sizeof(unsigned int));
+		link->dense_indices[0] = 0;		
+        
+        link->differential = &Temperature_Model;
+        link->algebraic = NULL;
+        link->check_state = NULL;
+        link->check_consistency = &CheckConsistency_Nonzero_AllStates_q;
+
+
+	}
     else if (model_uid == 249)
     {
         link->dim = 6;
@@ -2837,7 +2867,15 @@ void Precalculations(
         vals[16] = 60.0*v0*pow(A_i, lambda_2) / ((1.0 - lambda_1)*L_i);	//[1/min]  invtau
         vals[17] = v_r * (L_i / A_h) * 60; // [1/min] runoff speed.
     }
+    else if (model_uid == 700)
+    { 
+        double* vals = params;
+        double c_depth = params[0];
+        double f_deptf = params[1];
 
+        // vals[16] = 60.0*v0*pow(A_i, lambda_2) / ((1.0 - lambda_1)*L_i);
+        // vals[17] = v_r * (L_i / A_h) * 60;
+    }
     else if (model_uid == 609)
     { 
          double* vals = params;
