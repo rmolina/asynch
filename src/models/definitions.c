@@ -522,11 +522,11 @@ case 20:	num_global_params = 9;
     case 700:                               // Stream Temperature Model
 		num_global_params = 6;
 		globals->uses_dam = 0;
-		globals->num_params = 2;
+		globals->num_params = 5;
 		globals->dam_params_size = 0;
 		globals->area_idx = 0;
-		globals->areah_idx = 2;
-		globals->num_disk_params = 2;
+		globals->areah_idx = 1;
+		globals->num_disk_params = 5;
 		globals->convertarea_flag = 0;
 		globals->num_forcings = 11;
 		globals->min_error_tolerances = 5;
