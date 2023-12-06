@@ -6037,23 +6037,26 @@ void Temperature_Model(double t, const double * const y_i, unsigned int dim, con
     double Hc = convective_heat_transfer(forc_pa, forc_tair, t_channel, w2_a, w2_b, forc_w2);       // Convective Heat Transfer
 
     double HT = (Hs + Hl - He - Hc)*3600;                   // Total Heat Flux [W/m2]
-    //double depth = c_depth * pow(forc_ql, f_depth);         // Channel depth [m]
-    double E = HT/(60*c*p);                           // Energy budget [°C]/[min]
+    double depth = c_depth * pow(forc_ql, f_depth);         // Channel depth [m]
+    if (depth < 0.1){
+        depth = 0.1;
+    }
+    double E = HT/(60*c*p*depth);                           // Energy budget [°C]/[min]
 
     // Mass Transfer    
-    double t_parent;
-	int t_pidx;
-    unsigned short i;
-    double total_q = forc_ql; // [m3 s-1]
-    ans[0] = forc_ql * t_channel; // [°C * m3 s-1]
-    for (i = 0; i < num_parents; i++) {
-        t_pidx = i * dim;
-		t_parent = y_p[t_pidx];
-		ans[0] += t_parent * forc_qp[i]; // [°C * m3 s-1]
-        total_q += forc_qp[i]; // [m3 s-1]
-	}
+    // double t_parent;
+	// int t_pidx;
+    // unsigned short i;
+    // double total_q = forc_ql; // [m3 s-1]
+    //ans[0] = forc_ql * t_channel; // [°C * m3 s-1]
+    // for (i = 0; i < num_parents; i++) {
+    //     t_pidx = i * dim;
+	// 	t_parent = y_p[t_pidx];
+	// 	ans[0] += t_parent * forc_qp[i]; // [°C * m3 s-1]
+    //     total_q += forc_qp[i]; // [m3 s-1]
+	// }
 
     // Update temperature with parents and local energy budget
-    ans[0] = (ans[0] / (60*total_q)) + E; // Mass transfer + Energy budget [°C]/[min]
-    //ans[0] = (ans[0] / (60)) + E;
+    //ans[0] = (ans[0] / (60*total_q)) + E; // Mass transfer + Energy budget [°C]/[min]
+    ans[0] = (ans[0] / (60)) + E;
 }
