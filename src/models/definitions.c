@@ -520,7 +520,7 @@ case 20:	num_global_params = 9;
         break;
 
     case 700:                               // Stream Temperature Model
-		num_global_params = 6;
+		num_global_params = 8;
 		globals->uses_dam = 0;
 		globals->num_params = 5;
 		globals->dam_params_size = 0;

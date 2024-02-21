@@ -6007,6 +6007,8 @@ void Temperature_Model(double t, const double * const y_i, unsigned int dim, con
     double forc_sf =  global_params[3];              // Dimensionless
     double w2_a =  global_params[4];                 // Wind coefficient - Dimensionless
     double w2_b =  global_params[5];                 // Wind coefficient - Dimensionless    
+    double calib_m = global_params[6];
+    double calib_a = global_params[7];
 
     // Local paremeters
     double c_depth = params[3];                      // Dimensionless
@@ -6014,7 +6016,7 @@ void Temperature_Model(double t, const double * const y_i, unsigned int dim, con
 
     // Forcings
     double forc_hsi = forcing_values[0];             // Incoming solar radiation [W/m2]
-    double forc_tair = forcing_values[1];            // Air temperature [°C]       
+    double forc_tair = forcing_values[1];  // Air temperature [°C]       
     double forc_rh = forcing_values[2];              // Relative humidity - [0,1]
     double forc_cloud = forcing_values[3] * 0.01;    // Cloud cover fraction - [0,1]
     double forc_w2 = forcing_values[4];              // Wind velocity at 2m [m/s]
@@ -6060,5 +6062,5 @@ void Temperature_Model(double t, const double * const y_i, unsigned int dim, con
         depth = 0.1;
     }
     double E = HT/(60*c*p*depth);                           // Energy budget [°C]/[min]
-    ans[0] = E;
+    ans[0] = E*calib_m + calib_a;
 }
