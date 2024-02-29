@@ -704,27 +704,27 @@ void TilesModel(double t, const double * const y_i, unsigned int dim, const doub
     double s_p = y_i[1];	                                        // [m]
     double s_l = y_i[2];	                                        // [m]
     double s_s = y_i[3];
-    //double s_snow = y_i[4];	                                        // [m]
+    double s_snow = y_i[4];	                                        // [m]
 
     //Forcings
     double rainfall = forcing_values[0] * (0.001/60) * rain_factor; //rainfall. from [mm/hr] to [m/min]
     double e_pot = forcing_values[1] * (1e-3 / (30.0*24.0*60.0));//potential et[mm/month] -> [m/min]
     double temp_air = forcing_values[2];// - 273.15; //daily temp in [kelvin] to [C]
-    double temp_soil = forcing_values[3]; // 1 if frozen ground, 0 if not
+    //double temp_soil = forcing_values[3]; // 1 if frozen ground, 0 if not
 
     //Partitions rainfall into liquid and solid
-    // double prain = snow_rainfall_partition(temp_air, temp_thres, temp_range);
-    // double snowmelt = snow_melt_degree_day(s_snow, temp_air, temp_thres, melt_factor);
-    // double psnow = 1 - prain;
+    double prain = snow_rainfall_partition(temp_air, temp_thres, temp_range);
+    double snowmelt = snow_melt_degree_day(s_snow, temp_air, temp_thres, melt_factor);
+    double psnow = 1 - prain;
     //Update SWE storage and total rainfall 
-    //ans[4] = rainfall*psnow - snowmelt;
-    double q_in = rainfall;//*prain + snowmelt;
+    ans[4] = rainfall*psnow - snowmelt;
+    double q_in = rainfall*prain + snowmelt;
 
     //Vertical fluxes (only operates when the ground is not frozen)
     //double q_pl = 0.0;
     //if(temp_soil > frozen_thres){
-        double pow_t = (1.0 - s_l/t_L > 0.0)? pow(1.0 - s_l/t_L,3): 0.0;
-        double q_pl = k2*99.0*pow_t*s_p;
+    double pow_t = (1.0 - s_l/t_L > 0.0)? pow(1.0 - s_l/t_L,3): 0.0;
+    double q_pl = k2*99.0*pow_t*s_p*prain;
     //}
     double q_ls = k2*ki_fac*s_l;
     //double q_ls = k2*ki_fac*pow_t2*s_l; //Exp Green y Ampt approach
@@ -6062,5 +6062,5 @@ void Temperature_Model(double t, const double * const y_i, unsigned int dim, con
         depth = 0.1;
     }
     double E = HT/(60*c*p*depth);                           // Energy budget [°C]/[min]
-    ans[0] = E*calib_m + calib_a;
+    ans[0] = E*calib_m + (forc_tair/3600.0) ;//calib_a;
 }

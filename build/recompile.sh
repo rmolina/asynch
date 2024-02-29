@@ -11,9 +11,9 @@ module load openmpi/2.0.1_parallel_studio-2017.1
 # module load openmpi/4.0.5_intel-2021.2.0
 
 
-##../configure --prefix=/Users/nicolas/executables/asynch CFLAGS="-O3 -march=core-avx2 -DNDEBUG"
+../configure --prefix=/Users/nicolas/executables/asynch CFLAGS="-O3 -march=core-avx2 -DNDEBUG"
 ##../configure --prefix=/Users/nicolas/2022_EKI/exec/asynch CFLAGS="-O3 -march=core-avx2 -DNDEBUG"
-../configure --prefix=/Users/nicolas/executables/tempmodel CFLAGS="-O3 -march=core-avx2 -DNDEBUG"
+##../configure --prefix=/Users/nicolas/executables/tempmodel CFLAGS="-O3 -march=core-avx2 -DNDEBUG"
 
 
 make
