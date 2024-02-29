@@ -664,9 +664,10 @@ void Tiles_Reservoirs(double t, const double * const y_i, unsigned int dim, cons
     ans[1] = 0.0; 
     ans[2] = t_L;
     ans[3] = Beta; 
-    ans[4] = 0.0; // Snow    
+    //ans[4] = 0.0; // Snow    
 }
 
+// Model 608
 void TilesModel(double t, const double * const y_i, unsigned int dim, const double * const y_p, unsigned short num_parents, unsigned int max_dim, const double * const global_params, const double * const params, const double * const forcing_values, const QVSData * const qvs, int state, void* user, double *ans)
 {
     unsigned short i; 
@@ -709,7 +710,7 @@ void TilesModel(double t, const double * const y_i, unsigned int dim, const doub
     double rainfall = forcing_values[0] * (0.001/60) * rain_factor; //rainfall. from [mm/hr] to [m/min]
     double e_pot = forcing_values[1] * (1e-3 / (30.0*24.0*60.0));//potential et[mm/month] -> [m/min]
     double temp_air = forcing_values[2];// - 273.15; //daily temp in [kelvin] to [C]
-    double temp_soil = forcing_values[3]; // 1 if frozen ground, 0 if not
+    //double temp_soil = forcing_values[3]; // 1 if frozen ground, 0 if not
 
     //Partitions rainfall into liquid and solid
     double prain = snow_rainfall_partition(temp_air, temp_thres, temp_range);
@@ -720,11 +721,11 @@ void TilesModel(double t, const double * const y_i, unsigned int dim, const doub
     double q_in = rainfall*prain + snowmelt;
 
     //Vertical fluxes (only operates when the ground is not frozen)
-    double q_pl = 0.0;
-    if(temp_soil > frozen_thres){
-        double pow_t = (1.0 - s_l/t_L > 0.0)? pow(1.0 - s_l/t_L,3): 0.0;
-        q_pl = k2*99.0*pow_t*s_p;
-    }
+    //double q_pl = 0.0;
+    //if(temp_soil > frozen_thres){
+    double pow_t = (1.0 - s_l/t_L > 0.0)? pow(1.0 - s_l/t_L,3): 0.0;
+    double q_pl = k2*99.0*pow_t*s_p*prain;
+    //}
     double q_ls = k2*ki_fac*s_l;
     //double q_ls = k2*ki_fac*pow_t2*s_l; //Exp Green y Ampt approach
     double q_pLink = k2*s_p;
@@ -884,7 +885,7 @@ void TilesModel_Base(double t, const double * const y_i, unsigned int dim, const
     double s_s = y_i[3];
 
     //double s_c = y_i[4];
-    double q_b = (1.0e-7>y_i[4])? 1.0e-7: y_i[4];                                // for base flow separation
+    //double q_b = (1.0e-7>y_i[4])? 1.0e-7: y_i[4];                                // for base flow separation
     //double q_b = y_i[4];
 
 
@@ -931,17 +932,17 @@ void TilesModel_Base(double t, const double * const y_i, unsigned int dim, const
 	int q_pidx;
     //Discharge
     ans[0] = -q + ((q_pLink + q_sLink) * A_h / 60.0);
-	ans[4] = -q_b + ((q_sLink) * A_h / 60.0);
+	//ans[4] = -q_b + ((q_sLink) * A_h / 60.0);
     for (i = 0; i < num_parents; i++) {
 		q_pidx = i * dim;
 		q_parent = y_p[q_pidx];
 		ans[0] += q_parent;
-        q_parent = y_p[q_pidx+4];
-		ans[4] += q_parent;
+        //q_parent = y_p[q_pidx+4];
+		//ans[4] += q_parent;
 	}
 
     ans[0] = invtau * pow(q, lambda_1) * ans[0]; //
-    ans[4] = invtau * pow(q, lambda_1) * ans[4];
+    //ans[4] = invtau * pow(q, lambda_1) * ans[4];
 
     //ans[4] = (q_b/q)*ans[4];
     //Crops
@@ -5923,6 +5924,8 @@ void Tiling(double t, const double * const y_i, unsigned int dim, const double *
     ans[0] = invtau * pow(q, lambda_1) * ans[0];
 }
 
+// ############################################################################
+//  TEMPERATURE MODEL FUNCTIONS///
 
 double solar_radiation(double hsi, double sf){
     double hs = 0.97*hs*(1 -sf);
@@ -5941,7 +5944,7 @@ double longwave_radiation(double tair, double rh, double cloud, double twater){
     double es = 6.1275 * exp(17.27 * tair / (237.3 + twater));
     
     // Vapor Pressure
-    double ea = (rh / 100) * es;
+    double ea = (rh/100) * es;
     
     // Atmospheric emissivity
     double Ea = 1.72 * pow(((ea * 0.1) / (273.2 + tair)), 1.0 / 7.0) * (1 + 0.22 * pow(cloud, 2));
@@ -5994,60 +5997,70 @@ double convective_heat_transfer(double pa, double tair, double twater, double a,
     return hc;
 }
 
+// Model type 700, first version temperature process 
+// take place only over the streams
 void Temperature_Model(double t, const double * const y_i, unsigned int dim, const double * const y_p, unsigned short num_parents, unsigned int max_dim, const double * const global_params, const double * const params, const double * const forcing_values, const QVSData * const qvs, int state, void* user, double *ans){
     // Global paremeters
-    double sigma = global_params[0];                        // Stefan-Boltzmann constant [W/m2 K4]
-    double p = global_params[1];                            // Water density [kg/m3]
-    double c = global_params[2];                            // Specific heat of water [J/kg°C]
-    double forc_sf =  global_params[3];                     // Dimensionless
-    double w2_a =  global_params[4];                        // Wind coefficient - Dimensionless
-    double w2_b =  global_params[5];                        // Wind coefficient - Dimensionless    
+    double sigma = global_params[0];                 // Stefan-Boltzmann constant [W/m2 K4]
+    double p = global_params[1];                     // Water density [kg/m3]
+    double c = global_params[2];                     // Specific heat of water [J/kg°C]
+    double forc_sf =  global_params[3];              // Dimensionless
+    double w2_a =  global_params[4];                 // Wind coefficient - Dimensionless
+    double w2_b =  global_params[5];                 // Wind coefficient - Dimensionless    
+    double calib_m = global_params[6];
+    double calib_a = global_params[7];
 
     // Local paremeters
-    double c_depth = params[0];                             // Dimensionless
-    double f_depth = params[1];                             // Dimensionless
+    double c_depth = params[3];                      // Dimensionless
+    double f_depth = params[4];                      // Dimensionless
 
     // Forcings
-    double forc_hsi = forcing_values[0];                    // Incoming solar radiation [W/m2]
-    double forc_tair = forcing_values[1];                   // Air temperature [°C]       
-    double forc_rh = forcing_values[2];                     // Relative humidity - [0,1]
-    double forc_cloud = forcing_values[3] * 0.01;           // Cloud cover fraction - [0,1]
-    double forc_w2 = forcing_values[4];                     // Wind velocity at 2m [m/s]
-    double forc_pa = forcing_values[5] * 0.01;              // Atmospheric pressure [mbar]
-    double forc_qp[4] = {
-        forcing_values[6],                 // Flow link 1 [m/s]
-        forcing_values[7],                 // Flow link 2 [m/s]
-        forcing_values[8],                 // Flow link 3 [m/s]
-        forcing_values[9],                 // Flow link 4 [m/s]
-    };
-    double forc_ql =  forcing_values[10];                   // Flow local [m/s]
+    double forc_hsi = forcing_values[0];             // Incoming solar radiation [W/m2]
+    double forc_tair = forcing_values[1];  // Air temperature [°C]       
+    double forc_rh = forcing_values[2];              // Relative humidity - [0,1]
+    double forc_cloud = forcing_values[3] * 0.01;    // Cloud cover fraction - [0,1]
+    double forc_w2 = forcing_values[4];              // Wind velocity at 2m [m/s]
+    double forc_pa = forcing_values[5] * 0.01;       // Atmospheric pressure [mbar]
+    double forc_ql =  forcing_values[6];             // Flow local [m/s]
+    double forc_qp[4] = 0;
+    forc_qp[0] =  forcing_values[7];                 // Flow link 1 [m/s]
+    forc_qp[1] =  forcing_values[8];                 // Flow link 2 [m/s]
+    forc_qp[2] =  forcing_values[9];                 // Flow link 3 [m/s]
+    forc_qp[3] =  forcing_values[10];                // Flow link 4 [m/s] //
+    
 
     // Temperature states
-    double t_channel = y_i[0];                              // Water temperature previous step [°C]
+    double t_channel = y_i[0];                       // Water temperature previous step [°C]    
 
-    // Heat Energy Budget
-    double Hs = solar_radiation(forc_hsi, forc_sf);                                                 // Solar radiation
-    double Hl = longwave_radiation(forc_tair, forc_rh, forc_cloud, t_channel);                      // Net Long-Wave Radiation
-    double He = evaporative_heat_transfer(forc_rh, w2_a, w2_b, t_channel, forc_w2);                 // Evaporative Heat Transfer
-    double Hc = convective_heat_transfer(forc_pa, forc_tair, t_channel, w2_a, w2_b, forc_w2);       // Convective Heat Transfer
-
-    double HT = (Hs + Hl - He - Hc)*3600;                   // Total Heat Flux [W/m2]
-    double depth = c_depth * pow(forc_ql, f_depth);         // Channel depth [m]
-    double E = HT/(60*c*p*depth);                           // Energy budget [°C]/[min]
-
-    // Mass Transfer
-    double total_q = forc_ql;
+    // Mass Transfer    
     double t_parent;
 	int t_pidx;
     unsigned short i;
-    ans[0] = forc_ql * t_channel;
+    double total_q = forc_ql; // [m3 s-1]
+    double M = forc_ql * t_channel; // [°C * m3 s-1]
     for (i = 0; i < num_parents; i++) {
         t_pidx = i * dim;
 		t_parent = y_p[t_pidx];
-		ans[0] += t_parent * forc_qp[i];
-        total_q += forc_qp[i];
+		M += t_parent * forc_qp[i]; // [°C * m3 s-1]
+        total_q += forc_qp[i]; // [m3 s-1]
 	}
+    if (total_q > 0){
+        M = M/total_q;
+    } else{
+        M = t_channel;
+    }
 
-    // Update temperature with parents and local energy budget
-    ans[0] = (ans[0] / (60*total_q)) + E;
+    //Heat Energy Budget
+    double Hs = solar_radiation(forc_hsi, forc_sf);                                         // Solar radiation
+    double Hl = longwave_radiation(forc_tair, forc_rh, forc_cloud, M);                      // Net Long-Wave Radiation
+    double He = evaporative_heat_transfer(forc_rh, w2_a, w2_b, M, forc_w2);                 // Evaporative Heat Transfer
+    double Hc = convective_heat_transfer(forc_pa, forc_tair, M, w2_a, w2_b, forc_w2);       // Convective Heat Transfer
+
+    double HT = (Hs + Hl - He - Hc)*3600;                   // Total Heat Flux [W/m2]
+    double depth = c_depth * pow(forc_ql, f_depth);         // Channel depth [m]
+    if (depth < 0.1){
+        depth = 0.1;
+    }
+    double E = HT/(60*c*p*depth);                           // Energy budget [°C]/[min]
+    ans[0] = E*calib_m + (forc_tair/3600.0) ;//calib_a;
 }
