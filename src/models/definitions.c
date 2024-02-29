@@ -815,6 +815,19 @@ case 20:	num_global_params = 9;
 		globals->min_error_tolerances = 8;
 		break;
 		//--------------------------------------------------------------------------------------------
+    case 700:                               // Stream Temperature Model
+		num_global_params = 6;
+		globals->uses_dam = 0;
+		globals->num_params = 2;
+		globals->dam_params_size = 0;
+		globals->area_idx = 0;
+		globals->areah_idx = 2;
+		globals->num_disk_params = 2;
+		globals->convertarea_flag = 0;
+		globals->num_forcings = 11;
+		globals->min_error_tolerances = 5;
+		break;
+		//--------------------------------------------------------------------------------------------
 	case 2000:
 		num_global_params = 6;
 		globals->uses_dam = 0;
@@ -2096,6 +2109,24 @@ void InitRoutines(
 			link->check_state = NULL;
 			link->check_consistency = &CheckConsistency_Nonzero_AllStates_q;
 		}
+    else if (model_uid == 700)          //Stream Temperature Model
+    {
+        link->dim = 1;
+		link->no_ini_start = 1;
+		link->diff_start = 0;
+
+		link->num_dense = 2;
+		link->dense_indices = (unsigned int*) realloc(link->dense_indices, link->num_dense * sizeof(unsigned int));
+		//link->dense_indices[0] = 0;
+		//link->dense_indices[1] = 7;
+        
+        link->differential = &Temperature_Model;
+        link->algebraic = NULL;
+        link->check_state = NULL;
+        link->check_consistency = &CheckConsistency_Nonzero_AllStates_q;
+
+
+	}
 	//else if (model_uid == 300)
 	//{
 	//    link->dim = 2;
@@ -3353,7 +3384,17 @@ void Precalculations(
 		vals[4] = (0.001 / 60.0);		//(mm/hr->m/min)  c_1
 		vals[5] = A_h / 60.0;	//  c_2
 
-	} else if (model_uid == 2000) {
+	} 
+    else if (model_uid == 700)
+    { 
+        double* vals = params;
+        double c_depth = params[0];
+        double f_deptf = params[1];
+
+        // vals[16] = 60.0*v0*pow(A_i, lambda_2) / ((1.0 - lambda_1)*L_i);
+        // vals[17] = v_r * (L_i / A_h) * 60;
+    }
+    else if (model_uid == 2000) {
 		//Order of parameters: L_i,A_h,A_i,h_b,h_H,max_inf_rate,K_sat,S_h,eta,b_H,c_H,d_H,invtau,epsilon,c_1,c_2,c_3,c_4,c_5,c_6
 		//The numbering is:     0   1   2   3   4       5         6    7   8   9   10  11  12    13      14  15  16  17  18  19
 		//Order of global_params: v_r,lambda_1,lambda_2,Q_r,A_r,RC
