@@ -5938,25 +5938,23 @@ double longwave_radiation(double tair, double rh, double cloud, double twater){
         rh = 100;
     }
     // Saturation Vapor Pressure
-    es = 6.1275 * exp(17.27 * tair / (237.3 + twater));
+    double es = 6.1275 * exp(17.27 * tair / (237.3 + twater));
     
     // Vapor Pressure
-    ea = (rh/100) * es;
-    // Vapor Pressure
-    double ea = (RH / 100) * es;
+    double ea = (rh / 100) * es;
     
     // Atmospheric emissivity
     double Ea = 1.72 * pow(((ea * 0.1) / (273.2 + tair)), 1.0 / 7.0) * (1 + 0.22 * pow(cloud, 2));
     
     // Net long-wave radiation
-    double hl = 0.97 * sigma * ((Ea * pow((tair + 273.2), 4)) - pow((Tw + 273.2), 4));
+    double hl = 0.97 * sigma * ((Ea * pow((tair + 273.2), 4)) - pow((twater + 273.2), 4));
     
     return hl;
 }
 
 double evaporative_heat_transfer(double rh, double a, double b, double twater, double w2) {
     // Water density (kg/m3)
-    const double p = 997
+    const double p = 997;
 
     if (rh > 100) {
         rh = 100;
@@ -5982,7 +5980,7 @@ double evaporative_heat_transfer(double rh, double a, double b, double twater, d
 
 double convective_heat_transfer(double pa, double tair, double twater, double a, double b, double w2) {
     // Water density (kg/m3)
-    const double p = 997
+    const double p = 997;
 
     // Latent heat of vaporization in J/kg
     double L = 1000 * (2501.4 + (1.83 * twater));
@@ -6016,11 +6014,12 @@ void Temperature_Model(double t, const double * const y_i, unsigned int dim, con
     double forc_cloud = forcing_values[3] * 0.01;           // Cloud cover fraction - [0,1]
     double forc_w2 = forcing_values[4];                     // Wind velocity at 2m [m/s]
     double forc_pa = forcing_values[5] * 0.01;              // Atmospheric pressure [mbar]
-    double forc_qp[4] = {0};
-    double forc_qp[0] =  forcing_values[6];                 // Flow link 1 [m/s]
-    double forc_qp[1] =  forcing_values[7];                 // Flow link 2 [m/s]
-    double forc_qp[2] =  forcing_values[8];                 // Flow link 3 [m/s]
-    double forc_qp[3] =  forcing_values[9];                 // Flow link 4 [m/s]
+    double forc_qp[4] = {
+        forcing_values[6],                 // Flow link 1 [m/s]
+        forcing_values[7],                 // Flow link 2 [m/s]
+        forcing_values[8],                 // Flow link 3 [m/s]
+        forcing_values[9],                 // Flow link 4 [m/s]
+    };
     double forc_ql =  forcing_values[10];                   // Flow local [m/s]
 
     // Temperature states
