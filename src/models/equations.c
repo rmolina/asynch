@@ -6062,5 +6062,5 @@ void Temperature_Model(double t, const double * const y_i, unsigned int dim, con
         depth = 0.1;
     }
     double E = HT/(60*c*p*depth);                           // Energy budget [°C]/[min]
-    ans[0] = E*calib_m + (forc_tair/3600.0) ;//calib_a;
+    ans[0] = E*calib_m + calib_a;
 }
