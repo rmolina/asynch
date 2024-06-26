@@ -6025,7 +6025,7 @@ void Temperature_Model(double t, const double * const y_i, unsigned int dim, con
     double forc_w2 = forcing_values[4];              // Wind velocity at 2m [m/s]
     double forc_pa = forcing_values[5] * 0.01;       // Atmospheric pressure [mbar]
     double forc_ql =  forcing_values[6];             // Flow local [m/s]
-    double forc_qp[4] = 0;
+    double forc_qp[4] = {0};
     forc_qp[0] =  forcing_values[7];                 // Flow link 1 [m/s]
     forc_qp[1] =  forcing_values[8];                 // Flow link 2 [m/s]
     forc_qp[2] =  forcing_values[9];                 // Flow link 3 [m/s]
