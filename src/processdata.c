@@ -45,6 +45,7 @@
 #include <blas.h>
 #include <db.h>
 
+#ifdef HAVE_HDF5
 /// Returns the H5 Type that match the Asynch type
 static hid_t Get_H5_Type(enum AsynchTypes type)
 {
@@ -57,6 +58,7 @@ static hid_t Get_H5_Type(enum AsynchTypes type)
 
     return h5_types[type];
 }
+#endif
 
 //Reads the results stored in temporary files and outputs them conveniently to a new file.
 //Use this for parallel implementations.
@@ -622,7 +624,7 @@ int DumpTimeSerieCsvFile(Link* sys, GlobalVars* globals, unsigned int N, unsigne
     return 0;
 }
 
-
+#ifdef HAVE_HDF5
 int DumpTimeSerieH5File(Link* sys, GlobalVars* globals, unsigned int N, unsigned int* save_list, unsigned int save_size, unsigned int my_save_size, const Lookup * const id_to_loc, int* assignments, char* additional_temp, char* additional_out)
 {
     unsigned int size = 16;
@@ -1079,6 +1081,7 @@ int DumpTimeSerieNcFile(Link* sys, GlobalVars* globals, unsigned int N, unsigned
 
     return 0;
 }
+#endif
 
 
 #if defined(HAVE_POSTGRESQL)
@@ -1814,6 +1817,7 @@ int DumpStateText(Link* sys, unsigned int N, int* assignments, GlobalVars* globa
     return 0;
 }
 
+#ifdef HAVE_HDF5
 int DumpStateH5(Link* sys, unsigned int N, int* assignments, GlobalVars* globals, char* suffix, ConnData* conninfo)
 {
     unsigned int i;
@@ -1939,6 +1943,7 @@ int DumpStateH5(Link* sys, unsigned int N, int* assignments, GlobalVars* globals
     MPI_Barrier(MPI_COMM_WORLD);
     return 0;
 }
+#endif
 
 #if defined(HAVE_POSTGRESQL)
 

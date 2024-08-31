@@ -1497,6 +1497,7 @@ static int Load_Initial_Conditions_Dbc(
 }
 
 
+#ifdef HAVE_HDF5
 static int Load_Initial_Conditions_H5(
     Link *system, unsigned int N,
     int* assignments, short int* getting, const Lookup * const id_to_loc,
@@ -1654,6 +1655,7 @@ static int Load_Initial_Conditions_H5(
 
     return 0;
 }
+#endif
 
 
 //Loads the initial conditions.
@@ -1691,9 +1693,11 @@ int Load_Initial_Conditions(
         break;
 
         //.h5
+#ifdef HAVE_HDF5
     case 4:
         res = Load_Initial_Conditions_H5(system, N, assignments, getting, id_to_loc, globals, db_connections, model, external);
         break;
+#endif
 
     default:
         printf("Error: invalid intial condition file type.\n");
