@@ -2009,6 +2009,7 @@ int Load_Forcings(
                 }
             }
         }
+#ifdef HAVE_LIBZ
         else if (forcings[l].flag == 6)	//GZ binary files
         {
             //Set routines
@@ -2021,6 +2022,7 @@ int Load_Forcings(
                 if (assignments[i] == my_rank)
                     system[i].my->forcing_data[l].data = NULL;
         }
+#endif
         else if (forcings[l].flag == 8)	//Grid cell based files
         {
             //Set routines
