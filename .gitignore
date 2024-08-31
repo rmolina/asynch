@@ -28,3 +28,9 @@ asynch
 libasynch.a
 asynch_createtables
 asynch_deletetables
+
+### autoconf
+*~
+
+### examples
+tmp_*
