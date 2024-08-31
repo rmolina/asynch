@@ -16,11 +16,11 @@
 
 #if defined(HAVE_LIBZ)
 #include <zlib.h>
+#include "compression.h"
 #endif
 
 
 #include <globals.h>
-#include <compression.h>
 #include <comm.h>
 #include <date_manip.h>
 #include <db.h>
@@ -429,6 +429,7 @@ int Create_Rain_Data_Par_IBin(
 
 #define ASYNCH_BUFFER_SIZE sizeof(unsigned int) + sizeof(float)
 
+#if defined(HAVE_LIBZ)
 /// This reads in a set of gzip compressed binary files for the rainfall at each link.
 /// Assumes the file is full of floats. Assumes no IDs are in the file and that IDs are consecutive starting from 0
 ///
@@ -606,7 +607,7 @@ int Create_Rain_Data_GZ(
 
     return 0;
 }
-
+#endif
 
 //This reads in a set of binary files for the rainfall at each link.
 //The data is given as intensities per grid cell.

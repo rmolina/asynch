@@ -152,6 +152,7 @@ int Create_Rain_Data_Par(Link* sys,unsigned int N,unsigned int my_N,GlobalVars* 
 
 #define ASYNCH_BUFFER_SIZE sizeof(unsigned int) + sizeof(float)
 
+#if defined(HAVE_LIBZ)
 //This reads in a set of gzip compressed binary files for the rainfall at each link.
 //Assumes the file is full of floats. Assumes no IDs are in the file and that IDs are consecutive starting from 0
 //Link** sys: An array of links.
@@ -324,6 +325,7 @@ int Create_Rain_Data_GZ(Link* sys,unsigned int N,unsigned int my_N,GlobalVars* G
 
 	return 0;
 }
+#endif
 
 
 //This reads in a set of binary files for the rainfall at each link.

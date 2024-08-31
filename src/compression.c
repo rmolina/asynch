@@ -10,7 +10,6 @@
 
 #if defined(HAVE_LIBZ)
 #include <zlib.h>
-#endif
 
 #include <compression.h>
 
@@ -100,3 +99,4 @@ void zerr(int ret)
     }
 }
 
+#endif
