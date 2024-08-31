@@ -17,6 +17,15 @@ AX_LIB_POSTGRESQL
 AX_BLAS
 AX_LAPACK
 
+# Add -lm for math library
+AC_CHECK_LIB([m], [pow], [
+    AC_MSG_NOTICE([Math library detected])
+], [
+    AC_MSG_ERROR([Math library not found])
+])
+LDFLAGS="$LDFLAGS -lm"
+
+
 AC_DEFINE([OS_VERSION], ["Not specified"], [TODO])
 AC_DEFINE([CC_VERSION], ["Not specified"], [TODO])
 AC_DEFINE([HDF5_VERSION], ["Not specified"], [TODO])
