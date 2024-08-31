@@ -2,7 +2,6 @@
 
 #include <models/output_constraints.h>
 
-#ifdef HAVE_HDF5
 void OutputConstraints_Model196_Hdf5(double* states)
 {
     if (states[1] < 1e-12)
@@ -73,4 +72,3 @@ void OutputConstraints_Model249_Hdf5(double* states)
     if (states[5] < 1e-12)
         states[5] = 0;
 }
-#endif
