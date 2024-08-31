@@ -858,6 +858,7 @@ void SetOutputConstraints(GlobalVars* globals)
     switch (model_uid)
     {
         //--------------------------------------------------------------------------------------------
+#ifdef HAVE_HDF5
         case 196:
             globals->OutputConstrainsHdf5 = &OutputConstraints_Model196_Hdf5;
             globals->OutputConstrainsPsql = NULL;
@@ -882,6 +883,7 @@ void SetOutputConstraints(GlobalVars* globals)
             globals->OutputConstrainsPsql = NULL;
             globals->OutputConstrainsRec = NULL;
             break;
+#endif
         default:
             globals->OutputConstrainsHdf5 = NULL;
             globals->OutputConstrainsPsql = NULL;

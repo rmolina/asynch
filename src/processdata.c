@@ -241,6 +241,7 @@ int DumpTimeSerieFile(Link* sys, GlobalVars* globals, unsigned int N, unsigned i
         if (outputfile)	fclose(outputfile);
     }
 #endif //ASYNCH_HAVE_RADEK_PATENTED_COMPACT_BINARY_FORMAT_THAT_NO_ONE_ELSE_CAN_READ
+#ifdef HAVE_HDF5
     else if (globals->hydros_loc_flag == 5)	//.h5 packet
     {
         DumpTimeSerieH5File(sys, globals, N, save_list, save_size, my_save_size, id_to_loc, assignments, additional_temp, additional_out);
@@ -249,6 +250,7 @@ int DumpTimeSerieFile(Link* sys, GlobalVars* globals, unsigned int N, unsigned i
     {
         DumpTimeSerieNcFile(sys, globals, N, save_list, save_size, my_save_size, id_to_loc, assignments, additional_temp, additional_out);
     }
+#endif
 
     MPI_Barrier(MPI_COMM_WORLD);
 

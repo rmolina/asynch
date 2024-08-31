@@ -181,6 +181,7 @@ double NextForcingIrregularBinaryFiles(Link* sys, unsigned int N, Link **my_sys,
 }
 
 //For flag = 6
+#ifdef HAVE_HDF5
 double NextForcingGZBinaryFiles(Link* sys, unsigned int N, Link **my_sys, unsigned int my_N, int* assignments, const GlobalVars * const globals, Forcing* forcing, ConnData* db_connections, const Lookup * const id_to_loc, unsigned int forcing_idx)
 {
     unsigned int passes = forcing->passes, iteration = forcing->iteration;
@@ -196,6 +197,7 @@ double NextForcingGZBinaryFiles(Link* sys, unsigned int N, Link **my_sys, unsign
     (forcing->iteration)++;
     return maxtime;
 }
+#endif
 
 //For flag = 8
 double NextForcingGridCell(Link* sys, unsigned int N, Link **my_sys, unsigned int my_N, int* assignments, const GlobalVars * const globals, Forcing* forcing, ConnData* db_connections, const Lookup * const id_to_loc, unsigned int forcing_idx)

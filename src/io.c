@@ -98,8 +98,10 @@ void OutputFunc_Init(
 
 #endif //HAVE_POSTGRESQL
     }
+#ifdef HAVE_HDF5
     else if ((dump_loc_flag == 3) || (dump_loc_flag == 4))
         output_func->CreateSnapShot = &DumpStateH5;
+#endif
     else
         output_func->CreateSnapShot = NULL;
 }
