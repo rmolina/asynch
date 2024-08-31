@@ -14,11 +14,11 @@
 #include <mpi.h>
 #endif
 
-#include <structs_fwd.h>
-#include <data_types.h>
-#include <constants.h>
+#include "structs_fwd.h"
+#include "data_types.h"
+#include "constants.h"
 
-#include <models/model.h>
+#include "models/model.h"
 
 // Callback signatures
 
