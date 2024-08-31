@@ -12,7 +12,7 @@
 
 #if defined(HAVE_MPI)
 #include <mpi.h>
-#endif 
+#endif
 
 #include <structs_fwd.h>
 #include <data_types.h>
@@ -20,47 +20,46 @@
 
 #include <models/model.h>
 
-//Callback signatures
+// Callback signatures
 
-/// 
+///
 ///
 /// \param id The link id.
 /// \param t The current time.
 /// \param y The current state vector at time *t* for the link.
 /// \param num_dof: Number of degree of freedom.
 /// \return Returns the data to be written as output.
-typedef int (OutputIntCallback)(unsigned int id, double t, double *y, unsigned int num_dof);
+typedef int(OutputIntCallback)(unsigned int id, double t, double *y, unsigned int num_dof);
 
-/// 
+///
 ///
 /// \param id The link id.
 /// \param t The current time.
 /// \param y The current state vector at time *t* for the link.
 /// \param num_dof: Number of degree of freedom.
 /// \return Returns the data to be written as output.
-typedef double (OutputDoubleCallback)(unsigned int id, double t, double *y, unsigned int num_dof);
+typedef double(OutputDoubleCallback)(unsigned int id, double t, double *y, unsigned int num_dof);
 
-/// 
+///
 ///
 /// \param id The link id.
 /// \param t The current time.
 /// \param y The current state vector at time *t* for the link.
 /// \param num_dof: Number of degree of freedom.
 /// \return Returns the data to be written as output.
-typedef float (OutputFloatCallback)(unsigned int id, double t, double *y, unsigned int num_dof);
+typedef float(OutputFloatCallback)(unsigned int id, double t, double *y, unsigned int num_dof);
 
-
-/// Output formating callback 
-typedef union OutputCallback {
-    OutputIntCallback *out_int;         //!< The callback for an integer
-    OutputDoubleCallback *out_double;   //!< The callback for a double
-    OutputFloatCallback *out_float;     //!< The callback for a float
+/// Output formating callback
+typedef union OutputCallback
+{
+    OutputIntCallback *out_int;       //!< The callback for an integer
+    OutputDoubleCallback *out_double; //!< The callback for a double
+    OutputFloatCallback *out_float;   //!< The callback for a float
 } OutputCallback;
 
+typedef void(PeakflowOutputCallback)(unsigned int ID, double peak_time, double *peak_value, double *params, double *global_params, double conversion, unsigned int area_idx, void *user, char *buffer);
 
-typedef void (PeakflowOutputCallback)(unsigned int ID, double peak_time, double *peak_value, double *params, double *global_params, double conversion, unsigned int area_idx, void* user, char* buffer);
-
-//Constructor / Destructor related routings
+// Constructor / Destructor related routings
 
 /// This routine initializes an instance of an AsynchSolver. Multiple solvers could be created if multiple
 /// problems are to be solved. An instance of an AsynchSolver contains all the relevant data structures and
@@ -71,15 +70,15 @@ typedef void (PeakflowOutputCallback)(unsigned int ID, double peak_time, double 
 /// \param comm  The MPI communicator to use with this solver object.
 /// \return A pointer to an AsynchSolver object.
 /// \see Asynch_Free
-AsynchSolver* Asynch_Init(MPI_Comm comm, bool verbose);
+AsynchSolver *Asynch_Init(MPI_Comm comm, bool verbose);
 
 /// This routine deallocates the memory occupied by an AsynchSolver object created with a call to Asynch_Init.
 ///
 /// \param asynch  A pointer to a AsynchSolver object to free.
 /// \see Asynch_Init
-void Asynch_Free(AsynchSolver* asynch);
+void Asynch_Free(AsynchSolver *asynch);
 
-//Customization related routings
+// Customization related routings
 
 int Asynch_Custom_Model(
     AsynchSolver *asynch,
@@ -89,7 +88,7 @@ int Asynch_Custom_Partitioning(
     AsynchSolver *asynch,
     PartitionFunc *partition);
 
-//Routines to intialize network and model
+// Routines to intialize network and model
 
 /// This routine opens and processes a global file. It reads all specified database connection files,
 /// but does not process any other input file. An error in this routine is considered fatal, and results
@@ -98,7 +97,7 @@ int Asynch_Custom_Partitioning(
 /// \pre asynch should be initialized with Asynch_Init before calling Asynch_Parse_GBL.
 /// \param asynch A pointer to a AsynchSolver object to use.
 /// \param filename  Path of a global file.
-void Asynch_Parse_GBL(AsynchSolver* asynch, char* filename);
+void Asynch_Parse_GBL(AsynchSolver *asynch, char *filename);
 
 /// This routine processes topology inputs for the AsynchSolver object as set in the global file read
 /// by Asynch_Parse_GBL. This initializes each Link object and sets their parent and child information.
@@ -106,70 +105,70 @@ void Asynch_Parse_GBL(AsynchSolver* asynch, char* filename);
 ///
 /// \pre Asynch_Parse_GBL should be called before Asynch_Load_Network.
 /// \param asynch A pointer to a AsynchSolver object to use.
-void Asynch_Load_Network(AsynchSolver* asynch);
+void Asynch_Load_Network(AsynchSolver *asynch);
 
 /// This routine save the network tolpolgy as a graphviz .dot file.
 ///
 /// \pre This routine must be called after *Asynch_Load_Network*.
 /// \param asynch A pointer to a AsynchSolver object to use.
 /// \param filename The path to the output .dot file.
-void Asynch_Save_Network_Dot(const AsynchSolver * const asynch, const char *filename);
+void Asynch_Save_Network_Dot(const AsynchSolver *const asynch, const char *filename);
 
 /// This routine assigns the Links of the *asynchsolver* object to the MPI processes.
 ///
 /// \pre This routine must be called after *Asynch_Load_Network*.
 /// \param asynch A pointer to a AsynchSolver object to use.
-void Asynch_Partition_Network(AsynchSolver* asynch);
+void Asynch_Partition_Network(AsynchSolver *asynch);
 
 /// This routine processes parameter inputs for the AsynchSolver object as set in the global file read by
 /// *Asynch_Parse_GBL*. Setting *load_all* to true causes every MPI process to store the parameters at every Link.
-/// 
+///
 /// \pre This routine can be called before *Asynch_Partition_Network* only if *load_all* is set to true.
 /// \param asynch A pointer to a AsynchSolver object to use.
-void Asynch_Load_Network_Parameters(AsynchSolver* asynch);
+void Asynch_Load_Network_Parameters(AsynchSolver *asynch);
 
 /// This routine processes the is_dam inputs for the AsynchSolver object as set in the global file read by
 // *Asynch_Parse_GBL*.
-/// 
+///
 /// \pre This routine should be called after *Asynch_Partition_Network* and *Asynch_Load_Network_Parameters* have been called.
 /// \param asynch A pointer to a AsynchSolver object to use.
-void Asynch_Load_Dams(AsynchSolver* asynch);
+void Asynch_Load_Dams(AsynchSolver *asynch);
 
 /// This routine processes numerical solver inputs for the AsynchSolver object as set in the global file read by *Asynch_Parse_GBL*.
-/// 
+///
 /// \pre This routine should be called after *Asynch_Partition_Network* has been called.
 /// \param asynch A pointer to a AsynchSolver object to use.
-void Asynch_Load_Numerical_Error_Data(AsynchSolver* asynch);
+void Asynch_Load_Numerical_Error_Data(AsynchSolver *asynch);
 
 /// This routine sets the model specific routines for each link for the AsynchSolver object as set in the global file read by *Asynch_Parse_GBL*.
 ///
 /// \pre This routine should be called after *Asynch_Partition_Network* and *Asynch_Load_Network_Parameters* have been called.
 /// \param asynch A pointer to a AsynchSolver object to use.
-void Asynch_Initialize_Model(AsynchSolver* asynch);
+void Asynch_Initialize_Model(AsynchSolver *asynch);
 
 /// This routine processes the initial condition inputs for the AsynchSolver object as set in the global file read by *Asynch_Parse_GBL*.
 ///
 /// \pre This routine should be called after *Asynch_Partition_Network* and *Asynch_Initialize_Model* have been called.
 /// \param asynch A pointer to a AsynchSolver object to use.
-void Asynch_Load_Initial_Conditions(AsynchSolver* asynch);
+void Asynch_Load_Initial_Conditions(AsynchSolver *asynch);
 
 /// This routine processes the forcing inputs for the AsynchSolver object as set in the global file read by *Asynch_Parse_GBL*.
 ///
 /// \pre This routine should be called after *Asynch_Partition_Parameters* has been called.
 /// \param asynch A pointer to a AsynchSolver object to use.
-void Asynch_Load_Forcings(AsynchSolver* asynch);
+void Asynch_Load_Forcings(AsynchSolver *asynch);
 
 /// This routine processes save list inputs for the AsynchSolver object as set in the global file read by *Asynch_Parse_GBL*.
 ///
 /// \pre This routine should be called after *Asynch_Partition_Network* has been called.
 /// \param asynch A pointer to a AsynchSolver object to use.
-void Asynch_Load_Save_Lists(AsynchSolver* asynch);
+void Asynch_Load_Save_Lists(AsynchSolver *asynch);
 
 /// This routine checks that all inputs are loaded for the AsynchSolver object. Some small final initializations are also performed.
 ///
 /// \pre This routine should be called as the last initialization routine.
 /// \param asynch A pointer to a AsynchSolver object to use.
-void Asynch_Finalize_Network(AsynchSolver* asynch);
+void Asynch_Finalize_Network(AsynchSolver *asynch);
 
 // Integration related routines
 
@@ -177,7 +176,7 @@ void Asynch_Finalize_Network(AsynchSolver* asynch);
 ///
 /// \pre This routine must be called before a call to *Asynch_Advance*, and after all initializations are performed.
 /// \param asynch A pointer to a AsynchSolver object to use.
-void Asynch_Calculate_Step_Sizes(AsynchSolver* asynch);
+void Asynch_Calculate_Step_Sizes(AsynchSolver *asynch);
 
 /// This routine advances the numerical solver up to the time set in *maxtime*. See Section [sec: model type and maxtime].
 /// Calculations to solve the model differential and algebraic equations are performed, using forcing data as needed.
@@ -185,9 +184,9 @@ void Asynch_Calculate_Step_Sizes(AsynchSolver* asynch);
 /// \pre This routine should be called after *Asynch_Partition_Network* has been called.
 /// \param asynch A pointer to a AsynchSolver object to use.
 /// \param print_level  If 0, no time series information is produced. Otherwise, time series information is produced.
-void Asynch_Advance(AsynchSolver* asynch, int print_level);
+void Asynch_Advance(AsynchSolver *asynch, int print_level);
 
-//Snapshot
+// Snapshot
 
 /// This routine processes calculates appropriate step sizes for the integrators at each link in the AsynchSolver object.
 ///
@@ -195,9 +194,9 @@ void Asynch_Advance(AsynchSolver* asynch, int print_level);
 /// \param asynch A pointer to a AsynchSolver object to use.
 /// \param prefix String to prepend to the snapshot output filename.
 /// \return An error code. Returns 0 if a snapshot was made, 1 if an error was encountered, -1 if no snapshot is made.
-int Asynch_Take_System_Snapshot(AsynchSolver* asynch, char* prefix);
+int Asynch_Take_System_Snapshot(AsynchSolver *asynch, char *prefix);
 
-//Forcing related routines
+// Forcing related routines
 
 /// This routine activates a forcing for use.This means when a call to the routine *Asynch_Advance* is made,
 /// the forcing with index *idx* will be applied for calculations.By default, all forcings set in a global file
@@ -206,7 +205,7 @@ int Asynch_Take_System_Snapshot(AsynchSolver* asynch, char* prefix);
 /// \param asynch A pointer to a AsynchSolver object to use.
 /// \param idx The index of the forcing to activate.
 /// \return  Returns 0 if the forcing was activated, 1 if an error occurred
-int Asynch_Activate_Forcing(AsynchSolver* asynch, unsigned int idx);
+int Asynch_Activate_Forcing(AsynchSolver *asynch, unsigned int idx);
 
 /// This routine deactivates a forcing for use. This means when a call to the routine *Asynch_Advance* is made,
 /// all values for the forcing with index *idx* will be taken as 0. By default, all forcings set in a global file
@@ -215,21 +214,21 @@ int Asynch_Activate_Forcing(AsynchSolver* asynch, unsigned int idx);
 /// \param asynch A pointer to a AsynchSolver object to use.
 /// \param idx The index of the forcing to activate.
 /// \return  Returns 0 if the forcing was activated, 1 if an error occurred
-int Asynch_Deactivate_Forcing(AsynchSolver* asynch, unsigned int idx);
+int Asynch_Deactivate_Forcing(AsynchSolver *asynch, unsigned int idx);
 
-//Data file routines
+// Data file routines
 
 /// This routine prepares the output sources for time series data. Preparation includes creating files or database tables.
 ///
 /// \pre This routine must be called before any time series data can be produced.
 /// \param asynch A pointer to a AsynchSolver object to use.
-void Asynch_Prepare_Output(AsynchSolver* asynch);
+void Asynch_Prepare_Output(AsynchSolver *asynch);
 
 /// This routine prepares the output sources for the peakflow data. Preparation includes creating files or database tables.
 ///
 /// \pre This routine must be called before any peakflow data can be produced.
 /// \param asynch A pointer to a AsynchSolver object to use.
-void Asynch_Prepare_Peakflow_Output(AsynchSolver* asynch);
+void Asynch_Prepare_Peakflow_Output(AsynchSolver *asynch);
 
 /// This routine takes all data written to temporary files and moves them to a final output destination for time series data.
 /// If the output format is data file or CSV file, then the string *additional_out* is appended to the filename.
@@ -238,13 +237,13 @@ void Asynch_Prepare_Peakflow_Output(AsynchSolver* asynch);
 /// \param asynch A pointer to a AsynchSolver object to use.
 /// \param file_suffix String appended to the end of any output filename.
 ///\ return Returns 0 if output is written, -1 means there is no data to output.
-int Asynch_Create_Output(AsynchSolver* asynch, char* file_suffix);
+int Asynch_Create_Output(AsynchSolver *asynch, char *file_suffix);
 
 /// This routine takes all calculated peakflow data and writes them to a final output destination.
 ///
 /// \param asynch A pointer to a AsynchSolver object to use.
 ///\ return Returns 0 if output is written, -1 means there is no data to output.
-int Asynch_Create_Peakflows_Output(AsynchSolver* asynch);
+int Asynch_Create_Peakflows_Output(AsynchSolver *asynch);
 
 /// This routine writes the current state of each link to temporary files for every link where a time series output has
 /// been specified. Normally, calling *Asynch_Advance* with the *print_flag* set is enough to write output time series.
@@ -253,7 +252,7 @@ int Asynch_Create_Peakflows_Output(AsynchSolver* asynch);
 ///
 /// \param asynch A pointer to a AsynchSolver object to use.
 /// \return Returns 0 if the step is written, 1 if no temporary file is available.
-int Asynch_Write_Current_Step(AsynchSolver* asynch);
+int Asynch_Write_Current_Step(AsynchSolver *asynch);
 
 /// This routine determines whether the time series with name *name* is being used for the current simulations.
 /// If *name* is requested in the global file and has been set, the routine returns 1. If the *name* is requested in
@@ -264,7 +263,7 @@ int Asynch_Write_Current_Step(AsynchSolver* asynch);
 /// \param asynch A pointer to a AsynchSolver object to use.
 /// \param name The name of the time series output to check.
 /// \return Returns 1 if the output *name* is set, 0 if it is not set, and -1 if it is not present.
-int Asynch_Check_Output(AsynchSolver* asynch, char* name);
+int Asynch_Check_Output(AsynchSolver *asynch, char *name);
 
 /// This routine determines whether the time series with name *name* is being used for the current simulations.
 /// If *name* is requested in the global file and has been set, the routine returns 1. If the *name* is requested in
@@ -275,9 +274,9 @@ int Asynch_Check_Output(AsynchSolver* asynch, char* name);
 /// \param asynch A pointer to a AsynchSolver object to use.
 /// \param name The name of the time series output to check.
 /// \return Returns 1 if the output *name* is set, 0 if it is not set, and -1 if it is not present.
-int Asynch_Check_Peakflow_Output(AsynchSolver* asynch, char* name);
+int Asynch_Check_Peakflow_Output(AsynchSolver *asynch, char *name);
 
-//Routines for custom output
+// Routines for custom output
 
 /// This routine sets a custom output time series. A function is required that will be called every time
 /// output data is to be written for a link. The function set in this routine should have the
@@ -292,7 +291,7 @@ int Asynch_Check_Peakflow_Output(AsynchSolver* asynch, char* name);
 /// \param used_states Array of the all indices in the state vector used by *callback*.
 /// \param num_states Numver of indiciced in used_states.
 /// \see Asynch_Set_Output_Double
-int Asynch_Set_Output_Int(AsynchSolver* asynch, char* name, OutputIntCallback* callback, unsigned int* used_states, unsigned int num_states);
+int Asynch_Set_Output_Int(AsynchSolver *asynch, char *name, OutputIntCallback *callback, unsigned int *used_states, unsigned int num_states);
 
 /// This routine sets a custom output time series. A function is required that will be called every time
 /// output data is to be written for a link. The function set in this routine should have the
@@ -307,7 +306,7 @@ int Asynch_Set_Output_Int(AsynchSolver* asynch, char* name, OutputIntCallback* c
 /// \param  used_states Array of the all indices in the state vector used by *callback*.
 /// \param num_states Numver of indiciced in used_states.
 /// \see Asynch_Set_Output_Int
-int Asynch_Set_Output_Double(AsynchSolver* asynch, char* name, OutputDoubleCallback* callback, unsigned int* used_states, unsigned int num_states);
+int Asynch_Set_Output_Double(AsynchSolver *asynch, char *name, OutputDoubleCallback *callback, unsigned int *used_states, unsigned int num_states);
 
 /// This routine sets a custom output time series. A function is required that will be called every time
 /// output data is to be written for a link. The function set in this routine should have the
@@ -322,7 +321,7 @@ int Asynch_Set_Output_Double(AsynchSolver* asynch, char* name, OutputDoubleCallb
 /// \param  used_states Array of the all indices in the state vector used by *callback*.
 /// \param num_states Numver of indiciced in used_states.
 /// \see Asynch_Set_Output_Int
-int Asynch_Set_Output_Float(AsynchSolver* asynch, char* name, OutputFloatCallback* callback, unsigned int* used_states, unsigned int num_states);
+int Asynch_Set_Output_Float(AsynchSolver *asynch, char *name, OutputFloatCallback *callback, unsigned int *used_states, unsigned int num_states);
 
 /// This routine sets the filename of the output peakflow file. If a database connection is used, then
 /// no changes are made.
@@ -331,14 +330,12 @@ int Asynch_Set_Output_Float(AsynchSolver* asynch, char* name, OutputFloatCallbac
 /// \param name The name of the time series output to check.
 /// \param callback Pointer to the routine to call when writing peakflow data for the custom output.
 /// \return 1 if the output is set, 0 if an error occurred.
-int Asynch_Set_Peakflow_Output(AsynchSolver* asynch, char* name, PeakflowOutputCallback * callback);
+int Asynch_Set_Peakflow_Output(AsynchSolver *asynch, char *name, PeakflowOutputCallback *callback);
 
-
-int Asynch_Create_OutputUser_Data(AsynchSolver* asynch, unsigned int data_size);
-int Asynch_Free_OutputUser_Data(AsynchSolver* asynch);
-void Asynch_Copy_Local_OutputUser_Data(AsynchSolver* asynch, unsigned int location, void* source, unsigned int size);
-void Asynch_Set_Size_Local_OutputUser_Data(AsynchSolver* asynch, unsigned int location, unsigned int size);
-
+int Asynch_Create_OutputUser_Data(AsynchSolver *asynch, unsigned int data_size);
+int Asynch_Free_OutputUser_Data(AsynchSolver *asynch);
+void Asynch_Copy_Local_OutputUser_Data(AsynchSolver *asynch, unsigned int location, void *source, unsigned int size);
+void Asynch_Set_Size_Local_OutputUser_Data(AsynchSolver *asynch, unsigned int location, unsigned int size);
 
 // Temp files routines
 
@@ -347,14 +344,14 @@ void Asynch_Set_Size_Local_OutputUser_Data(AsynchSolver* asynch, unsigned int lo
 /// \pre This routine must be called before any time series data can be calculated. A call to *Asynch_Advance* with the
 /// *print_flag* set before preparing temporary files will create an error.
 /// \param asynch A pointer to a AsynchSolver object to use.
-void Asynch_Prepare_Temp_Files(AsynchSolver* asynch);
+void Asynch_Prepare_Temp_Files(AsynchSolver *asynch);
 
 /// This routine deletes the tempfiles for *asynch*. This is useful for cleaning up temporary files at the end of a simulation,
 /// or for deleting the files if they must be reconstructed.
 ///
 /// \param asynch A pointer to a AsynchSolver object to use.
 /// \return Returns 0 if the tempfiles were deleted, 1 if no tempfiles exist, and 2 if an error occurred.
-int Asynch_Delete_Temporary_Files(AsynchSolver* asynch);
+int Asynch_Delete_Temporary_Files(AsynchSolver *asynch);
 
 /// This routine moves the temporary file pointer to a previous value. All future values are deleted.
 /// The point where the pointer is moved is determined by *set_value*, which is in the output series determined by *output_idx*.
@@ -366,7 +363,7 @@ int Asynch_Delete_Temporary_Files(AsynchSolver* asynch);
 /// \param set_value The value to which the tempfiles will be set.
 /// \param output_idx The index of the series output of which *set_value* corresponds.
 /// \return Returns 0 if the temporary files are set, 1 if a warning occurred, 2 if there was an error setting the files.
-int Asynch_Set_Temp_Files(AsynchSolver* asynch, double set_time, void* set_value, unsigned int output_idx);
+int Asynch_Set_Temp_Files(AsynchSolver *asynch, double set_time, void *set_value, unsigned int output_idx);
 
 /// This routine moves the tempfile pointer to the beginning of the file for each link. All future values are deleted.
 /// The local time where the next data will be written for each link is *set_time*.
@@ -375,10 +372,9 @@ int Asynch_Set_Temp_Files(AsynchSolver* asynch, double set_time, void* set_value
 /// \param asynch A pointer to a AsynchSolver object to use.
 /// \param set_time The time from the beginning of the simulation corresponding the step where the temp files will be set.
 /// \return Returns 0 if the temporary files are set, 1 if a warning occurred, 2 if there was an error setting the files.
-int Asynch_Reset_Temp_Files(AsynchSolver* asynch, double set_time);
+int Asynch_Reset_Temp_Files(AsynchSolver *asynch, double set_time);
 
-
-//Snapshot
+// Snapshot
 
 /// This routine creates snapshot output data to either a recovery file or a database table. The current
 /// value of every state at every link is outputted. If a recovery file was the format specified in the
@@ -388,7 +384,7 @@ int Asynch_Reset_Temp_Files(AsynchSolver* asynch, double set_time);
 /// \param asynch A pointer to a AsynchSolver object to use.
 /// \param prefix String to prepend to the snapshot output filename.
 /// \return Returns 0 if a snapshot was made, 1 if an error was encountered, -1 if no snapshot is made.
-int Asynch_Take_System_Snapshot(AsynchSolver* asynch, char* prefix);
+int Asynch_Take_System_Snapshot(AsynchSolver *asynch, char *prefix);
 
 /// This routine gets the filename of the output snapshot file. If a database connection is used, then
 /// the contents of *snapshotname* is not modified. The Python interface routine returns the string with
@@ -397,7 +393,7 @@ int Asynch_Take_System_Snapshot(AsynchSolver* asynch, char* prefix);
 /// \param asynch A pointer to a AsynchSolver object to use.
 /// \param filename Name of the snapshot output filename returned.
 /// \return 0 if the filename was set successfully. 1 otherwise.
-int Asynch_Get_Snapshot_Output_Name(AsynchSolver* asynch, char* filename);
+int Asynch_Get_Snapshot_Output_Name(AsynchSolver *asynch, char *filename);
 
 /// This routine sets the filename of the output snapshot file. If a database connection is used, then
 /// no changes are made.
@@ -405,60 +401,60 @@ int Asynch_Get_Snapshot_Output_Name(AsynchSolver* asynch, char* filename);
 /// \param asynch A pointer to a AsynchSolver object to use.
 /// \param filename Name to set the snapshot output filename.
 /// \return 0 if the filename was set successfully. 1 otherwise.
-int Asynch_Set_Snapshot_Output_Name(AsynchSolver* asynch, char* filename);
+int Asynch_Set_Snapshot_Output_Name(AsynchSolver *asynch, char *filename);
 
-//Set and get routines
+// Set and get routines
 
 /// This routine sets the model type.
 ///
 /// \param asynch A pointer to a AsynchSolver object to use.
 /// \return The model type
-unsigned short Asynch_Get_Model_Type(AsynchSolver* asynch);
+unsigned short Asynch_Get_Model_Type(AsynchSolver *asynch);
 
 /// This routine returns the model type.
 ///
 /// \param asynch A pointer to a AsynchSolver object to use.
 /// \param type    The model type.
-void Asynch_Set_Model_Type(AsynchSolver* asynch, unsigned short type);
+void Asynch_Set_Model_Type(AsynchSolver *asynch, unsigned short type);
 
 /// This routine returns the begin timestamp of the simulation as defined in Section[sec:simulation period].
 ///
 /// \param asynch A pointer to a AsynchSolver object to use.
 /// \return The current begin timestamp of the simulation.
-time_t Asynch_Get_Begin_Timestamp(AsynchSolver* asynch);
+time_t Asynch_Get_Begin_Timestamp(AsynchSolver *asynch);
 
 /// This routine returns the end timestamp of the simulation as defined in Section[sec:simulation period].
 ///
 /// \param asynch A pointer to a AsynchSolver object to use.
 /// \return The current end timestamp of the simulation.
-time_t Asynch_Get_End_Timestamp(AsynchSolver* asynch);
+time_t Asynch_Get_End_Timestamp(AsynchSolver *asynch);
 
 /// This routine returns the value of *duration*, as defined in Section[sec:simulation period].
 ///
 /// \param asynch A pointer to a AsynchSolver object to use.
 /// \return The current duration of the simulation time of the AsynchSolver object (unit is model dependant, but usually minutes is used).
-double Asynch_Get_Total_Simulation_Duration(AsynchSolver* asynch);
+double Asynch_Get_Total_Simulation_Duration(AsynchSolver *asynch);
 
 /// This routine set the simulation period, as defined in Section[sec:simulation period].
 ///
 /// \param asynch A pointer to a AsynchSolver object to use.
 /// \param begin A unix timestamp of the beginning of the simulation.
 /// \param end A unix timestamp of the end of the simulation.
-void Asynch_Set_Simulation_Period(AsynchSolver* asynch, time_t begin, time_t end);
+void Asynch_Set_Simulation_Period(AsynchSolver *asynch, time_t begin, time_t end);
 
 /// This routine returns the value of *duration*, as defined in Section[sec:model type and duration].
 ///
 /// \param asynch A pointer to a AsynchSolver object to use.
 /// \param duration The value to set the maximum simulation time.
-void Asynch_Set_Total_Simulation_Duration(AsynchSolver* asynch, double duration);
+void Asynch_Set_Total_Simulation_Duration(AsynchSolver *asynch, double duration);
 
 /// This routine returns the total number of links in the network of *asynch*.
 ///
 /// \param asynch A pointer to a AsynchSolver object to use.
 /// \return Number of links in the network
-unsigned short Asynch_Get_Num_Links(AsynchSolver* asynch);
+unsigned short Asynch_Get_Num_Links(AsynchSolver *asynch);
 
-Link* Asynch_Get_Links(AsynchSolver* asynch);
+Link *Asynch_Get_Links(AsynchSolver *asynch);
 
 /// This routine returns the total number of links assigned to the current MPI process in the network of *asynch*.
 /// This number represents the total number of links whose differential and algebraic equations are solved by the
@@ -466,9 +462,9 @@ Link* Asynch_Get_Links(AsynchSolver* asynch);
 ///
 /// \param asynch A pointer to a AsynchSolver object to use.
 /// \return Number of links assigned to the current MPI process
-unsigned int Asynch_Get_Num_Links_Proc(AsynchSolver* asynch);
+unsigned int Asynch_Get_Num_Links_Proc(AsynchSolver *asynch);
 
-Link* Asynch_Get_Links_Proc(AsynchSolver* asynch);
+Link *Asynch_Get_Links_Proc(AsynchSolver *asynch);
 
 /// This routine sets a new database for an input or output. If information for a database has already been set,
 /// it is released, and the new connection information is set.
@@ -487,14 +483,13 @@ Link* Asynch_Get_Links_Proc(AsynchSolver* asynch);
 ///  - ASYNCH_DB_LOC_FORCING_START
 ///
 /// The last value for *conn_idx* is the database connection for the first forcing specified in the global file.
-/// Database connections for other forcings can be access sequentially. For example, to access the forcing with index 2 
+/// Database connections for other forcings can be access sequentially. For example, to access the forcing with index 2
 /// (the third forcing in a global file), set *conn_idx* as `ASYNCH_DB_LOC_FORCING_START + 2`
 ///
 /// \param asynch A pointer to a AsynchSolver object to use.
 /// \param conn_string A connection string
 /// \param conn_idx Connection index
-void Asynch_Set_Database_Connection(AsynchSolver* asynch, const char* conn_string, unsigned int conn_idx);
-
+void Asynch_Set_Database_Connection(AsynchSolver *asynch, const char *conn_string, unsigned int conn_idx);
 
 /// This routine returns the first timestamp for a forcing.
 ///
@@ -503,7 +498,7 @@ void Asynch_Set_Database_Connection(AsynchSolver* asynch, const char* conn_strin
 /// \param asynch A pointer to a AsynchSolver object to use.
 /// \param forcing_idx An index of a forcing.
 /// \return The timestamp of the last timestamp for the forcing with index *forcing_idx*.
-unsigned int Asynch_Get_First_Forcing_Timestamp(AsynchSolver* asynch, unsigned int forcing_idx);
+unsigned int Asynch_Get_First_Forcing_Timestamp(AsynchSolver *asynch, unsigned int forcing_idx);
 
 /// This routine sets the first timestamp for a forcing.
 ///
@@ -513,7 +508,7 @@ unsigned int Asynch_Get_First_Forcing_Timestamp(AsynchSolver* asynch, unsigned i
 /// \param unix_time The value to set the first forcing timestamp.
 /// \param forcing_idx An index of a forcing.
 /// \return The timestamp of the last timestamp for the forcing with index *forcing_idx*.
-void Asynch_Set_First_Forcing_Timestamp(AsynchSolver* asynch, unsigned int unix_time, unsigned int forcing_idx);
+void Asynch_Set_First_Forcing_Timestamp(AsynchSolver *asynch, unsigned int unix_time, unsigned int forcing_idx);
 
 /// This routine returns the last timestamp for a forcing.
 ///
@@ -522,7 +517,7 @@ void Asynch_Set_First_Forcing_Timestamp(AsynchSolver* asynch, unsigned int unix_
 /// \param asynch A pointer to a AsynchSolver object to use.
 /// \param forcing_idx An index of a forcing.
 /// \return The timestamp of the last timestamp for the forcing with index *forcing_idx*.
-unsigned int Asynch_Get_Last_Forcing_Timestamp(AsynchSolver* asynch, unsigned int forcing_idx);
+unsigned int Asynch_Get_Last_Forcing_Timestamp(AsynchSolver *asynch, unsigned int forcing_idx);
 
 /// This routine sets the last timestamp for a forcing.
 ///
@@ -532,7 +527,7 @@ unsigned int Asynch_Get_Last_Forcing_Timestamp(AsynchSolver* asynch, unsigned in
 /// \param unix_time The value to set the last forcing timestamp.
 /// \param forcing_idx An index of a forcing.
 /// \return The timestamp of the last timestamp for the forcing with index *forcing_idx*.
-void Asynch_Set_Last_Forcing_Timestamp(AsynchSolver* asynch, unsigned int unix_time, unsigned int forcing_idx);
+void Asynch_Set_Last_Forcing_Timestamp(AsynchSolver *asynch, unsigned int unix_time, unsigned int forcing_idx);
 
 /// This routine sets the start time used for a forcing. This value is used for converting between timestamps in a database
 /// table and the local time of the solvers. This can only be used if the forcing with index *forcing_idx* is using a format
@@ -541,8 +536,7 @@ void Asynch_Set_Last_Forcing_Timestamp(AsynchSolver* asynch, unsigned int unix_t
 /// \param asynch A pointer to a AsynchSolver object to use.
 /// \param unix_time The value to set the start timestamp.
 /// \param forcing_idx An index of a forcing.
-void Asynch_Set_Forcing_DB_Starttime(AsynchSolver* asynch, unsigned int unix_time, unsigned int forcing_idx);
-
+void Asynch_Set_Forcing_DB_Starttime(AsynchSolver *asynch, unsigned int unix_time, unsigned int forcing_idx);
 
 // State variable
 
@@ -552,7 +546,7 @@ void Asynch_Set_Forcing_DB_Starttime(AsynchSolver* asynch, unsigned int unix_tim
 ///
 /// \param asynch A pointer to a AsynchSolver object to use.
 /// \param filename Filename to use for initial value data.
-void Asynch_Set_Init_File(AsynchSolver* asynch, char* filename);
+void Asynch_Set_Init_File(AsynchSolver *asynch, char *filename);
 
 /// This routine sets the current time of each link to *t_0* and the current state to the vector in the array *values*.
 /// The vectors are assumed to be in the same order as the links provided by the topology source specified in the global file
@@ -561,15 +555,14 @@ void Asynch_Set_Init_File(AsynchSolver* asynch, char* filename);
 /// \param asynch A pointer to a AsynchSolver object to use.
 /// \param unix_time The timestamp to set at each link.
 /// \param states The vector of the current state of each link.
-void Asynch_Set_System_State(AsynchSolver* asynch, double unix_time, double* states);
-
+void Asynch_Set_System_State(AsynchSolver *asynch, double unix_time, double *states);
 
 /// This routine clears all peakflow data for each link. The time to peak is set to the current local
 /// time of *asynch*, and the value of the peakflow is set to the current state vector of the link.
 ///
 /// \param asynch A pointer to a AsynchSolver object to use.
-void Asynch_Reset_Peakflow_Data(AsynchSolver* asynch);
-int Asynch_Set_Forcing_State(AsynchSolver* asynch, unsigned int idx, double t_0, unsigned int first_file, unsigned int last_file);
+void Asynch_Reset_Peakflow_Data(AsynchSolver *asynch);
+int Asynch_Set_Forcing_State(AsynchSolver *asynch, unsigned int idx, double t_0, unsigned int first_file, unsigned int last_file);
 
 /// This routine gets the filename of the output peakflow file. If a database connection is used, then
 /// the contents of *peakflowname* is not modified. The Python interface routine returns the string with
@@ -578,7 +571,7 @@ int Asynch_Set_Forcing_State(AsynchSolver* asynch, unsigned int idx, double t_0,
 /// \param asynch A pointer to a AsynchSolver object to use.
 /// \param peakflowname Name of the peakflow output filename returned.
 /// \return 0 if the filename was set successfully. 1 otherwise.
-int Asynch_Get_Peakflow_Output_Name(AsynchSolver* asynch, char* peakflowname);
+int Asynch_Get_Peakflow_Output_Name(AsynchSolver *asynch, char *peakflowname);
 
 /// This routine sets the filename of the output peakflow file. If a database connection is used, then
 /// no changes are made.
@@ -586,36 +579,36 @@ int Asynch_Get_Peakflow_Output_Name(AsynchSolver* asynch, char* peakflowname);
 /// \param asynch A pointer to a AsynchSolver object to use.
 /// \param peakflowname Name to set the peakflow output filename.
 /// \return 0 if the filename was set successfully. 1 otherwise.
-int Asynch_Set_Peakflow_Output_Name(AsynchSolver* asynch, char* peakflowname);
-unsigned int Asynch_Get_Local_LinkID(AsynchSolver* asynch, unsigned int location);
+int Asynch_Set_Peakflow_Output_Name(AsynchSolver *asynch, char *peakflowname);
+unsigned int Asynch_Get_Local_LinkID(AsynchSolver *asynch, unsigned int location);
 
-int Asynch_Set_Init_Timestamp(AsynchSolver* asynch, unsigned int unix_time);
-unsigned int Asynch_Get_Init_Timestamp(AsynchSolver* asynch);
+int Asynch_Set_Init_Timestamp(AsynchSolver *asynch, unsigned int unix_time);
+unsigned int Asynch_Get_Init_Timestamp(AsynchSolver *asynch);
 
 /// This routine sets the filename of the output snapshot file. If a database connection is used, then
 /// no changes are made.
 ///
 /// \param asynch A pointer to a AsynchSolver object to use.
 /// \return Returns 1 if the model has reservoir forcing. 0 otherwise.
-int Asynch_Get_Reservoir_Forcing(AsynchSolver* asynch);
+int Asynch_Get_Reservoir_Forcing(AsynchSolver *asynch);
 
-///This routine returns the number of parameters for the differential equations that are available to
-///every link. This number is either specified in a global file, or with a call to the routine
+/// This routine returns the number of parameters for the differential equations that are available to
+/// every link. This number is either specified in a global file, or with a call to the routine
 ///*Asynch_Set_Global_Parameters*.
-/// 
-/// \param asynch A pointer to a AsynchSolver object to use.
-/// \return The number of global parameters, typically specified in a global file.
-unsigned int Asynch_Get_Size_Global_Parameters(AsynchSolver* asynch);
+///
+///  \param asynch A pointer to a AsynchSolver object to use.
+///  \return The number of global parameters, typically specified in a global file.
+unsigned int Asynch_Get_Size_Global_Parameters(AsynchSolver *asynch);
 
 /// This routine gets the values of the global parameters. For the C function, the array *params*
 /// should contain enough memory to hold the global parameters. The number of global parameters can be
 /// determined with a call to *Asynch_Get_Size_Global_Parameters*. The obtained values are a copy of
 /// Asynch's internal values of the parameters, so modifying them will have no effect on the solver
 /// results.
-/// 
+///
 /// \param asynch A pointer to a AsynchSolver object to use.
 /// \param params Vector of global parameter values to retrieve.
-void Asynch_Get_Global_Parameters(AsynchSolver* asynch, double *params);
+void Asynch_Get_Global_Parameters(AsynchSolver *asynch, double *params);
 
 /// This routine sets the values of the global parameters. The number of global parameters may be
 /// different from the number previously stored by Asynch. However, if the new global parameters should
@@ -628,6 +621,6 @@ void Asynch_Get_Global_Parameters(AsynchSolver* asynch, double *params);
 /// \param params Vector of global parameter values to set.
 /// \param num_params The number of global parameters in params.
 /// \return Returns 1 if an error occurred, 0 otherwise.
-int Asynch_Set_Global_Parameters(AsynchSolver* asynch, double *params, unsigned int num_params);
+int Asynch_Set_Global_Parameters(AsynchSolver *asynch, double *params, unsigned int num_params);
 
-#endif //!defined(ASYNCH_INTERFACE_H)
+#endif //! defined(ASYNCH_INTERFACE_H)
