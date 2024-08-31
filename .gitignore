@@ -1,0 +1,30 @@
+### autoreconf --install
+Makefile.in
+aclocal.m4
+ar-lib
+autom4te.cache/
+compile
+config.guess
+config.h.in
+config.sub
+configure
+depcomp
+install-sh
+missing
+test-driver
+
+### ./configure
+Makefile
+config.h
+config.log
+config.status
+.deps/
+stamp-h1
+
+### make
+*.o
+.dirstamp
+asynch
+libasynch.a
+asynch_createtables
+asynch_deletetables
